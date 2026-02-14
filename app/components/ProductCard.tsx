@@ -17,23 +17,53 @@ type Product = {
 export default function ProductCard({ product }: { product: Product }) {
   const router = useRouter();
 
+  // 🔹 Función para leer cookies
+  const getCookie = (name: string) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      return parts.pop()?.split(";").shift();
+    }
+    return null;
+  };
+
   const goToProduct = () => {
     router.push(`/products/${product.id}`);
   };
 
   const addToCart = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // MUY IMPORTANTE
-    console.log("Agregar al carrito", product);
-      
-    await fetch("/api/cart/add", {
-    method: "POST",
-    body: JSON.stringify({
-      userId: "7b263d9e-3242-44e4-bc3a-a2b7d80ff46b",
-      productId: product.id,
-    }),
-  });
+    e.stopPropagation();
 
-  alert("Producto agregado al carrito");
+    const email = getCookie("emailTech");
+
+    if (!email) {
+      alert("Debes iniciar sesión");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/cart/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: decodeURIComponent(email),
+          productId: product.id,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Error agregando producto");
+      }
+
+      alert("Producto agregado al carrito 🛒");
+    } catch (error) {
+      console.error("Error agregando al carrito:", error);
+      alert("Hubo un problema al agregar el producto");
+    }
   };
 
   return (
@@ -48,6 +78,7 @@ export default function ProductCard({ product }: { product: Product }) {
       />
 
       <h2 className="font-semibold mt-3">{product.name}</h2>
+
       <p className="text-gray-500 text-sm">
         {product.memory} • {product.color}
       </p>
@@ -59,7 +90,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
         <button
           onClick={addToCart}
-          className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-xl"
+          className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-xl transition"
         >
           <ShoppingCart size={18} />
         </button>

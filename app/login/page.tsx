@@ -2,8 +2,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Mail, Lock, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,6 +22,7 @@ export default function Login() {
     });
 
     const data = await res.json();
+    console.log("Login response:", data);
 
     if (!res.ok) {
       alert(data.error || "Credenciales inválidas");
@@ -29,7 +32,13 @@ export default function Login() {
     // Login exitoso
     // Si usás cookie httpOnly no necesitás guardar nada en localStorage
     // Solo redirigimos al home
-    window.location.href = "/";
+   if (data.role === "admin") {
+  window.location.href = "/admin";
+
+} else {
+  window.location.href = "/";
+
+}
   } catch (err) {
     console.error(err);
     alert("Error al iniciar sesión");

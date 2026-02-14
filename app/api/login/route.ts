@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
-
+   
     // 3. generar JWT
     const token = jwt.sign(
       {
@@ -45,10 +45,17 @@ export async function POST(req: NextRequest) {
     );
 
     // 4. guardarlo en cookie segura
-    const response = NextResponse.json({ success: true });
+     const response = NextResponse.json({
+      success: true,
+      role: user.role,
+    });
 
-    response.cookies.set("token", token, {
-      httpOnly: true,
+     response.cookies.set("emailTech", user.email, {
+      httpOnly: false,
+  });
+
+    response.cookies.set("tokenTech", token, {
+      httpOnly: false,
       secure: true,
       sameSite: "lax",
       path: "/",
