@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
-   
+   console.log(isValid ? "Password válido" : "Password inválido");
     // 3. generar JWT
     const token = jwt.sign(
       {
