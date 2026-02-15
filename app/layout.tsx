@@ -5,7 +5,7 @@ import type { NavItem } from "./components/navbar/Navbar.types";
 
 const navItems: NavItem[] = [
   { label: "Inicio", href: "/" },
-  { label: "Teléfonos", href: "/category/telefonos" },
+  { label: "Administracion", href: "/admin" },
   { label: "Consolas", href: "/category/consolas" },
 ];
 

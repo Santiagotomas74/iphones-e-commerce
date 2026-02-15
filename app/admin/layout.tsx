@@ -4,7 +4,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div>
+    <div >
       <h1>Panel de Administrador</h1>
       {children}
     </div>
