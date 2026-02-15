@@ -1,5 +1,6 @@
 import { query } from "@/db";
 import { notFound } from "next/navigation";
+import ProductGallery from "./ProductGallery";
 
 async function getProduct(id: string) {
   const { rows } = await query(
@@ -19,7 +20,7 @@ export default async function ProductDetail({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params; // ← MUY IMPORTANTE
+  const { id } = await params;
 
   const product = await getProduct(id);
 
@@ -27,20 +28,15 @@ export default async function ProductDetail({
     notFound();
   }
 
+  const images = [
+    product.image_1,
+    product.image_2,
+    product.image_3,
+  ].filter(Boolean);
+
   return (
     <main className="max-w-6xl mx-auto p-6 grid md:grid-cols-2 gap-10">
-      <div>
-        <img
-          src={product.image_1}
-          className="w-full object-contain"
-        />
-
-        <div className="flex gap-3 mt-4">
-          <img src={product.image_1} className="w-20 border rounded" />
-          <img src={product.image_2} className="w-20 border rounded" />
-          <img src={product.image_3} className="w-20 border rounded" />
-        </div>
-      </div>
+      <ProductGallery images={images} />
 
       <div>
         <h1 className="text-3xl font-bold">{product.name}</h1>
@@ -57,7 +53,9 @@ export default async function ProductDetail({
           Agregar al carrito
         </button>
 
-        <p className="mt-6 text-gray-600">{product.description}</p>
+        <p className="mt-6 text-gray-600">
+          {product.description}
+        </p>
       </div>
     </main>
   );

@@ -4,30 +4,48 @@ import jwt from "jsonwebtoken";
 
 export function proxy(req: NextRequest) {
   const token = req.cookies.get("tokenTech")?.value;
+  const { pathname } = req.nextUrl;
 
-  if (!token) {
-    return NextResponse.redirect(new URL("/login", req.url));
+  // 🔹 Si intenta entrar a /login estando logueado
+  if (token && pathname.startsWith("/login") || pathname.startsWith("/register")  ) {
+    try {
+      
+      return NextResponse.redirect(new URL("/", req.url));
+    } catch {
+      // Token inválido → deja pasar al login
+      return NextResponse.next();
+    }
   }
 
-  try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET!
-    ) as any;
+  // 🔹 Protección de /admin
+  if (pathname.startsWith("/admin")) {
 
-    const role = decoded.role?.toString().trim().toLowerCase();
-
-    if (role !== "admin") {
-      return NextResponse.redirect(new URL("/", req.url));
+    if (!token) {
+      return NextResponse.redirect(new URL("/login", req.url));
     }
 
-    return NextResponse.next();
+    try {
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET!
+      ) as any;
 
-  } catch {
-    return NextResponse.redirect(new URL("/login", req.url));
+      const role = decoded.role?.toString().trim().toLowerCase();
+
+      if (role !== "admin") {
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+
+      return NextResponse.next();
+
+    } catch {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
   }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/login", "/register"],
 };
