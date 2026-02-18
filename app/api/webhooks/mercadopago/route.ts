@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { query } from "@/db";
 import { mpClient } from "@/lib/mercadopago";
-import { Payment } from "mercadopago";
+import { Payment, MerchantOrder } from "mercadopago";
 import { randomUUID } from "crypto";
 
 export async function POST(req: Request) {
@@ -9,35 +9,59 @@ export async function POST(req: Request) {
     const body = await req.json();
     console.log("🔥 Webhook RAW:", JSON.stringify(body));
 
-    // 🔎 Detectar paymentId correctamente
-    const paymentId =
-      body?.data?.id ||
-      body?.resource?.split("/")?.pop() ||
-      body?.id;
+    let paymentId: string | null = null;
+
+    // =============================
+    // 🟢 Caso 1: Webhook tipo payment
+    // =============================
+    if (body?.type === "payment" && body?.data?.id) {
+      paymentId = String(body.data.id);
+    }
+
+    // =============================
+    // 🟢 Caso 2: Webhook tipo merchant_order
+    // =============================
+    if (body?.topic === "merchant_order" && body?.resource) {
+      const merchantOrderId = body.resource.split("/").pop();
+
+      if (merchantOrderId) {
+        console.log("🧾 MerchantOrder ID:", merchantOrderId);
+
+        const merchantOrderClient = new MerchantOrder(mpClient);
+
+        const merchantOrderData = await merchantOrderClient.get(
+          merchantOrderId
+        );
+
+        console.log("📦 MerchantOrder completa:", merchantOrderData);
+
+        const firstPayment = merchantOrderData.payments?.[0];
+
+        if (firstPayment?.id) {
+          paymentId = String(firstPayment.id);
+        }
+      }
+    }
 
     if (!paymentId) {
-      console.log("⚠️ No hay paymentId en webhook");
+      console.log("⚠️ No se pudo obtener paymentId");
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
-    console.log("💳 Payment ID detectado:", paymentId);
+    console.log("💳 Payment ID final:", paymentId);
 
-    // 🔐 Validar token
-    if (!process.env.MP_ACCESS_TOKEN) {
-      console.error("MP_ACCESS_TOKEN no definido");
-      return NextResponse.json({ received: true }, { status: 200 });
-    }
+    // =============================
+    // 🔎 Obtener información real del pago
+    // =============================
+    const paymentClient = new Payment(mpClient);
 
-    const payment = new Payment(mpClient);
-
-    // 1️⃣ Obtener información real del pago desde MP
-    const paymentData = await payment.get({
+    const paymentData = await paymentClient.get({
       id: paymentId,
     });
 
     console.log("💰 Payment completo:", paymentData);
 
-    const orderId = paymentData.external_reference; // UUID string
+    const orderId = paymentData.external_reference; // UUID
     const status = paymentData.status;
     const paidAmount = Number(paymentData.transaction_amount);
     const currency = paymentData.currency_id || "ARS";
@@ -47,11 +71,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
-    // 2️⃣ Buscar orden
+    // =============================
+    // 🔎 Buscar orden en DB
+    // =============================
     const orderResult = await query(
-      `SELECT id, total_amount, payment_status 
-       FROM orders 
-       WHERE id = $1`,
+      `
+      SELECT id, total_amount, payment_status
+      FROM orders
+      WHERE id = $1
+      `,
       [orderId]
     );
 
@@ -64,7 +92,9 @@ export async function POST(req: Request) {
 
     console.log("📦 Orden encontrada:", order);
 
-    // 3️⃣ Validar monto
+    // =============================
+    // 🔐 Validar monto
+    // =============================
     if (Number(order.total_amount) !== paidAmount) {
       console.log("🚨 Monto no coincide", {
         db: order.total_amount,
@@ -73,19 +103,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
-    // 4️⃣ Idempotencia: si ya estaba approved no hacer nada
+    // =============================
+    // 🛑 Idempotencia: si ya estaba approved
+    // =============================
     if (order.payment_status === "approved") {
-      console.log("⚠️ Orden ya aprobada anteriormente");
+      console.log("⚠️ Orden ya estaba aprobada");
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
-    // 5️⃣ Si el pago fue aprobado
+    // =============================
+    // ✅ APPROVED
+    // =============================
     if (status === "approved") {
 
-      // 🔎 Verificar si ya existe registro en payments
       const existingPayment = await query(
         `SELECT id FROM payments WHERE provider_payment_id = $1`,
-        [paymentId.toString()]
+        [paymentId]
       );
 
       if (existingPayment.rows.length === 0) {
@@ -109,7 +142,7 @@ export async function POST(req: Request) {
             randomUUID(),
             orderId,
             "mercadopago",
-            paymentId.toString(),
+            paymentId,
             paidAmount,
             currency,
             status,
@@ -117,12 +150,11 @@ export async function POST(req: Request) {
           ]
         );
 
-        console.log("💾 Payment insertado correctamente");
+        console.log("💾 Payment guardado en tabla payments");
       } else {
-        console.log("⚠️ Payment ya existía, no se duplica");
+        console.log("⚠️ Payment ya existía (idempotencia OK)");
       }
 
-      // ✅ Actualizar orden
       await query(
         `
         UPDATE orders
@@ -137,7 +169,9 @@ export async function POST(req: Request) {
       console.log("✅ Orden marcada como paid");
     }
 
-    // 6️⃣ Pending
+    // =============================
+    // ⏳ PENDING
+    // =============================
     if (status === "pending") {
       await query(
         `
@@ -149,10 +183,12 @@ export async function POST(req: Request) {
         [orderId]
       );
 
-      console.log("⏳ Orden pendiente");
+      console.log("⏳ Orden marcada como pending");
     }
 
-    // 7️⃣ Rejected / Cancelled
+    // =============================
+    // ❌ REJECTED / CANCELLED
+    // =============================
     if (status === "rejected" || status === "cancelled") {
       await query(
         `
