@@ -20,6 +20,10 @@ interface CartItem {
 
 
 export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
+  const [showPaymentMethods, setShowPaymentMethods] = useState(false);
+const [selectedPayment, setSelectedPayment] = useState<"transfer" | "mercadopago" | null>(null);
+console.log("Selected payment method:", selectedPayment);
+
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -97,6 +101,37 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
     }
   } catch (error) {
     console.error("Error eliminando producto:", error);
+  }
+};
+
+const handleCheckout = async () => {
+  if (!selectedPayment) return;
+
+  const email = getCookie("emailTech");
+  if (!email) return;
+
+  try {
+    const res = await fetch("/api/orders/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        payment_method: selectedPayment,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (selectedPayment === "mercadopago") {
+      window.location.href = data.init_point; // redirige a MP
+    }
+
+    if (selectedPayment === "transfer") {
+      window.location.href = `/order/${data.order_id}`;
+    }
+
+  } catch (error) {
+    console.error("Error iniciando checkout:", error);
   }
 };
 
@@ -212,7 +247,59 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                   </span>
                 </div>
 
-                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition">
+{/* desplegable de metodos de pago*/}
+              {showPaymentMethods && (
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-2xl p-6 w-[90%] md:w-[400px]">
+      <h3 className="text-lg font-semibold mb-4 text-gray-800">
+        Seleccioná método de pago
+      </h3>
+
+      <div className="space-y-3">
+        <button
+          onClick={() => setSelectedPayment("transfer")}
+          className={`w-full border rounded-xl py-3  ${
+            selectedPayment === "transfer"
+              ? "border-blue-600 bg-blue-50"
+              : "border-gray-300"
+          }`}
+        >
+          Transferencia bancaria (10% OFF)
+        </button>
+
+        <button
+          onClick={() => setSelectedPayment("mercadopago")}
+          className={`w-full border rounded-xl py-3 ${
+            selectedPayment === "mercadopago"
+              ? "border-blue-600 bg-blue-50"
+              : "border-gray-300"
+          }`}
+        >
+          Pagar con Mercado Pago
+        </button>
+      </div>
+
+      <button
+        disabled={!selectedPayment}
+        className="w-full bg-blue-600 text-white py-3 rounded-xl mt-4 disabled:opacity-50"
+        onClick={handleCheckout}
+      >
+        Confirmar pago
+      </button>
+
+      <button
+        onClick={() => setShowPaymentMethods(false)}
+        className="w-full mt-3 text-sm text-gray-800"
+      >
+        Cancelar
+      </button>
+    </div>
+  </div>
+)}
+
+                <button
+                onClick={() => setShowPaymentMethods(true)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition">
                   Ir a pagar
                 </button>
               </div>
