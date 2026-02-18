@@ -22,26 +22,27 @@ export async function POST(req: Request) {
     // 🟢 Caso 2: Webhook tipo merchant_order
     // =============================
     if (body?.topic === "merchant_order" && body?.resource) {
-      const merchantOrderId = body.resource.split("/").pop();
+  const merchantOrderId = body.resource.split("/").pop();
 
-      if (merchantOrderId) {
-        console.log("🧾 MerchantOrder ID:", merchantOrderId);
+  if (merchantOrderId) {
+    console.log("🧾 MerchantOrder ID:", merchantOrderId);
 
-        const merchantOrderClient = new MerchantOrder(mpClient);
+    const merchantOrderClient = new MerchantOrder(mpClient);
 
-        const merchantOrderData = await merchantOrderClient.get(
-          merchantOrderId
-        );
+    const merchantOrderData = await merchantOrderClient.get({
+      merchantOrderId: Number(merchantOrderId),
+    });
 
-        console.log("📦 MerchantOrder completa:", merchantOrderData);
+    console.log("📦 MerchantOrder completa:", merchantOrderData);
 
-        const firstPayment = merchantOrderData.payments?.[0];
+    const firstPayment = merchantOrderData.payments?.[0];
 
-        if (firstPayment?.id) {
-          paymentId = String(firstPayment.id);
-        }
-      }
+    if (firstPayment?.id) {
+      paymentId = String(firstPayment.id);
     }
+  }
+}
+
 
     if (!paymentId) {
       console.log("⚠️ No se pudo obtener paymentId");
