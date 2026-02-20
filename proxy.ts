@@ -6,20 +6,16 @@ export function proxy(req: NextRequest) {
   const token = req.cookies.get("tokenTech")?.value;
   const { pathname } = req.nextUrl;
 
-  // 🔹 Si intenta entrar a /login estando logueado
-  if (token && pathname.startsWith("/login") || pathname.startsWith("/register")  ) {
-    try {
-      
-      return NextResponse.redirect(new URL("/", req.url));
-    } catch {
-      // Token inválido → deja pasar al login
-      return NextResponse.next();
-    }
+  // 🔹 Si intenta entrar a /login o /register estando logueado
+  if (
+    token &&
+    (pathname.startsWith("/login") || pathname.startsWith("/register"))
+  ) {
+    return NextResponse.redirect(new URL("/", req.url));
   }
 
   // 🔹 Protección de /admin
   if (pathname.startsWith("/admin")) {
-
     if (!token) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
