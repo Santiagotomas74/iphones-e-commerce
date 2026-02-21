@@ -77,14 +77,14 @@ export default function ProductCard({ product }: { product: Product }) {
         className="w-full h-56 object-contain"
       />
 
-      <h2 className="font-semibold mt-3">{product.name}</h2>
+      <h2 className="font-semibold mt-3 text-black">{product.name}</h2>
 
       <p className="text-gray-500 text-sm">
         {product.memory} • {product.color}
       </p>
 
       <div className="flex items-center justify-between mt-3">
-        <span className="text-xl font-bold">
+        <span className="text-xl font-bold text-black">
           ${product.price.toLocaleString()}
         </span>
 

@@ -159,8 +159,10 @@ const handleCheckout = async () => {
             <h2 className="text-xl font-semibold text-gray-600 ">Tu Carrito</h2>
           </div>
 
-          <button onClick={onClose}>
-            <X size={20} />
+          <button onClick={onClose}
+          className="text-gray-900">
+            
+            <X size={25} />
           </button>
         </div>
 

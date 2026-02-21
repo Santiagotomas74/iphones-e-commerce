@@ -41,7 +41,7 @@ export default async function ProductDetail({
       <div>
         <h1 className="text-3xl font-bold">{product.name}</h1>
 
-        <p className="text-gray-500 mt-2">
+        <p className="text-gray-5900 mt-2">
           {product.memory} • {product.color}
         </p>
 
@@ -49,7 +49,7 @@ export default async function ProductDetail({
           ${product.price.toLocaleString()}
         </p>
 
-        <button className="mt-6 bg-blue-600 text-white px-6 py-3 rounded-xl">
+        <button className="mt-6 bg-blue-600 text-gray-900 px-6 py-3 rounded-xl">
           Agregar al carrito
         </button>
 

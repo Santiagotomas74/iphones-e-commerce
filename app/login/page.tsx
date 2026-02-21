@@ -52,8 +52,8 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-semibold">Iniciar Sesión</h1>
-          <p className="text-gray-500 mt-1">Accede a tu cuenta Premium</p>
+          <h1 className="text-3xl font-semibold text-gray-900">Iniciar Sesión</h1>
+          <p className="mt-2 text-sm font-medium text-gray-600 tracking-wide">Accede a tu cuenta Premium</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border p-6">
@@ -104,12 +104,12 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="flex items-center my-6">
+          {/* <div className="flex items-center my-6">
             <div className="flex-1 h-px bg-gray-200" />
             <span className="px-3 text-sm text-gray-400">O continúa con</span>
             <div className="flex-1 h-px bg-gray-200" />
-          </div>
-
+          </div> */}
+{/* 
           <div className="grid grid-cols-2 gap-3">
             <button className="border rounded-xl py-2 hover:bg-gray-50 transition">
               Google
@@ -117,7 +117,7 @@ export default function Login() {
             <button className="border rounded-xl py-2 hover:bg-gray-50 transition">
               Apple
             </button>
-          </div>
+          </div> */}
             
              
           <p className="text-center text-sm text-gray-500 mt-6">
