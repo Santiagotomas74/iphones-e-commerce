@@ -6,7 +6,7 @@ import type { NavItem } from "./components/navbar/Navbar.types";
 const navItems: NavItem[] = [
   { label: "Inicio", href: "/" },
   { label: "Administracion", href: "/admin" },
-  { label: "Consolas", href: "/category/consolas" },
+  { label: "Consolas", href: "/consolas" },
 ];
 
 export const metadata: Metadata = {

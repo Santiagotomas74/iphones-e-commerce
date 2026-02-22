@@ -19,7 +19,7 @@ export default function HeroIphone() {
             </span>
 
             <h1 className="text-4xl md:text-6xl font-semibold text-gray-900 leading-tight mb-6">
-              iPhone 17 <br />
+              iPhone 15 <br />
               <span className="font-bold">Pro Max</span>
             </h1>
 
