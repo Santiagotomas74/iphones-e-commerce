@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ShoppingCart } from "lucide-react";
+import { useState } from "react";
 
 type Product = {
   id: string;
@@ -14,8 +15,11 @@ type Product = {
   image_1: string;
 };
 
+
 export default function ProductCard({ product }: { product: Product }) {
   const router = useRouter();
+  const [showToast, setShowToast] = useState(false); 
+
 
   // 🔹 Función para leer cookies
   const getCookie = (name: string) => {
@@ -59,14 +63,24 @@ export default function ProductCard({ product }: { product: Product }) {
         throw new Error(data.error || "Error agregando producto");
       }
 
-      alert("Producto agregado al carrito 🛒");
+   setShowToast(true);
+    setTimeout(() => setShowToast(false), 2500);
     } catch (error) {
       console.error("Error agregando al carrito:", error);
       alert("Hubo un problema al agregar el producto");
     }
   };
 
+
   return (
+    <>
+  {showToast && (
+    <div className="fixed top-6 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-3 rounded-xl shadow-lg text-sm animate-fade-in z-50">
+      Producto agregado al carrito 🛒
+    </div>
+  )}
+
+    
     <div
       onClick={goToProduct}
       className="bg-white rounded-2xl shadow hover:shadow-lg transition p-4 cursor-pointer"
@@ -96,5 +110,6 @@ export default function ProductCard({ product }: { product: Product }) {
         </button>
       </div>
     </div>
+    </>
   );
 }
