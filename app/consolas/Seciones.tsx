@@ -1,7 +1,8 @@
 "use client";
+
 import HeroProduct from "@/app/components/HeroProduct/HeroProduct";
 import HeroSection from "@/app/components/HeroSection/HeroSection";
-
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 export default function FadeToDark() {
@@ -25,30 +26,53 @@ export default function FadeToDark() {
 
   return (
     <>
+      {/* Sección Blanca */}
       <section className="bg-white min-h-screen flex items-center justify-center">
-        <HeroSection/>
+        <HeroSection />
       </section>
 
+      {/* Transición Blur */}
       <section
         id="transition"
         className="relative min-h-screen flex items-center justify-center"
       >
         <div
-          className="absolute inset-0 bg-black transition-all duration-500"
+          className="absolute inset-0 bg-black transition-all duration-100"
           style={{
-            opacity: progress,
+            opacity: Math.min(progress * 2, 1),
             backdropFilter: `blur(${progress * 10}px)`,
           }}
         />
 
-        <h2 className="text-5xl font-bold relative z-10">
-          Transición Premium
-        </h2>
+         {/* Sección Negra con animación premium */}
+       <motion.div
+          initial={{
+            y: 140,
+            opacity: 0,
+            scale: 0.96,
+            filter: "blur(12px)",
+          }}
+          whileInView={{
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            filter: "blur(0px)",
+          }}
+          transition={{
+            duration: 1.2,
+            ease: [0.22, 1, 0.36, 1], // easing tipo Apple real
+          }}
+          viewport={{
+            once: false, // 🔥 ahora se repite
+            amount: 0.4,
+          }}
+        >
+          <HeroProduct />
+        </motion.div>
       </section>
 
-      <section className="bg-black min-h-screen flex items-center justify-center text-white">
-        <HeroProduct/>
-      </section>
+     
+      
     </>
   );
 }

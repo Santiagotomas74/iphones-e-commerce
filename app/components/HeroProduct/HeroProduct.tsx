@@ -24,7 +24,7 @@ export default function HeroProduct() {
   }, [currentIndex]);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#030301]">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#030301] mt-50 mb-50">
       <div className="relative z-10 flex flex-col items-center text-center px-6">
 
         {/* Contenedor */}
