@@ -3,11 +3,12 @@ export default function HeroIphone() {
     <section className="relative w-full min-h-screen flex items-center overflow-hidden bg-[#f5f5f7]">
       
       {/* Radial light effect */}
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] aspect-square rounded-full 
-                     bg-[radial-gradient(circle,rgba(160,140,255,0.75),transparent_70%)] blur-2xl">
+      <div className="absolute right-0 top-1/4 -translate-y-1/3 translate-x-1/10
+           w-[700px] aspect-square rounded-full 
+           bg-[radial-gradient(circle,rgba(160,140,255,0.75),transparent_70%)] blur-2xl">
          </div>
       
-      <div className="relative px-6 lg:px-20 w-full">
+      <div className="relative px-6 lg:px-10 w-full">
         
         <div className="grid lg:grid-cols-2 gap-12 items-center tracking-wide">
           
@@ -42,20 +43,25 @@ export default function HeroIphone() {
 
       
           {/* RIGHT – VIDEO */}
-           <div className="relative flex justify-center lg:justify-end lg:-translate-x-25">
-            
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="h-[800px] lg:h-[1000px] w-auto object-contain"
-            >
-                <source src="/videos/17protwo.mp4" type="video/mp4" />
-            </video> 
+          <div className="relative flex justify-center lg:justify-end">
 
-          </div> 
-          
+  {/* VIOLET LIGHT debajo del celular */}
+  <div className="absolute bottom-10 w-[600px] h-[600px] rounded-full 
+    bg-[radial-gradient(circle,rgba(160,140,255,0.6),transparent_70%)] 
+    blur-3xl">
+  </div>
+
+  <video
+    autoPlay
+    loop
+    muted
+    playsInline
+    className="relative z-10 h-[800px] lg:h-[1000px] w-auto object-contain"
+  >
+    <source src="/videos/17protwo.mp4" type="video/mp4" />
+  </video>
+
+</div>
           {/* RIGHT – GIF */}
           {/* <div className="relative flex justify-center mt-16 lg:mt-24">
             <div className="w-[420px] h-[420px] lg:w-[520px] lg:h-[520px] rounded-full overflow-hidden shadow-2xl bg-white">

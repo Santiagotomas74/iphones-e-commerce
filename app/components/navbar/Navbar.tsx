@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, use } from "react";
-import { ShoppingCart,Menu, X, User, ShoppingBag  } from "lucide-react";
+import { Menu, X, User, ShoppingBag  } from "lucide-react";
 import CartSidebar from "./CartSidebar";
 import type { NavbarProps } from "./Navbar.types";
 
@@ -66,7 +66,7 @@ export default function Navbar({ items }: NavbarProps) {
     }
   `}
 >
-      <div className="max-w-7xl mx-auto h-16 flex items-center justify-between text-gray-900 ml-4"> 
+      <div className="w-full h-16 flex items-center justify-between px-6 text-gray-900">
         <button  
          onClick={() => setIsMenuOpen(true)}
          className="md:hidden"
@@ -95,7 +95,7 @@ export default function Navbar({ items }: NavbarProps) {
         <div className="flex items-center gap-6 text-gray-100 ">
           <Link
             href="/login"
-            className="hidden md:flex items-center gap-2 text-sm text-gray-700 hover:text-black transition"
+            className="hidden md:flex items-center gap-2 text-sm text-gray-700 hover:text-black transition "
           >
             <User size={20} />
             <span>Iniciar sesión</span>
@@ -172,12 +172,12 @@ export default function Navbar({ items }: NavbarProps) {
             </li>
           ))}
         </ul>
-        <div className="border-t p-6 flex items-center gap-3 text-gray-700">
+        <div className="border-t p-6 flex items-center gap-3 text-gray-700 ">
   <User size={20} />
   <Link
     href="/login"
     onClick={() => setIsMenuOpen(false)}
-    className="hover:text-black transition"
+    className="hover:text-black transition "
   >
     Iniciar sesión
   </Link>

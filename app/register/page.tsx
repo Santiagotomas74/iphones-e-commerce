@@ -60,10 +60,10 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 tracking-wide">
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-semibold text-gray-500 ">Crear Cuenta</h1>
+          <h1 className="text-3xl font-semibold text-gray-900 ">Crear Cuenta</h1>
           <p className="text-gray-500 mt-1">Únete a la experiencia Premium</p>
         </div>
 
@@ -72,14 +72,14 @@ export default function Register() {
 
             {/* Nombre */}
             <div>
-              <label className="text-sm text-gray-600">Nombre completo</label>
+              <label className="text-sm text-gray-900">Nombre completo</label>
               <div className="mt-1 relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-900" size={18} />
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   required
                 />
               </div>
@@ -87,14 +87,14 @@ export default function Register() {
 
             {/* Email */}
             <div>
-              <label className="text-sm text-gray-600">Correo electrónico</label>
+              <label className="text-sm text-gray-900">Correo electrónico</label>
               <div className="mt-1 relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-900" size={18} />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   required
                 />
               </div>
@@ -102,15 +102,15 @@ export default function Register() {
 
             {/* Phone */}
             <div>
-              <label className="text-sm text-gray-600">Teléfono móvil</label>
+              <label className="text-sm text-gray-900">Teléfono móvil</label>
               <div className="mt-1 relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-900" size={18} />
                 <input
                   type="tel"
                   placeholder="+54 9 11 1234 5678"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   required
                 />
               </div>
@@ -118,9 +118,9 @@ export default function Register() {
 
             {/* Password */}
             <div>
-              <label className="text-sm text-gray-600">Contraseña</label>
+              <label className="text-sm text-gray-900">Contraseña</label>
               <div className="mt-1 relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-900" size={18} />
                 <input
                   type="password"
                   value={password}
@@ -133,9 +133,9 @@ export default function Register() {
 
             {/* Confirm Password */}
             <div>
-              <label className="text-sm text-gray-600">Confirmar contraseña</label>
+              <label className="text-sm text-gray-900">Confirmar contraseña</label>
               <div className="mt-1 relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-900" size={18} />
                 <input
                   type="password"
                   value={confirmPassword}
