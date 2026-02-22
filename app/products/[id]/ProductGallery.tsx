@@ -16,7 +16,7 @@ export default function ProductGallery({ images }: Props) {
         className="w-full object-contain transition-all duration-200"
       />
 
-      <div className="flex gap-3 mt-4">
+      <div className="flex gap-3 mt-4 text-">
         {images.map((img, index) => (
           <img
             key={index}
