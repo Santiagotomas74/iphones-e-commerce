@@ -1,6 +1,6 @@
 export default function HeroIphone() {
   return (
-    <section className="relative w-full min-h-screen flex items-center overflow-hidden bg-[#f5f5f7]">
+    <section className="relative w-full min-h-[750px] flex items-center overflow-hidden bg-[#f5f5f7]">
       
       {/* Radial light effect */}
       <div className="absolute right-0 top-1/4 -translate-y-1/3 translate-x-1/10

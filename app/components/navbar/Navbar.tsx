@@ -91,15 +91,18 @@ export default function Navbar({ items }: NavbarProps) {
           ))}
         </ul>
 
-
+       
         <div className="flex items-center gap-6 text-gray-100 ">
-          <Link
-            href="/login"
-            className="hidden md:flex items-center gap-2 text-sm text-gray-700 hover:text-black transition "
-          >
-            <User size={20} />
-            <span>Iniciar sesión</span>
-          </Link> 
+          {!isLoggedIn && (
+    <Link
+      href="/login"
+      className="hidden md:flex items-center gap-2 text-sm text-gray-700 hover:text-black transition"
+    >
+      <User size={20} />
+      <span>Iniciar sesión</span>
+    </Link>
+  )}
+
             <button
             onClick={() => setIsCartOpen(true)}
             className="relative flex items-center justify-center text-gray-700 hover:text-black transition"
