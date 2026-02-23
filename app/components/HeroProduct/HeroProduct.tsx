@@ -24,11 +24,11 @@ export default function HeroProduct() {
   }, [currentIndex]);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#030301] mt-50 mb-50">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0000] mt-40 mb-50">
       <div className="relative z-10 flex flex-col items-center text-center px-6">
 
         {/* Contenedor */}
-        <div className="relative w-[320px] md:w-[420px] h-[420px] overflow-hidden">
+        <div className="relative w-full md:w-[1200px] h-[520px] overflow-hidden">
 
           {images.map((img, index) => {
             const isActive = index === currentIndex;
@@ -56,7 +56,7 @@ export default function HeroProduct() {
           })}
         </div>
 
-        <h1 className="mt-10 text-4xl md:text-6xl font-bold text-white tracking-tight">
+        <h1 className="mt-5 text-4xl md:text-6xl font-bold text-white tracking-tight">
           iPhone 17 Pro Max
         </h1>
 

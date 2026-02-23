@@ -25,7 +25,7 @@ export default function RevealFromBottom({
         ease: [0.22, 1, 0.36, 1], // easing premium
       }}
       viewport={{
-        once: false,
+        once: true,
         amount: 0.2,
       }}
     >

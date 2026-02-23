@@ -22,7 +22,7 @@ export default function AdminProducts() {
   };
 
   return (
-    <div >
+    <div  className="bg-[#0000]">
       <h1 className="text-2xl font-bold mb-4">Productos</h1>
 
       <Link

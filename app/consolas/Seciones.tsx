@@ -64,7 +64,7 @@ export default function FadeToDark() {
           }}
           viewport={{
             once: false, // 🔥 ahora se repite
-            amount: 0.4,
+            amount: 0.2,
           }}
         >
           <HeroProduct />
