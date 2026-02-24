@@ -1,7 +1,7 @@
 import { query } from "@/db";
 import { notFound } from "next/navigation";
 import ProductGallery from "./ProductGallery";
-
+import ProductActions from "./ProductActions";
 async function getProduct(id: string) {
   const { rows } = await query(
     `SELECT * FROM products WHERE id = $1`,
@@ -49,9 +49,7 @@ export default async function ProductDetail({
           ${product.price.toLocaleString()}
         </p>
 
-        <button className="mt-6 bg-blue-600 text-gray-200 px-6 py-3 rounded-xl">
-          Agregar al carrito
-        </button>
+       <ProductActions productId={product.id} />
 
         <p className="mt-6 text-gray-600">
           {product.description}

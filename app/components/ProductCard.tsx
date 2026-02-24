@@ -92,25 +92,29 @@ export default function ProductCard({ product }: { product: Product }) {
     }
   };
 
-  return (
-    <div
-      onClick={goToProduct}
-      className="bg-white rounded-2xl shadow hover:shadow-lg transition p-4 cursor-pointer"
-    >
-      <img
-        src={product.image_1}
-        alt={product.name}
-        className="w-full h-56 object-contain"
-      />
+ return (
+  <div
+    onClick={goToProduct}
+    className="bg-white rounded-2xl shadow hover:shadow-lg transition p-6 cursor-pointer"
+  >
+    <img
+      src={product.image_1}
+      alt={product.name}
+      className="w-full h-56 object-contain"
+    />
 
-      <h2 className="font-semibold mt-3 text-gray-700">{product.name}</h2>
+    {/* Título */}
+    <h2 className="mt-4 text-black font-medium tracking-[-0.02em] text-lg">
+      {product.name}
+    </h2>
 
-      <p className="text-gray-500 text-sm">
-        {product.memory} • {product.color}
-      </p>
+    {/* Subtítulo */}
+    <p className="text-gray-500 text-sm mt-1 tracking-[-0.01em]">
+      {product.memory} • {product.color}
+    </p>
 
       <div className="flex items-center justify-between mt-3">
-        <span className="text-xl font-bold text-gray-700">
+        <span className="text-2xl font-medium text-black tracking-[-0.03em]">
           ${product.price.toLocaleString()}
         </span>
 
@@ -131,4 +135,5 @@ export default function ProductCard({ product }: { product: Product }) {
       </div>
     </div>
   );
+
 }

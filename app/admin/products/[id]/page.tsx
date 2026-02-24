@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
+type ImageField = "image_1" | "image_2" | "image_3";
+
 export default function EditProduct() {
   const { id } = useParams();
   const router = useRouter();
@@ -21,15 +23,62 @@ export default function EditProduct() {
     image_3: "",
   });
 
+  // 🔥 Upload a Cloudinary
+  const uploadToCloudinary = async (file: File): Promise<string> => {
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+    if (!cloudName || !uploadPreset) {
+      throw new Error("Cloudinary no configurado");
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", uploadPreset);
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    if (!res.ok) throw new Error("Error subiendo imagen");
+
+    const data = await res.json();
+    return data.secure_url;
+  };
+
+  const handleImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: ImageField
+  ) => {
+    if (!e.target.files) return;
+
+    try {
+      setLoading(true);
+      const url = await uploadToCloudinary(e.target.files[0]);
+
+      setForm((prev) => ({
+        ...prev,
+        [field]: url,
+      }));
+    } catch (err) {
+      console.error(err);
+      alert("Error subiendo imagen");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // 🔹 Cargar producto
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        console.log("Cargando producto con ID:", id);
         const res = await fetch(`/api/products/${id}`);
-        if (!res.ok) {
-        throw new Error("Producto no encontrado");
-        }
+        if (!res.ok) throw new Error("Producto no encontrado");
+
         const data = await res.json();
 
         setForm({
@@ -53,7 +102,36 @@ export default function EditProduct() {
     if (id) fetchProduct();
   }, [id]);
 
-  // 🔹 Guardar cambios
+  const renderImageInput = (field: ImageField, label: string) => (
+    <div className="space-y-2 border p-3 rounded">
+      <label className="font-medium">{label}</label>
+
+      <input
+        className="w-full border p-2"
+        placeholder="Pegar URL manual"
+        value={form[field]}
+        onChange={(e) =>
+          setForm({ ...form, [field]: e.target.value })
+        }
+      />
+
+      <input
+        type="file"
+        accept="image/*"
+        disabled={!!form[field]} // 🔒 bloquea si hay URL
+        onChange={(e) => handleImageUpload(e, field)}
+      />
+
+      {form[field] && (
+        <img
+          src={form[field]}
+          alt="preview"
+          className="w-32 mt-2 rounded"
+        />
+      )}
+    </div>
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -73,7 +151,7 @@ export default function EditProduct() {
   if (loading) return <p>Cargando producto...</p>;
 
   return (
-    <div className="max-w-2xl mx-auto py-10">
+    <div className="max-w-2xl mx-auto py-10 bg-black p-6 rounded shadow">
       <h1 className="text-2xl font-bold mb-6">Editar Producto</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -122,26 +200,9 @@ export default function EditProduct() {
           onChange={(e) => setForm({ ...form, price: e.target.value })}
         />
 
-        <input
-          className="w-full border p-2"
-          placeholder="Imagen 1"
-          value={form.image_1}
-          onChange={(e) => setForm({ ...form, image_1: e.target.value })}
-        />
-
-        <input
-          className="w-full border p-2"
-          placeholder="Imagen 2"
-          value={form.image_2}
-          onChange={(e) => setForm({ ...form, image_2: e.target.value })}
-        />
-
-        <input
-          className="w-full border p-2"
-          placeholder="Imagen 3"
-          value={form.image_3}
-          onChange={(e) => setForm({ ...form, image_3: e.target.value })}
-        />
+        {renderImageInput("image_1", "Imagen 1")}
+        {renderImageInput("image_2", "Imagen 2")}
+        {renderImageInput("image_3", "Imagen 3")}
 
         <button
           type="submit"

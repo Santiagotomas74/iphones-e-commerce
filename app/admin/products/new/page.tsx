@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+type ImageField = "image_1" | "image_2" | "image_3";
+
 export default function NewProduct() {
   const router = useRouter();
 
@@ -20,6 +22,59 @@ export default function NewProduct() {
 
   const [loading, setLoading] = useState(false);
 
+ // 🔥 Upload a Cloudinary usando variables de entorno
+const uploadToCloudinary = async (file: File): Promise<string> => {
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+  if (!cloudName || !uploadPreset) {
+    throw new Error("Cloudinary no está configurado correctamente");
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", uploadPreset);
+
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Error subiendo imagen a Cloudinary");
+  }
+
+  const data = await res.json();
+  return data.secure_url;
+};
+
+  const handleImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: ImageField
+  ) => {
+    if (!e.target.files) return;
+
+    try {
+      setLoading(true);
+
+      const file = e.target.files[0];
+      const url = await uploadToCloudinary(file);
+
+      setForm((prev) => ({
+        ...prev,
+        [field]: url,
+      }));
+    } catch (err) {
+      console.error(err);
+      alert("Error subiendo imagen");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -29,8 +84,46 @@ export default function NewProduct() {
     });
   };
 
+  const renderImageInput = (field: ImageField, label: string) => (
+    <div className="space-y-2 border p-3 rounded">
+      <label className="font-medium">{label}</label>
+
+      {/* URL manual */}
+      <input
+        name={field}
+        placeholder="Pegar URL manual"
+        value={form[field]}
+        onChange={handleChange}
+        className="w-full border p-2 rounded"
+      />
+
+      {/* File upload */}
+      <input
+        type="file"
+        accept="image/*"
+        disabled={!!form[field]} // 🔒 bloquea si hay URL
+        onChange={(e) => handleImageUpload(e, field)}
+      />
+
+      {/* Preview */}
+      {form[field] && (
+        <img
+          src={form[field]}
+          alt="preview"
+          className="w-32 mt-2 rounded"
+        />
+      )}
+    </div>
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!form.image_1) {
+      alert("Debes cargar al menos la Imagen 1");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -60,11 +153,10 @@ export default function NewProduct() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto bg-black p-6 rounded shadow">
       <h1 className="text-2xl font-bold mb-6">Crear Producto</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-
         <input
           name="name"
           placeholder="Nombre"
@@ -123,38 +215,17 @@ export default function NewProduct() {
           rows={4}
         />
 
-        <div className="space-y-2">
-          <input
-            name="image_1"
-            placeholder="URL Imagen 1"
-            value={form.image_1}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-          />
-
-          <input
-            name="image_2"
-            placeholder="URL Imagen 2"
-            value={form.image_2}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-          />
-
-          <input
-            name="image_3"
-            placeholder="URL Imagen 3"
-            value={form.image_3}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-          />
-        </div>
+        {/* 🔥 Imágenes */}
+        {renderImageInput("image_1", "Imagen 1 (obligatoria)")}
+        {renderImageInput("image_2", "Imagen 2")}
+        {renderImageInput("image_3", "Imagen 3")}
 
         <button
           type="submit"
           disabled={loading}
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
         >
-          {loading ? "Creando..." : "Crear Producto"}
+          {loading ? "Procesando..." : "Crear Producto"}
         </button>
       </form>
     </div>
