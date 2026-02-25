@@ -145,9 +145,9 @@ export async function POST(req: Request) {
           external_reference: orderId.toString(), // 🔥 FIX IMPORTANTE
           notification_url: `https://iphones-e-commerce.vercel.app/api/webhooks/mercadopago`,
           back_urls: {
-  success: `https://iphones-e-commerce.vercel.app/checkout/success`,
-  failure: `https://iphones-e-commerce.vercel.app/checkout/failure`,
-  pending: `https://iphones-e-commerce.vercel.app/checkout/pending`,
+          success: `https://iphones-e-commerce.vercel.app/checkout/success`,
+          failure: `https://iphones-e-commerce.vercel.app/checkout/failure`,
+          pending: `https://iphones-e-commerce.vercel.app/checkout/pending`,
 },
 auto_return: "approved",
 

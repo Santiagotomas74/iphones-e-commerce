@@ -7,7 +7,7 @@ import TopBanner from "./components/Banner/TopBanner";
 const navItems: NavItem[] = [
   { label: "Inicio", href: "/" },
   { label: "Administracion", href: "/admin" },
-  { label: "Consolas", href: "/consolas" },
+  { label: "Consolas", href: "/user/dashboard" },
 ];
 
 export const metadata: Metadata = {
