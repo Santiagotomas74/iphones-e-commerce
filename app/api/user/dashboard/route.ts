@@ -34,7 +34,7 @@ export async function GET() {
     // 👤 3️⃣ Obtener datos del usuario
     const userResult = await query(
       `
-      SELECT id, name, email, phone
+      SELECT id, name, lastName ,email, phone, created_at, street, altura, city, province, zip_code, address_description
       FROM users
       WHERE id = $1
       `,
@@ -69,7 +69,7 @@ export async function GET() {
     // 📦 5️⃣ Obtener órdenes
     const ordersResult = await query(
       `
-      SELECT id, order_number, total_amount, payment_status, order_status, created_at
+      SELECT id, order_number, total_amount, payment_status, order_status, created_at, expires_at
       FROM orders
       WHERE user_id = $1
       ORDER BY created_at DESC
@@ -82,7 +82,7 @@ export async function GET() {
     // 💳 6️⃣ Obtener pagos
     const paymentsResult = await query(
       `
-      SELECT p.id, p.amount, p.status, p.created_at, o.order_number
+      SELECT p.id, p.provider, p.amount, p.status, p.created_at, o.order_number
       FROM payments p
       INNER JOIN orders o ON o.id = p.order_id
       WHERE o.user_id = $1

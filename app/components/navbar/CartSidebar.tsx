@@ -104,6 +104,25 @@ console.log("Selected payment method:", selectedPayment);
   }
 };
 
+const checkAddressAndContinue = async () => {
+  try {
+    const res = await fetch("/api/user/has-address");
+    const data = await res.json();
+
+    if (!res.ok || !data.hasAddress) {
+      alert("Debes completar tu dirección antes de continuar.");
+      window.location.href = "/user/dashboard"; // o donde edite dirección
+      return;
+    }
+
+    // ✅ Si tiene dirección, mostramos métodos de pago
+    setShowPaymentMethods(true);
+
+  } catch (error) {
+    console.error("Error verificando dirección:", error);
+  }
+};
+
 const handleCheckout = async () => {
   if (!selectedPayment) return;
 
@@ -299,11 +318,12 @@ const handleCheckout = async () => {
   </div>
 )}
 
-                <button
-                onClick={() => setShowPaymentMethods(true)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition">
-                  Ir a pagar
-                </button>
+              <button
+  onClick={checkAddressAndContinue}
+  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition"
+>
+  Ir a pagar
+</button>
               </div>
             </>
           )}

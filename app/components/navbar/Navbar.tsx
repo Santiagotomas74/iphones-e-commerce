@@ -116,7 +116,7 @@ export default function Navbar({ items }: NavbarProps) {
               <div className="hidden md:flex items-center gap-4">
                 {/* Icono + nombre para dashboard */}
                 <Link
-                  href="/dashboard"
+                  href="/user/dashboard"
                   className="flex items-center gap-2 text-sm text-gray-700 hover:text-black transition"
                 >
                   <User size={20} />

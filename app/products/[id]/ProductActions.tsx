@@ -2,12 +2,15 @@
 
 import { ShoppingCart } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function ProductActions({
   productId,
 }: {
   productId: string;
 }) {
+  const router = useRouter();
+
   const [showMethods, setShowMethods] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -18,6 +21,29 @@ export default function ProductActions({
       return parts.pop()?.split(";").shift();
     }
     return null;
+  };
+
+  // 🔎 Verificar dirección antes de comprar
+  const verifyAddress = async (): Promise<boolean> => {
+    try {
+      const res = await fetch("/api/user/has-address", {
+        credentials: "include",
+      });
+
+      if (!res.ok) return false;
+
+      const data = await res.json();
+
+      if (!data.hasAddress) {
+        alert("Debes completar tu dirección antes de comprar.");
+        router.push("/user/dashboard");
+        return false;
+      }
+
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   const addToCart = async () => {
@@ -52,6 +78,9 @@ export default function ProductActions({
       return;
     }
 
+    const hasAddress = await verifyAddress();
+    if (!hasAddress) return;
+
     try {
       setLoading(true);
 
@@ -60,13 +89,12 @@ export default function ProductActions({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: decodeURIComponent(email),
-           product_id: productId,
-            payment_method: method,
+          product_id: productId,
+          payment_method: method,
         }),
       });
 
       const data = await res.json();
-
       if (!res.ok) throw new Error();
 
       if (method === "mercadopago") {
@@ -86,7 +114,6 @@ export default function ProductActions({
 
   return (
     <div className="mt-8 space-y-4">
-      {/* Comprar ahora */}
       <button
         onClick={() => setShowMethods(true)}
         className="w-full bg-black text-white px-6 py-3 rounded-xl hover:bg-neutral-800 transition font-medium"
@@ -94,7 +121,6 @@ export default function ProductActions({
         Comprar ahora
       </button>
 
-      {/* Selector de método */}
       {showMethods && (
         <div className="flex gap-3 animate-fade-in">
           <button
@@ -115,7 +141,6 @@ export default function ProductActions({
         </div>
       )}
 
-      {/* Agregar al carrito */}
       <button
         onClick={addToCart}
         className="w-full bg-neutral-100 hover:bg-neutral-200 text-black p-3 rounded-xl transition flex justify-center"

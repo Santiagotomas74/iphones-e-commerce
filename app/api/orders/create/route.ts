@@ -51,6 +51,29 @@ export async function POST(req: Request) {
     }
 
     const userId = userResult.rows[0].id;
+    // 🔎 Verificar que tenga dirección
+const addressCheck = await query(
+  `
+  SELECT street, city, zip_code, province
+  FROM users
+  WHERE id = $1
+  `,
+  [userId]
+);
+
+const userAddress = addressCheck.rows[0];
+
+if (
+  !userAddress.street ||
+  !userAddress.city ||
+  !userAddress.zip_code ||
+  !userAddress.province
+) {
+  return NextResponse.json(
+    { error: "Debes completar tu dirección antes de comprar" },
+    { status: 400 }
+  );
+}
 
     // 2️⃣ Obtener productos del carrito
     const cartResult = await query(
