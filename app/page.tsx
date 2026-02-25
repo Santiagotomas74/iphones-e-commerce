@@ -1,6 +1,5 @@
 import ProductCard from "./components/ProductCard";
 import { query } from "@/db";
-import Footer from "./components/footer/Footer";
 import Seciones from "@/app/consolas/Seciones";
 import RevealFromBottom from "./components/RevealFromBottom";
 
@@ -49,9 +48,7 @@ export default async function HomePage() {
         </main>
       </RevealFromBottom>
 
-      <RevealFromBottom>
-        <Footer />
-      </RevealFromBottom>
+      
     </>
   );
 }

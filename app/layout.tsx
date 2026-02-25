@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "./components/navbar/Navbar";
 import type { NavItem } from "./components/navbar/Navbar.types";
 import TopBanner from "./components/Banner/TopBanner";
+import Footer from "./components/footer/Footer";
 
 const navItems: NavItem[] = [
   { label: "Inicio", href: "/" },
@@ -26,6 +27,7 @@ export default function RootLayout({
          <TopBanner />
         <Navbar items={navItems} />
         {children}
+          <Footer />
       </body>
     </html>
   );
