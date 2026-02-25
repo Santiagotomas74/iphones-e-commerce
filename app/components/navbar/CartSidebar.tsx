@@ -224,7 +224,7 @@ const handleCheckout = async () => {
 
       {/* Controles cantidad */}
       <div className="flex items-center justify-between mt-3">
-        <div className="flex items-center bg-white rounded-xl px-3 py-1 gap-3 shadow-sm">
+        <div className="flex items-center bg-white rounded-xl px-3 py-1 gap-3 shadow-sm text-gray-800">
           <button className="text-lg">−</button>
           <span>{item.quantity}</span>
           <button className="text-lg">+</button>
@@ -260,7 +260,7 @@ const handleCheckout = async () => {
       <div className="space-y-3">
         <button
           onClick={() => setSelectedPayment("transfer")}
-          className={`w-full border rounded-xl py-3  ${
+          className={`w-full border rounded-xl py-3 text-gray-800  ${
             selectedPayment === "transfer"
               ? "border-blue-600 bg-blue-50"
               : "border-gray-300"
@@ -271,7 +271,7 @@ const handleCheckout = async () => {
 
         <button
           onClick={() => setSelectedPayment("mercadopago")}
-          className={`w-full border rounded-xl py-3 ${
+          className={`w-full border rounded-xl py-3 text-gray-800 ${
             selectedPayment === "mercadopago"
               ? "border-blue-600 bg-blue-50"
               : "border-gray-300"

@@ -153,7 +153,7 @@ const uploadToCloudinary = async (file: File): Promise<string> => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto bg-black p-6 rounded shadow">
+    <div className="max-w-3xl mx-auto bg-white p-6 rounded shadow">
       <h1 className="text-2xl font-bold mb-6">Crear Producto</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">

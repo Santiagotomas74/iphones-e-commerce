@@ -36,6 +36,7 @@ export default async function ProductDetail({
 
   return (
     <main className="max-w-6xl mx-auto p-6 grid md:grid-cols-2 gap-10">
+      
       <ProductGallery images={images} />
 
       <div>
