@@ -18,16 +18,33 @@ interface CartItem {
   image_1: string;
 }
 
-
 export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
-  const [showPaymentMethods, setShowPaymentMethods] = useState(false);
-const [selectedPayment, setSelectedPayment] = useState<"transfer" | "mercadopago" | null>(null);
-console.log("Selected payment method:", selectedPayment);
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Función para leer cookie
+const [checkoutStep, setCheckoutStep] = useState<
+  "delivery" | "address" | "payment" | "transferCard" | null
+>(null);
+
+  const [deliveryType, setDeliveryType] = useState<"pickup" | "shipping" | null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<"transfer" | "mercadopago" | null>(null);
+  const [orderId, setOrderId] = useState<string | null>(null);
+
+  const shippingCost = 3500;
+
+  const [address, setAddress] = useState({
+    full_name: "",
+    phone: "",
+    street: "",
+    street_number: "",
+    apartment: "",
+    city: "",
+    province: "",
+    postal_code: "",
+    additional_info: "",
+  });
+
   const getCookie = (name: string) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -40,31 +57,20 @@ console.log("Selected payment method:", selectedPayment);
 
     const fetchCart = async () => {
       const email = getCookie("emailTech");
-
-      if (!email) {
-        setCartItems([]);
-        return;
-      }
+      if (!email) return;
 
       try {
         setLoading(true);
 
         const res = await fetch("/api/cart/get", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email }),
         });
 
         const data = await res.json();
-        console.log("Carrito obtenido:", data);
+        if (res.ok) setCartItems(data.items);
 
-        if (res.ok) {
-          setCartItems(data.items);
-        }
-      } catch (error) {
-        console.error("Error cargando carrito:", error);
       } finally {
         setLoading(false);
       }
@@ -77,8 +83,28 @@ console.log("Selected payment method:", selectedPayment);
     (acc, item) => acc + item.price * item.quantity,
     0
   );
+
+  const total =
+    deliveryType === "shipping"
+      ? subtotal + shippingCost
+      : subtotal;
+
+  const validateAddress = () => {
+    if (
+      !address.full_name ||
+      !address.street ||
+      !address.street_number ||
+      !address.city ||
+      !address.province ||
+      !address.postal_code
+    ) {
+      alert("Completá todos los campos obligatorios");
+      return false;
+    }
+    return true;
+  };
   
-  const removeItem = async (product_id: string) => {
+ const removeItem = async (product_id: string) => {
   const email = getCookie("emailTech");
   
 
@@ -103,64 +129,52 @@ console.log("Selected payment method:", selectedPayment);
     console.error("Error eliminando producto:", error);
   }
 };
+  const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
+  if (loading) return;
 
-const checkAddressAndContinue = async () => {
-  try {
-    const res = await fetch("/api/user/has-address");
-    const data = await res.json();
+    const email = getCookie("emailTech");
+    if (!email || !deliveryType) return;
 
-    if (!res.ok || !data.hasAddress) {
-      alert("Debes completar tu dirección antes de continuar.");
-      window.location.href = "/user/dashboard"; // o donde edite dirección
-      return;
+    if (deliveryType === "shipping" && !validateAddress()) return;
+
+    try {
+      setLoading(true);
+
+      const res = await fetch("/api/orders/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          payment_method: paymentMethod,
+          delivery_type: deliveryType,
+          shipping_cost: deliveryType === "shipping" ? shippingCost : 0,
+          address: deliveryType === "shipping" ? address : null,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (paymentMethod === "mercadopago") {
+        window.location.href = data.init_point;
+      }
+
+     if (paymentMethod === "transfer") {
+  setOrderId(data.order_id);
+  setCheckoutStep("transferCard");
+  return;
+}
+
+    } finally {
+      setLoading(false);
     }
-
-    // ✅ Si tiene dirección, mostramos métodos de pago
-    setShowPaymentMethods(true);
-
-  } catch (error) {
-    console.error("Error verificando dirección:", error);
-  }
-};
-
-const handleCheckout = async () => {
-  if (!selectedPayment) return;
-
-  const email = getCookie("emailTech");
-  if (!email) return;
-
-  try {
-    const res = await fetch("/api/orders/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email,
-        payment_method: selectedPayment,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (selectedPayment === "mercadopago") {
-      window.location.href = data.init_point; // redirige a MP
-    }
-
-    if (selectedPayment === "transfer") {
-      window.location.href = `/order/${data.order_id}`;
-    }
-
-  } catch (error) {
-    console.error("Error iniciando checkout:", error);
-  }
-};
-
+  };
 
   return (
     <>
       {/* Overlay */}
       <div
         onClick={onClose}
-        className={`fixed inset-0 bg-black/40 transition-opacity duration-300 z-40 ${
+        className={`fixed inset-0 bg-black/40 transition-opacity z-40 ${
           isOpen ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
       />
@@ -171,42 +185,26 @@ const handleCheckout = async () => {
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b bg-white">
-          <div className="flex items-center gap-2 text-gray-600">
+          <div className="flex items-center gap-2 text-gray-700">
             <ShoppingBag size={20} />
-            <h2 className="text-xl font-semibold text-gray-600 ">Tu Carrito</h2>
+            <h2 className="text-xl font-semibold">Tu Carrito</h2>
           </div>
-
-          <button onClick={onClose}
-          className="text-gray-900">
-            
-            <X size={25} />
+          <button onClick={onClose}>
+            <X size={22} />
           </button>
         </div>
 
-        {/* Contenido */}
         <div className="p-6 flex flex-col h-[85%]">
-          {loading ? (
-            <p className="text-center text-gray-500 mt-10">
-              Cargando carrito...
-            </p>
-          ) : cartItems.length === 0 ? (
+
+          {cartItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
-              <ShoppingBag size={60} className="text-gray-300 mb-4" />
-              <p className="text-gray-800 mb-6">
-                Tu carrito está vacío
-              </p>
-              <button
-                onClick={onClose}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl transition"
-              >
-                Continuar comprando
-              </button>
+              <p>Tu carrito está vacío</p>
             </div>
           ) : (
             <>
-              <div className="flex-1 overflow-y-auto space-y-4">
+              
+   <div className="flex-1 overflow-y-auto space-y-4">
              {cartItems.map((item) => (
   <div
     key={item.product_id}
@@ -258,72 +256,226 @@ const handleCheckout = async () => {
 ))}
 
               </div>
+              <div className="border-t pt-4 mt-4 space-y-4">
 
-              {/* Subtotal */}
-              <div className="border-t pt-4 mt-4">
-                <div className="flex justify-between mb-4">
-                  <span className="font-medium text-gray-400">Subtotal</span>
-                  <span className="font-semibold text-lg text-gray-800">
-                    ${subtotal.toFixed(2)}
-                  </span>
+                {/* Subtotal */}
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span>${subtotal.toLocaleString()}</span>
                 </div>
 
-{/* desplegable de metodos de pago*/}
-              {showPaymentMethods && (
-  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-    <div className="bg-white rounded-2xl p-6 w-[90%] md:w-[400px]">
-      <h3 className="text-lg font-semibold mb-4 text-gray-800">
-        Seleccioná método de pago
-      </h3>
+                {/* Flujo checkout */}
+                {!checkoutStep && (
+                  <button
+                    onClick={() => setCheckoutStep("delivery")}
+                    className="w-full bg-blue-600 text-white py-3 rounded-xl"
+                  >
+                    Ir a pagar
+                  </button>
+                )}
 
-      <div className="space-y-3">
-        <button
-          onClick={() => setSelectedPayment("transfer")}
-          className={`w-full border rounded-xl py-3 text-gray-800  ${
-            selectedPayment === "transfer"
-              ? "border-blue-600 bg-blue-50"
-              : "border-gray-300"
-          }`}
-        >
-          Transferencia bancaria (10% OFF)
-        </button>
+                {checkoutStep === "delivery" && (
+                  <div className="space-y-3 fade-step">
+                    <button
+  onClick={() => setCheckoutStep(null)}
+  className="text-sm text-gray-500"
+>
+  ← Volver
+</button>
+                    <button
+                      onClick={() => {
+                        setDeliveryType("pickup");
+                        setCheckoutStep("payment");
+                      }}
+                      className="w-full bg-black text-white py-3 rounded-xl"
+                    >
+                      Retiro en local
+                    </button>
 
-        <button
-          onClick={() => setSelectedPayment("mercadopago")}
-          className={`w-full border rounded-xl py-3 text-gray-800 ${
-            selectedPayment === "mercadopago"
-              ? "border-blue-600 bg-blue-50"
-              : "border-gray-300"
-          }`}
-        >
-          Pagar con Mercado Pago
-        </button>
-      </div>
+                    <button
+                      onClick={() => {
+                        setDeliveryType("shipping");
+                        setCheckoutStep("address");
+                      }}
+                      className="w-full bg-black text-white py-3 rounded-xl"
+                    >
+                      Envío a domicilio (+ ${shippingCost})
+                    </button>
+                  </div>
+                )}
+                {checkoutStep === "address" && (
+  <div className="space-y-3 fade-step bg-black" >
+<button
+  onClick={() => setCheckoutStep("delivery")}
+  className="text-sm text-white"
+>
+  ← Volver
+</button>
+    <input
+      type="text"
+      placeholder="Nombre completo"
+      value={address.full_name}
+      onChange={(e) =>
+        setAddress({ ...address, full_name: e.target.value })
+      }
+      className="w-full border rounded-xl p-3"
+    />
 
-      <button
-        disabled={!selectedPayment}
-        className="w-full bg-blue-600 text-white py-3 rounded-xl mt-4 disabled:opacity-50"
-        onClick={handleCheckout}
-      >
-        Confirmar pago
-      </button>
+    <input
+      type="text"
+      placeholder="Teléfono"
+      value={address.phone}
+      onChange={(e) =>
+        setAddress({ ...address, phone: e.target.value })
+      }
+      className="w-full border rounded-xl p-3"
+    />
 
-      <button
-        onClick={() => setShowPaymentMethods(false)}
-        className="w-full mt-3 text-sm text-gray-800"
-      >
-        Cancelar
-      </button>
-    </div>
+    <input
+      type="text"
+      placeholder="Calle"
+      value={address.street}
+      onChange={(e) =>
+        setAddress({ ...address, street: e.target.value })
+      }
+      className="w-full border rounded-xl p-3"
+    />
+
+    <input
+      type="text"
+      placeholder="Número"
+      value={address.street_number}
+      onChange={(e) =>
+        setAddress({ ...address, street_number: e.target.value })
+      }
+      className="w-full border rounded-xl p-3"
+    />
+ <input placeholder="Departamento"
+            value={address.apartment}
+            onChange={(e) => setAddress({ ...address, apartment: e.target.value })}
+            className="w-full border p-2 rounded-lg"
+          />
+    <input
+      type="text"
+      placeholder="Ciudad"
+      value={address.city}
+      onChange={(e) =>
+        setAddress({ ...address, city: e.target.value })
+      }
+      className="w-full border rounded-xl p-3"
+    />
+
+    <input
+      type="text"
+      placeholder="Provincia"
+      value={address.province}
+      onChange={(e) =>
+        setAddress({ ...address, province: e.target.value })
+      }
+      className="w-full border rounded-xl p-3"
+    />
+
+    <input
+      type="text"
+      placeholder="Código Postal"
+      value={address.postal_code}
+      onChange={(e) =>
+        setAddress({ ...address, postal_code: e.target.value })
+      }
+      className="w-full border rounded-xl p-3"
+    />
+     <textarea placeholder="Información adicional"
+            value={address.additional_info}
+            onChange={(e) => setAddress({ ...address, additional_info: e.target.value })}
+            className="w-full border p-2 rounded-lg"
+          />
+
+    <button
+      onClick={() => setCheckoutStep("payment")}
+      className="w-full bg-blue-600 text-white py-3 rounded-xl"
+    >
+      Continuar al pago
+    </button>
+
   </div>
 )}
 
-              <button
-  onClick={checkAddressAndContinue}
-  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition"
+                {checkoutStep === "payment" && (
+                  <div className="space-y-3 fade-step">
+                    <button
+  onClick={() => setCheckoutStep("delivery")}
+  className="text-sm text-gray-500"
 >
-  Ir a pagar
+  ← Volver
 </button>
+                    {/* Total dinámico */}
+                    <div className="bg-neutral-100 p-3 rounded-xl text-sm">
+                      <div className="flex justify-between">
+                        <span>Total</span>
+                        <span className="font-semibold">
+                          ${total.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      disabled={loading}
+                     onClick={() => handleCheckout("mercadopago")}
+                      className="w-full bg-blue-500 text-white py-3 rounded-xl flex justify-center items-center gap-2 disabled:opacity-60"
+                    >
+                      {loading ? (
+                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      ) : (
+                        "Mercado Pago"
+                      )}
+                    </button>
+
+                    <button
+                      disabled={loading}
+                     onClick={() => handleCheckout("transfer")}
+                      className="w-full bg-blue-600 text-white py-3 rounded-xl flex justify-center items-center gap-2 disabled:opacity-60"
+                    >
+                      {loading ? (
+                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      ) : (
+                        "Transferencia"
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {checkoutStep === "transferCard" && orderId && (
+  <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4 animate-fade-in">
+    
+    <h3 className="text-lg font-semibold">
+      Datos para realizar la transferencia
+    </h3>
+
+    <div className="bg-gray-50 p-4 rounded-xl text-sm space-y-2">
+      <p><strong>CBU:</strong> 0000003100000000000000</p>
+      <p><strong>Alias:</strong> TECHSTORE.PAGOS</p>
+      <p><strong>Titular:</strong> Tech Store S.A.</p>
+    </div>
+
+    <p className="text-sm text-gray-600">
+      ⏳ El pago puede demorar hasta 48 hs en acreditarse.
+      Luego deberás subir el comprobante desde tu panel.
+    </p>
+
+    <button
+      onClick={() => window.location.href = "/user/dashboard"}
+      className="w-full bg-black text-white py-3 rounded-xl"
+    >
+      Subir comprobante
+    </button>
+
+    <p className="text-xs text-gray-400 text-center">
+      Orden #{orderId}
+    </p>
+
+  </div>
+)}
+
               </div>
             </>
           )}

@@ -6,36 +6,22 @@ import { randomUUID } from "crypto";
 
 export async function POST(req: Request) {
   try {
-    const { email, payment_method } = await req.json();
-    console.log("datos recibidos:", { email, payment_method})
+    const {
+      email,
+      payment_method,
+      delivery_type,
+      shipping_cost = 0,
+      address,
+    } = await req.json();
 
-    if (!email || !payment_method) {
+    if (!email || !payment_method || !delivery_type) {
       return NextResponse.json(
-        { error: "Email y método de pago requeridos" },
+        { error: "Datos incompletos" },
         { status: 400 }
       );
     }
 
     const decodedEmail = decodeURIComponent(email);
-
-    // 🔎 Validación crítica de entorno
-    if (!process.env.MP_ACCESS_TOKEN) {
-      console.error("MP_ACCESS_TOKEN no definido");
-      return NextResponse.json(
-        { error: "Error configuración Mercado Pago" },
-        { status: 500 }
-      );
-    }
-
-    if (!process.env.BASE_URL) {
-      console.log("BASE_URL real:", JSON.stringify(process.env.BASE_URL));
-
-      console.error("BASE_URL no definido");
-      return NextResponse.json(
-        { error: "Error configuración BASE_URL" },
-        { status: 500 }
-      );
-    }
 
     // 1️⃣ Obtener user_id
     const userResult = await query(
@@ -51,31 +37,8 @@ export async function POST(req: Request) {
     }
 
     const userId = userResult.rows[0].id;
-    // 🔎 Verificar que tenga dirección
-const addressCheck = await query(
-  `
-  SELECT street, city, zip_code, province
-  FROM users
-  WHERE id = $1
-  `,
-  [userId]
-);
 
-const userAddress = addressCheck.rows[0];
-
-if (
-  !userAddress.street ||
-  !userAddress.city ||
-  !userAddress.zip_code ||
-  !userAddress.province
-) {
-  return NextResponse.json(
-    { error: "Debes completar tu dirección antes de comprar" },
-    { status: 400 }
-  );
-}
-
-    // 2️⃣ Obtener productos del carrito
+    // 2️⃣ Obtener carrito
     const cartResult = await query(
       `
       SELECT 
@@ -84,10 +47,8 @@ if (
         products.price,
         cart_items.quantity
       FROM cart
-      INNER JOIN cart_items 
-        ON cart_items.cart_id = cart.id
-      INNER JOIN products 
-        ON products.id = cart_items.product_id
+      INNER JOIN cart_items ON cart_items.cart_id = cart.id
+      INNER JOIN products ON products.id = cart_items.product_id
       WHERE cart.user_id = $1
       `,
       [userId]
@@ -102,30 +63,61 @@ if (
 
     const cartItems = cartResult.rows;
 
-    // 3️⃣ Calcular total backend
-    const total = cartItems.reduce(
+    // 3️⃣ Validación de dirección si es shipping
+    if (delivery_type === "shipping") {
+      if (
+        !address ||
+        !address.full_name ||
+        !address.street ||
+        !address.street_number ||
+        !address.city ||
+        !address.province ||
+        !address.postal_code
+      ) {
+        return NextResponse.json(
+          { error: "Dirección incompleta" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // 4️⃣ Calcular total backend
+    const productsTotal = cartItems.reduce(
       (acc: number, item: any) =>
         acc + Number(item.price) * Number(item.quantity),
       0
     );
 
-    // 4️⃣ Generar order_number
+    const finalShipping =
+      delivery_type === "shipping" ? Number(shipping_cost) : 0;
+
+    const total = productsTotal + finalShipping;
+
+    // 5️⃣ Generar número orden
     const orderNumber = `ORD-${randomUUID().slice(0, 8).toUpperCase()}`;
 
-    // 5️⃣ Crear orden
+    // 6️⃣ Insertar orden
     const orderInsert = await query(
       `
       INSERT INTO orders 
-      (order_number, user_id, total_amount, currency, payment_method, payment_status, order_status)
-      VALUES ($1, $2, $3, $4, $5, 'pending', 'pending_payment')
+      (order_number, user_id, total_amount, currency, payment_method, 
+       payment_status, order_status, delivery_type, shipping_cost)
+      VALUES ($1, $2, $3, 'ARS', $4, 'pending', 'pending_payment', $5, $6)
       RETURNING id
       `,
-      [orderNumber, userId, total, "ARS", payment_method]
+      [
+        orderNumber,
+        userId,
+        total,
+        payment_method,
+        delivery_type,
+        finalShipping,
+      ]
     );
 
     const orderId = orderInsert.rows[0].id;
 
-    // 6️⃣ Insertar order_items
+    // 7️⃣ Insertar order_items
     for (const item of cartItems) {
       await query(
         `
@@ -144,7 +136,31 @@ if (
       );
     }
 
-    // 7️⃣ Transferencia directa
+    // 8️⃣ Guardar dirección si aplica
+    if (delivery_type === "shipping") {
+      await query(
+        `
+        INSERT INTO order_addresses
+        (order_id, full_name, phone, street, street_number, apartment,
+         city, province, postal_code, additional_info)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+        `,
+        [
+          orderId,
+          address.full_name,
+          address.phone,
+          address.street,
+          address.street_number,
+          address.apartment || null,
+          address.city,
+          address.province,
+          address.postal_code,
+          address.additional_info || null,
+        ]
+      );
+    }
+
+    // 9️⃣ Transferencia
     if (payment_method === "transfer") {
       return NextResponse.json({
         order_id: orderId,
@@ -152,28 +168,40 @@ if (
       });
     }
 
-    // 8️⃣ Mercado Pago
+    // 🔟 Mercado Pago
     if (payment_method === "mercadopago") {
       const preference = new Preference(mpClient);
 
       const response = await preference.create({
         body: {
-          items: cartItems.map((item: any) => ({
-            id: item.product_id.toString(),
-            title: item.name,
-            unit_price: Number(item.price),
-            quantity: Number(item.quantity),
-            currency_id: "ARS",
-          })),
-          external_reference: orderId.toString(), // 🔥 FIX IMPORTANTE
+          items: [
+            ...cartItems.map((item: any) => ({
+              id: item.product_id.toString(),
+              title: item.name,
+              unit_price: Number(item.price),
+              quantity: Number(item.quantity),
+              currency_id: "ARS",
+            })),
+            ...(delivery_type === "shipping"
+              ? [
+                  {
+                    id: "shipping",
+                    title: "Costo de envío",
+                    unit_price: finalShipping,
+                    quantity: 1,
+                    currency_id: "ARS",
+                  },
+                ]
+              : []),
+          ],
+          external_reference: orderId.toString(),
           notification_url: `https://iphones-e-commerce.vercel.app/api/webhooks/mercadopago`,
           back_urls: {
-          success: `https://iphones-e-commerce.vercel.app/checkout/success`,
-          failure: `https://iphones-e-commerce.vercel.app/checkout/failure`,
-          pending: `https://iphones-e-commerce.vercel.app/checkout/pending`,
-},
-auto_return: "approved",
-
+            success: `https://iphones-e-commerce.vercel.app/checkout/success`,
+            failure: `https://iphones-e-commerce.vercel.app/checkout/failure`,
+            pending: `https://iphones-e-commerce.vercel.app/checkout/pending`,
+          },
+          auto_return: "approved",
         },
       });
 
@@ -188,9 +216,7 @@ auto_return: "approved",
     );
 
   } catch (error: any) {
-    console.error("Error creando orden:", error?.cause || error);
-    console.error("MP RESPONSE:", error?.response?.data);
-
+    console.error("Error creando orden:", error);
     return NextResponse.json(
       { error: "Error interno del servidor" },
       { status: 500 }

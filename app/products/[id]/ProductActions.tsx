@@ -4,149 +4,286 @@ import { ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function ProductActions({
-  productId,
-}: {
-  productId: string;
-}) {
+export default function ProductActions({ productId }: { productId: string }) {
   const router = useRouter();
 
-  const [showMethods, setShowMethods] = useState(false);
+  const [step, setStep] = useState<
+    "initial" | "delivery" | "address" | "payment" | "transferCard"
+  >("initial");
+
+  const [deliveryType, setDeliveryType] = useState<"pickup" | "shipping" | null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<"transfer" | "mercadopago" | null>(null);
+  const [orderId, setOrderId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const shippingCost = 3500;
+
+  // 🔹 Estado dirección
+  const [address, setAddress] = useState({
+    full_name: "",
+    phone: "",
+    street: "",
+    street_number: "",
+    apartment: "",
+    city: "",
+    province: "",
+    postal_code: "",
+    additional_info: "",
+  });
 
   const getCookie = (name: string) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) {
-      return parts.pop()?.split(";").shift();
-    }
+    if (parts.length === 2) return parts.pop()?.split(";").shift();
     return null;
   };
 
-  // 🔎 Verificar dirección antes de comprar
-  const verifyAddress = async (): Promise<boolean> => {
-    try {
-      const res = await fetch("/api/user/has-address", {
-        credentials: "include",
-      });
-
-      if (!res.ok) return false;
-
-      const data = await res.json();
-
-      if (!data.hasAddress) {
-        alert("Debes completar tu dirección antes de comprar.");
-        router.push("/user/dashboard");
-        return false;
-      }
-
-      return true;
-    } catch {
+  const validateAddress = () => {
+    if (
+      !address.full_name ||
+      !address.street ||
+      !address.street_number ||
+      !address.city ||
+      !address.province ||
+      !address.postal_code
+    ) {
+      alert("Completá todos los campos obligatorios");
       return false;
     }
+    return true;
   };
 
-  const addToCart = async () => {
-    const email = getCookie("emailTech");
+const createOrder = async (paymentMethod: "transfer" | "mercadopago") => {
+  const email = getCookie("emailTech");
+  if (!email || !deliveryType) return;
 
-    if (!email) {
-      alert("Debes iniciar sesión");
-      return;
+  if (deliveryType === "shipping" && !validateAddress()) return;
+
+  try {
+    setLoading(true);
+
+    const res = await fetch("/api/order/buy-now", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: decodeURIComponent(email),
+        product_id: productId,
+        payment_method: paymentMethod,
+        delivery_type: deliveryType,
+        shipping_cost: deliveryType === "shipping" ? shippingCost : 0,
+        address: deliveryType === "shipping" ? address : null,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error();
+
+    if (paymentMethod === "mercadopago") {
+      window.location.href = data.init_point;
     }
 
-    try {
-      await fetch("/api/cart/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: decodeURIComponent(email),
-          productId,
-        }),
-      });
-
-      alert("Producto agregado al carrito 🛒");
-    } catch {
-      alert("Error agregando producto");
-    }
-  };
-
-  const createOrder = async (method: "transfer" | "mercadopago") => {
-    const email = getCookie("emailTech");
-
-    if (!email) {
-      alert("Debes iniciar sesión");
-      return;
+    if (paymentMethod === "transfer") {
+      setOrderId(data.order_id);
+      setStep("transferCard");
     }
 
-    const hasAddress = await verifyAddress();
-    if (!hasAddress) return;
+  } catch {
+    alert("Error creando orden");
+  } finally {
+    setLoading(false);
+  }
+};
 
-    try {
-      setLoading(true);
-
-      const res = await fetch("/api/order/buy-now", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: decodeURIComponent(email),
-          product_id: productId,
-          payment_method: method,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error();
-
-      if (method === "mercadopago") {
-        window.location.href = data.init_point;
-      }
-
-      if (method === "transfer") {
-        alert("Orden creada ✅ Te enviaremos los datos de transferencia por email.");
-      }
-
-    } catch {
-      alert("Error creando la orden");
-    } finally {
-      setLoading(false);
+  const handleBack = () => {
+    if (step === "delivery") setStep("initial");
+    if (step === "address") setStep("delivery");
+    if (step === "payment") {
+      if (deliveryType === "shipping") setStep("address");
+      else setStep("delivery");
     }
+    if (step === "transferCard") setStep("payment");
   };
 
   return (
     <div className="mt-8 space-y-4">
-      <button
-        onClick={() => setShowMethods(true)}
-        className="w-full bg-black text-white px-6 py-3 rounded-xl hover:bg-neutral-800 transition font-medium"
-      >
-        Comprar ahora
-      </button>
 
-      {showMethods && (
-        <div className="flex gap-3 animate-fade-in">
+      {/* 🔹 PASO 0 */}
+      {step === "initial" && (
+        <>
           <button
-            disabled={loading}
-            onClick={() => createOrder("mercadopago")}
-            className="flex-1 bg-blue-500 text-white px-4 py-3 rounded-xl hover:bg-blue-600 transition"
+            onClick={() => setStep("delivery")}
+            className="w-full bg-black text-white px-6 py-3 rounded-xl hover:bg-neutral-800 transition font-medium"
           >
-            Mercado Pago
+            Comprar ahora
           </button>
 
           <button
-            disabled={loading}
-            onClick={() => createOrder("transfer")}
-            className="flex-1 bg-neutral-200 text-black px-4 py-3 rounded-xl hover:bg-neutral-300 transition"
+            onClick={() => alert("Agregar al carrito")}
+            className="w-full bg-neutral-100 hover:bg-neutral-200 text-black p-3 rounded-xl transition flex justify-center"
           >
-            Transferencia
+            <ShoppingCart size={20} />
+          </button>
+        </>
+      )}
+
+      {/* 🔹 PASO 1 */}
+      {step === "delivery" && (
+        <div className="space-y-3">
+          <button onClick={handleBack} className="text-sm text-gray-500 hover:text-black">
+            ← Volver
+          </button>
+
+          <button
+            onClick={() => {
+              setDeliveryType("pickup");
+              setStep("payment");
+            }}
+            className="w-full bg-black text-white p-4 rounded-xl"
+          >
+            🏬 Retiro en el local (Gratis)
+          </button>
+
+          <button
+            onClick={() => {
+              setDeliveryType("shipping");
+              setStep("address");
+            }}
+            className="w-full bg-black text-white p-4 rounded-xl"
+          >
+            🚚 Envío a domicilio (+ ${shippingCost})
           </button>
         </div>
       )}
 
-      <button
-        onClick={addToCart}
-        className="w-full bg-neutral-100 hover:bg-neutral-200 text-black p-3 rounded-xl transition flex justify-center"
-      >
-        <ShoppingCart size={20} />
-      </button>
+      {/* 🔹 PASO 2 - DIRECCIÓN REAL */}
+      {step === "address" && (
+        <div className="space-y-3 bg-black p-5 rounded-xl border">
+          <button onClick={handleBack} className="text-sm text-gray-500 hover:text-white">
+            ← Volver
+          </button>
+
+          <h3 className="font-semibold">Dirección de entrega</h3>
+
+          <input placeholder="Nombre completo *"
+            value={address.full_name}
+            onChange={(e) => setAddress({ ...address, full_name: e.target.value })}
+            className="w-full border p-2 rounded-lg"
+          />
+
+          <input placeholder="Teléfono"
+            value={address.phone}
+            onChange={(e) => setAddress({ ...address, phone: e.target.value })}
+            className="w-full border p-2 rounded-lg"
+          />
+
+          <div className="flex gap-2">
+            <input placeholder="Calle *"
+              value={address.street}
+              onChange={(e) => setAddress({ ...address, street: e.target.value })}
+              className="w-2/3 border p-2 rounded-lg"
+            />
+
+            <input placeholder="Número *"
+              value={address.street_number}
+              onChange={(e) => setAddress({ ...address, street_number: e.target.value })}
+              className="w-1/3 border p-2 rounded-lg"
+            />
+          </div>
+
+          <input placeholder="Departamento"
+            value={address.apartment}
+            onChange={(e) => setAddress({ ...address, apartment: e.target.value })}
+            className="w-full border p-2 rounded-lg"
+          />
+
+          <input placeholder="Ciudad *"
+            value={address.city}
+            onChange={(e) => setAddress({ ...address, city: e.target.value })}
+            className="w-full border p-2 rounded-lg"
+          />
+
+          <input placeholder="Provincia *"
+            value={address.province}
+            onChange={(e) => setAddress({ ...address, province: e.target.value })}
+            className="w-full border p-2 rounded-lg"
+          />
+
+          <input placeholder="Código Postal *"
+            value={address.postal_code}
+            onChange={(e) => setAddress({ ...address, postal_code: e.target.value })}
+            className="w-full border p-2 rounded-lg"
+          />
+
+          <textarea placeholder="Información adicional"
+            value={address.additional_info}
+            onChange={(e) => setAddress({ ...address, additional_info: e.target.value })}
+            className="w-full border p-2 rounded-lg"
+          />
+
+          <button
+            onClick={() => setStep("payment")}
+            className="w-full bg-white text-black py-3 rounded-xl"
+          >
+            Continuar al pago
+          </button>
+        </div>
+      )}
+
+      {/* 🔹 PASO 3 - PAGO */}
+      {step === "payment" && (
+        <div className="space-y-3">
+          <button onClick={handleBack} className="text-sm text-gray-500 hover:text-black mb-5">
+            ← Volver
+          </button>
+
+       <button
+  disabled={loading}
+  onClick={() => createOrder("mercadopago")}
+  className="w-full bg-blue-500 text-white py-3 rounded-xl"
+>
+  Mercado Pago
+</button>
+
+<button
+  disabled={loading}
+  onClick={() => createOrder("transfer")}
+  className="w-full bg-blue-600 text-white py-3 rounded-xl"
+>
+  Transferencia bancaria
+</button>
+        </div>
+      )}
+
+      {/* 🔹 PASO 4 */}
+      {step === "transferCard" && (
+        <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4 animate-fade-in">
+          <h3 className="text-lg font-semibold">
+            Datos para realizar la transferencia
+          </h3>
+
+          <div className="bg-gray-50 p-4 rounded-xl text-sm space-y-2">
+            <p><strong>CBU:</strong> 0000003100000000000000</p>
+            <p><strong>Alias:</strong> TECHSTORE.PAGOS</p>
+            <p><strong>Titular:</strong> Tech Store S.A.</p>
+          </div>
+
+          <p className="text-sm text-gray-600">
+            ⏳ El pago puede demorar hasta 48 hs en acreditarse.
+            Luego deberás subir el comprobante desde tu panel.
+          </p>
+
+          <button
+            onClick={() => router.push("/user/dashboard")}
+            className="w-full bg-black text-white py-3 rounded-xl"
+          >
+            Subir comprobante
+          </button>
+
+          <p className="text-xs text-gray-400 text-center">
+            Orden #{orderId}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
