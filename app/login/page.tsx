@@ -61,13 +61,13 @@ export default function Login() {
             <div>
               <label className="text-sm text-gray-600">Correo electrónico</label>
               <div className="mt-1 relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-900" size={18} />
                 <input
                   type="email"
                   placeholder="tu@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-3 py-2 border  text-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
@@ -76,13 +76,13 @@ export default function Login() {
             <div>
               <label className="text-sm text-gray-600">Contraseña</label>
               <div className="mt-1 relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-900" size={18} />
                 <input
                   type="password"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-3 py-2 border  text-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>

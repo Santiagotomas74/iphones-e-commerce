@@ -87,7 +87,7 @@ export default function Register() {
 
             {/* Email */}
             <div>
-              <label className="text-sm text-gray-900">Correo electrónico</label>
+              <label className="text-sm text-gray-900">Correo electró</label>
               <div className="mt-1 relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-900" size={18} />
                 <input
