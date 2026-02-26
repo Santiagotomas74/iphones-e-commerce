@@ -115,7 +115,7 @@ export async function POST(req: Request) {
     // =============================
     // ✅ APPROVED
     // =============================
-    if (status === "approved") {
+   if (status === "approved" && order.payment_status !== "approved") {
 
       const existingPayment = await query(
         `SELECT id FROM payments WHERE provider_payment_id = $1`,
@@ -157,17 +157,18 @@ export async function POST(req: Request) {
       }
 
       await query(
-        `
-        UPDATE orders
-        SET payment_status = 'approved',
-            order_status = 'paid',
-            paid_at = NOW()
-        WHERE id = $1
-        `,
-        [orderId]
-      );
+  `
+  UPDATE orders
+  SET payment_status = 'approved',
+      order_status = 'dispatch',
+      paid_at = NOW(),
+      updated_at = NOW()
+  WHERE id = $1
+  `,
+  [orderId]
+);
 
-      console.log("✅ Orden marcada como paid");
+      console.log("✅ Orden marcada como dispatch");
     }
 
     // =============================
