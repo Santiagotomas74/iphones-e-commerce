@@ -6,62 +6,57 @@ import { randomUUID } from "crypto";
 
 export async function POST(req: Request) {
   try {
-    const { email, product_id, payment_method } = await req.json();
+    const {
+      email,
+      product_id,
+      payment_method,
+      delivery_type,
+      shipping_cost = 0,
+      address,
+    } = await req.json();
 
-    if (!email || !product_id || !payment_method) {
+    if (!email || !product_id || !payment_method || !delivery_type) {
       return NextResponse.json(
         { error: "Datos incompletos" },
         { status: 400 }
       );
     }
 
+    if (delivery_type === "shipping" && !address) {
+      return NextResponse.json(
+        { error: "Dirección requerida para envío" },
+        { status: 400 }
+      );
+    }
+
     const decodedEmail = decodeURIComponent(email);
 
-    // 1️⃣ Buscar usuario
+    await query("BEGIN");
+
+    // 🔹 1 Buscar usuario
     const userResult = await query(
       `SELECT id FROM users WHERE email = $1`,
       [decodedEmail]
     );
 
     if (userResult.rows.length === 0) {
+      await query("ROLLBACK");
       return NextResponse.json(
         { error: "Usuario no encontrado" },
         { status: 404 }
       );
     }
-    
 
     const userId = userResult.rows[0].id;
-// 🔎 Verificar que tenga dirección
-const addressCheck = await query(
-  `
-  SELECT street, city, zip_code, province
-  FROM users
-  WHERE id = $1
-  `,
-  [userId]
-);
 
-const userAddress = addressCheck.rows[0];
-
-if (
-  !userAddress.street ||
-  !userAddress.city ||
-  !userAddress.zip_code ||
-  !userAddress.province
-) {
-  return NextResponse.json(
-    { error: "Debes completar tu dirección antes de comprar" },
-    { status: 400 }
-  );
-}
-    // 2️⃣ Buscar producto
+    // 🔹 2 Buscar producto
     const productResult = await query(
       `SELECT id, name, price FROM products WHERE id = $1`,
       [product_id]
     );
 
     if (productResult.rows.length === 0) {
+      await query("ROLLBACK");
       return NextResponse.json(
         { error: "Producto no encontrado" },
         { status: 404 }
@@ -70,24 +65,33 @@ if (
 
     const product = productResult.rows[0];
 
-    const total = Number(product.price);
+    const productPrice = Number(product.price);
+    const total = productPrice + (delivery_type === "shipping" ? Number(shipping_cost) : 0);
 
     const orderNumber = `ORD-${randomUUID().slice(0, 8).toUpperCase()}`;
 
-    // 3️⃣ Crear orden
+    // 🔹 3 Crear orden
     const orderInsert = await query(
       `
       INSERT INTO orders 
-      (order_number, user_id, total_amount, currency, payment_method, payment_status, order_status)
-      VALUES ($1, $2, $3, $4, $5, 'pending', 'pending_payment')
+      (order_number, user_id, total_amount, currency, payment_method, payment_status, order_status, delivery_type, shipping_cost)
+      VALUES ($1, $2, $3, $4, $5, 'pending', 'pending_payment', $6, $7)
       RETURNING id
       `,
-      [orderNumber, userId, total, "ARS", payment_method]
+      [
+        orderNumber,
+        userId,
+        total,
+        "ARS",
+        payment_method,
+        delivery_type,
+        delivery_type === "shipping" ? shipping_cost : 0,
+      ]
     );
 
     const orderId = orderInsert.rows[0].id;
 
-    // 4️⃣ Insertar order_item único
+    // 🔹 4 Insertar item
     await query(
       `
       INSERT INTO order_items
@@ -98,13 +102,39 @@ if (
         orderId,
         product.id,
         product.name,
-        Number(product.price),
+        productPrice,
         1,
-        Number(product.price),
+        productPrice,
       ]
     );
 
-    // 5️⃣ Transferencia
+    // 🔹 5 Guardar dirección si es envío
+    if (delivery_type === "shipping") {
+      await query(
+        `
+        INSERT INTO order_addresses
+        (order_id, full_name, phone, street, street_number, apartment,
+         city, province, postal_code, additional_info)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+        `,
+        [
+          orderId,
+          address.full_name,
+          address.phone,
+          address.street,
+          address.street_number,
+          address.apartment || null,
+          address.city,
+          address.province,
+          address.postal_code,
+          address.additional_info || null,
+        ]
+      );
+    }
+
+    await query("COMMIT");
+
+    // 🔹 6 Transferencia
     if (payment_method === "transfer") {
       return NextResponse.json({
         order_id: orderId,
@@ -112,7 +142,7 @@ if (
       });
     }
 
-    // 6️⃣ Mercado Pago
+    // 🔹 7 Mercado Pago
     if (payment_method === "mercadopago") {
       const preference = new Preference(mpClient);
 
@@ -122,17 +152,21 @@ if (
             {
               id: product.id.toString(),
               title: product.name,
-              unit_price: Number(product.price),
+              unit_price: total,
               quantity: 1,
               currency_id: "ARS",
             },
           ],
           external_reference: orderId.toString(),
-          notification_url: `https://iphones-e-commerce.vercel.app/api/webhooks/mercadopago`,
+          notification_url:
+            "https://iphones-e-commerce.vercel.app/api/webhooks/mercadopago",
           back_urls: {
-            success: `https://iphones-e-commerce.vercel.app/checkout/success`,
-            failure: `https://iphones-e-commerce.vercel.app/checkout/failure`,
-            pending: `https://iphones-e-commerce.vercel.app/checkout/pending`,
+            success:
+              "https://iphones-e-commerce.vercel.app/checkout/success",
+            failure:
+              "https://iphones-e-commerce.vercel.app/checkout/failure",
+            pending:
+              "https://iphones-e-commerce.vercel.app/checkout/pending",
           },
           auto_return: "approved",
         },
@@ -147,9 +181,9 @@ if (
       { error: "Método de pago inválido" },
       { status: 400 }
     );
-
   } catch (error: any) {
-    console.error("Error buy-now:", error?.response?.data || error);
+    await query("ROLLBACK");
+    console.error("Error buy-now:", error);
 
     return NextResponse.json(
       { error: "Error interno del servidor" },
@@ -157,3 +191,10 @@ if (
     );
   }
 }
+
+
+
+
+
+
+
