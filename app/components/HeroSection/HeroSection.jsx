@@ -3,7 +3,7 @@ export default function HeroIphone() {
     <section className="relative mt-0 px-2 sm:px-8 lg:px-16 w-full flex-1">
       
       {/* Radial light effect */}
-      <div className=" hidden sm:block absolute right-0 top-1/4 -translate-y-1/3 translate-x-1/10
+      <div className=" hidden sm:block absolute right-0 top-1/4 -translate-y-1/3 
            w-[400px] sm:w-[500px] md:w-[600px] lg:w-[700px] aspect-square rounded-full 
            bg-[radial-gradient(circle,rgba(160,140,255,0.75),transparent_70%)] blur-2xl">
       </div>
