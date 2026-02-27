@@ -69,7 +69,7 @@ export async function GET() {
     // 📦 5️⃣ Obtener órdenes
     const ordersResult = await query(
       `
-      SELECT id, order_number, total_amount, payment_status, order_status, created_at, expires_at
+      SELECT id, order_number, total_amount, payment_method, payment_status, order_status, created_at, expires_at, paid_at, delivery_type, shipping_cost, payment_receipt_url
       FROM orders
       WHERE user_id = $1
       ORDER BY created_at DESC
