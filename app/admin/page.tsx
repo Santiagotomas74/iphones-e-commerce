@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus, Pencil, Trash2, Package, DollarSign } from "lucide-react";
+import Ordenes from "./orders/Orders";
+import Shipping from "./shipping/Shipping"
+
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
@@ -135,6 +138,9 @@ export default function AdminProducts() {
           <div className="p-16 text-center text-gray-400">No hay productos.</div>
         )}
       </div>
+         <Ordenes />
+          <Shipping />
     </div>
+   
   );
 }
