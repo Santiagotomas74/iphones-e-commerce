@@ -73,7 +73,7 @@ export default function Navbar({ items }: NavbarProps) {
            <div className="flex items-center gap-4"> 
             <Link
               href="/"
-              className="text-2xl font-bold text-black tracking-wide"
+              className="text-3xl font-bold text-black tracking-wide"
             >
               TechStore
             </Link>
@@ -86,7 +86,7 @@ export default function Navbar({ items }: NavbarProps) {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="hover:text-black transition-colors"
+                  className="hover:text-black transition-colors text-lg tracking-wide font-bold"
                 >
                   {item.label}
                 </Link>
@@ -106,7 +106,7 @@ export default function Navbar({ items }: NavbarProps) {
                   href="/login"
                   className="flex items-center gap-2 text-sm text-gray-700 hover:text-black transition"
                 >
-                  <User size={20} />
+                  <User size={30} />
                   <span>Iniciar sesión</span>
                 </Link>
               </div>
@@ -119,7 +119,7 @@ export default function Navbar({ items }: NavbarProps) {
                   href="/user/dashboard"
                   className="flex items-center gap-2 text-sm text-gray-700 hover:text-black transition"
                 >
-                  <User size={20} />
+                  <User size={25} />
                   {userName && <span>{userName}</span>}
                 </Link>
 
@@ -129,7 +129,7 @@ export default function Navbar({ items }: NavbarProps) {
                   className="flex items-center gap-2 text-sm font-medium text-red-600 transition-all duration-200 active:scale-90 group"
                 >
                   <div className="transition-transform duration-300 group-hover:translate-x-0.5">
-                    <LogOut size={20} />
+                    <LogOut size={25} />
                   </div>
                   <span>Salir</span>
                 </button>
@@ -141,7 +141,7 @@ export default function Navbar({ items }: NavbarProps) {
               onClick={() => setIsCartOpen(true)}
               className="relative flex items-center justify-center text-gray-700 hover:text-black transition p-2 rounded-full "
             >
-              <ShoppingBag size={22} />
+              <ShoppingBag size={27} />
               <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs font-medium px-2 py-[2px] rounded-full">
                 20
               </span>

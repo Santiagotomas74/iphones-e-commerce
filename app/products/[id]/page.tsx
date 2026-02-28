@@ -35,7 +35,7 @@ export default async function ProductDetail({
   ].filter(Boolean);
 
   return (
-    <main className="max-w-6xl mx-auto p-6 grid md:grid-cols-2 gap-10">
+    <main className="max-w-6xl mx-auto p-6 grid md:grid-cols-2 gap-10 mt-30">
       
       <ProductGallery images={images} />
 

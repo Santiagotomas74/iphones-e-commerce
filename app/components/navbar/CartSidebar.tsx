@@ -445,9 +445,9 @@ const [checkoutStep, setCheckoutStep] = useState<
                 )}
 
                 {checkoutStep === "transferCard" && orderId && (
-  <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4 animate-fade-in">
+  <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4 animate-fade-in ">
     
-    <h3 className="text-lg font-semibold">
+    <h3 className="text-lg font-semibold ">
       Datos para realizar la transferencia
     </h3>
 
@@ -457,7 +457,7 @@ const [checkoutStep, setCheckoutStep] = useState<
       <p><strong>Titular:</strong> Tech Store S.A.</p>
     </div>
 
-    <p className="text-sm text-gray-600">
+    <p className="text-sm text-gray-900">
       ⏳ El pago puede demorar hasta 48 hs en acreditarse.
       Luego deberás subir el comprobante desde tu panel.
     </p>
