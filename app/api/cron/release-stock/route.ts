@@ -31,7 +31,7 @@ export async function GET(req: Request) {
       // 🔼 Liberar exactamente la cantidad reservada
       await client.query(
         `UPDATE products
-         SET stock = stock + $1
+         SET quantity = quantity + $1
          WHERE id = $2`,
         [row.quantity, row.product_id]
       );
