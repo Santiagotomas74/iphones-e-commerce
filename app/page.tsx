@@ -52,7 +52,7 @@ export default async function HomePage() {
   href="https://wa.me/549XXXXXXXXXX?text=Hola!%20Quiero%20consultar%20por%20un%20iPhone"
   target="_blank"
   rel="noopener noreferrer"
-  className="fixed bottom-10 right-10 bg-green-500 hover:bg-green-600 text-white p-2 rounded-full shadow-lg transition-all duration-300 z-50 text-2xl"
+  className="fixed bottom-10 right-10 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-50 text-2xl"
 >
   <FaWhatsapp  size={40}/>
 </a>

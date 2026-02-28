@@ -163,6 +163,8 @@ export default function UserDashboard() {
       {/* COLUMNA DERECHA */}
       <div className="lg:col-span-2 space-y-8">
 
+          <UserOrders  />
+
         {/* ÓRDENES */}
         <section className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
           <div className="p-8 border-b border-gray-50 flex items-center justify-between">

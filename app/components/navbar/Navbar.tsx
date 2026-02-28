@@ -73,7 +73,7 @@ export default function Navbar({ items }: NavbarProps) {
            <div className="flex items-center gap-4"> 
             <Link
               href="/"
-              className="text-3xl font-bold text-black tracking-wide"
+              className="text-3xl  text-black tracking-wide"
             >
               TechStore
             </Link>
@@ -86,7 +86,7 @@ export default function Navbar({ items }: NavbarProps) {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="hover:text-black transition-colors text-lg tracking-wide font-bold"
+                  className="hover:text-black transition-colors text-lg tracking-wide "
                 >
                   {item.label}
                 </Link>
