@@ -49,7 +49,7 @@ export default function UserAddress({ address, onAddressUpdated }: Props) {
   };
 
   return (
-    <div className="border p-6 rounded shadow">
+    <div className="border p-6 rounded shadow text-gray-900">
       <h2 className="text-xl font-semibold mb-4">
         Dirección de Envío
       </h2>
@@ -73,15 +73,12 @@ export default function UserAddress({ address, onAddressUpdated }: Props) {
             <p>No tenés dirección cargada.</p>
           )}
 
-          <button
-            onClick={() => {
-              if (address) setForm(address);
-              setEditing(true);
-            }}
-            className="mt-4 bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded"
-          >
-            Editar Dirección
-          </button>
+        <button
+  className="mt-6 w-full flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-500 text-amber-950 px-6 py-3 rounded-2xl font-bold text-sm transition-all duration-300 shadow-lg shadow-amber-200/50 active:scale-95 text-white text-bold shadow"
+>
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+  Editar Dirección
+</button>
         </>
       ) : (
         <div className="space-y-3">

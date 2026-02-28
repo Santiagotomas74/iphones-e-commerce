@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart,Store, Truck } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -133,25 +133,27 @@ const createOrder = async (paymentMethod: "transfer" | "mercadopago") => {
             ← Volver
           </button>
 
-          <button
-            onClick={() => {
-              setDeliveryType("pickup");
-              setStep("payment");
+        <button
+         onClick={() => {
+                setDeliveryType("pickup");
+                 setStep("payment");
             }}
-            className="w-full bg-black text-white p-4 rounded-xl"
-          >
-            🏬 Retiro en el local (Gratis)
-          </button>
-
-          <button
-            onClick={() => {
+                className="w-full bg-white text-black p-4 rounded-xl border-2 border-black font-medium flex items-center justify-center gap-3  hover:bg-black hover:text-white transition">
+               <Store size={20} strokeWidth={1.5} />
+                Retiro en el local <span className="text-sm opacity-70">(Gratis)</span>
+             </button>
+           <button
+             onClick={() => {
               setDeliveryType("shipping");
               setStep("address");
             }}
-            className="w-full bg-black text-white p-4 rounded-xl"
-          >
-            🚚 Envío a domicilio (+ ${shippingCost})
-          </button>
+           className="w-full bg-white text-black p-4 rounded-xl border-2 border-black font-medium flex items-center justify-center gap-3 hover:bg-black hover:text-white transition">
+          <Truck size={20} strokeWidth={1.5} />
+                 Envío a domicilio 
+              <span className="text-sm opacity-70">
+              (+ ${shippingCost})
+              </span>
+            </button>
         </div>
       )}
 
@@ -237,27 +239,31 @@ const createOrder = async (paymentMethod: "transfer" | "mercadopago") => {
           </button>
 
        <button
-  disabled={loading}
-  onClick={() => createOrder("mercadopago")}
-  className="w-full bg-blue-500 text-white py-3 rounded-xl"
->
-  Mercado Pago
-</button>
+           disabled={loading}
+            onClick={() => createOrder("mercadopago")}
+             className="w-full bg-white hover:bg-gray-50 text-gray-800 py-3 rounded-xl flex items-center justify-center gap-3 font-semibold transition border border-gray-300 shadow-sm">
+       <img
+         src="/image/mercadopago.png"
+          alt="Mercado Pago"
+          className="h-8 w-auto"
+         />
+        <span>Mercado Pago</span>
+      </button>
 
-<button
-  disabled={loading}
-  onClick={() => createOrder("transfer")}
-  className="w-full bg-blue-600 text-white py-3 rounded-xl"
->
-  Transferencia bancaria
-</button>
+        <button
+           disabled={loading}
+           onClick={() => createOrder("transfer")}
+           className="w-full bg-gray-900 hover:bg-black text-white py-3 rounded-xl flex items-center justify-center gap-2 font-medium transition border border-gray-800"
+            >
+                 $ Transferencia bancaria
+          </button>
         </div>
       )}
 
       {/* 🔹 PASO 4 */}
       {step === "transferCard" && (
         <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4 animate-fade-in">
-          <h3 className="text-lg font-semibold">
+          <h3 className="text-lg font-semibold ">
             Datos para realizar la transferencia
           </h3>
 
