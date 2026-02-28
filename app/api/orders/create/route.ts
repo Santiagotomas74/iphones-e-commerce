@@ -159,8 +159,24 @@ export async function POST(req: Request) {
         ]
       );
     }
+    // 🧹 9️⃣ Limpiar carrito del usuario
+// Obtener cart_id
+const cartIdResult = await query(
+  `SELECT id FROM cart WHERE user_id = $1`,
+  [userId]
+);
 
-    // 9️⃣ Transferencia
+if (cartIdResult.rows.length > 0) {
+  const cartId = cartIdResult.rows[0].id;
+
+  // Eliminar items del carrito
+  await query(
+    `DELETE FROM cart_items WHERE cart_id = $1`,
+    [cartId]
+  );
+}
+
+    // 10 Transferencia
     if (payment_method === "transfer") {
       return NextResponse.json({
         order_id: orderId,
@@ -168,7 +184,7 @@ export async function POST(req: Request) {
       });
     }
 
-    // 🔟 Mercado Pago
+    //11 Mercado Pago
     if (payment_method === "mercadopago") {
       const preference = new Preference(mpClient);
 
