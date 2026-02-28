@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Plus, Pencil, Trash2, Package, DollarSign } from "lucide-react";
 import Ordenes from "./orders/Orders";
 import Shipping from "./shipping/Shipping"
+import AdminFinance from "./finance/Finance";
 
 
 export default function AdminProducts() {
@@ -140,6 +141,7 @@ export default function AdminProducts() {
       </div>
          <Ordenes />
           <Shipping />
+          <AdminFinance />
     </div>
    
   );
