@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
-import { query } from "@/db";
+import { pool } from "@/db";
 import { mpClient } from "@/lib/mercadopago";
 import { Preference } from "mercadopago";
 import { randomUUID } from "crypto";
 
 export async function POST(req: Request) {
+  const client = await pool.connect();
+
   try {
     const {
       email,
@@ -23,13 +25,16 @@ export async function POST(req: Request) {
 
     const decodedEmail = decodeURIComponent(email);
 
+    await client.query("BEGIN");
+
     // 1️⃣ Obtener user_id
-    const userResult = await query(
+    const userResult = await client.query(
       `SELECT id FROM users WHERE email = $1`,
       [decodedEmail]
     );
 
     if (userResult.rows.length === 0) {
+      await client.query("ROLLBACK");
       return NextResponse.json(
         { error: "Usuario no encontrado" },
         { status: 404 }
@@ -39,7 +44,7 @@ export async function POST(req: Request) {
     const userId = userResult.rows[0].id;
 
     // 2️⃣ Obtener carrito
-    const cartResult = await query(
+    const cartResult = await client.query(
       `
       SELECT 
         products.id AS product_id,
@@ -55,6 +60,7 @@ export async function POST(req: Request) {
     );
 
     if (cartResult.rows.length === 0) {
+      await client.query("ROLLBACK");
       return NextResponse.json(
         { error: "Carrito vacío" },
         { status: 400 }
@@ -63,7 +69,29 @@ export async function POST(req: Request) {
 
     const cartItems = cartResult.rows;
 
-    // 3️⃣ Validación de dirección si es shipping
+    // 3️⃣ Descontar stock de forma atómica por cada producto
+    for (const item of cartItems) {
+      const stockUpdate = await client.query(
+        `
+        UPDATE products
+        SET quantity = quantity - $2
+        WHERE id = $1
+        AND quantity >= $2
+        RETURNING id
+        `,
+        [item.product_id, item.quantity]
+      );
+
+      if (stockUpdate.rows.length === 0) {
+        await client.query("ROLLBACK");
+        return NextResponse.json(
+          { error: `Stock insuficiente para ${item.name}` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // 4️⃣ Validar dirección si es shipping
     if (delivery_type === "shipping") {
       if (
         !address ||
@@ -74,6 +102,7 @@ export async function POST(req: Request) {
         !address.province ||
         !address.postal_code
       ) {
+        await client.query("ROLLBACK");
         return NextResponse.json(
           { error: "Dirección incompleta" },
           { status: 400 }
@@ -81,7 +110,7 @@ export async function POST(req: Request) {
       }
     }
 
-    // 4️⃣ Calcular total backend
+    // 5️⃣ Calcular total
     const productsTotal = cartItems.reduce(
       (acc: number, item: any) =>
         acc + Number(item.price) * Number(item.quantity),
@@ -93,16 +122,17 @@ export async function POST(req: Request) {
 
     const total = productsTotal + finalShipping;
 
-    // 5️⃣ Generar número orden
     const orderNumber = `ORD-${randomUUID().slice(0, 8).toUpperCase()}`;
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-    // 6️⃣ Insertar orden
-    const orderInsert = await query(
+    // 6️⃣ Crear orden
+    const orderInsert = await client.query(
       `
       INSERT INTO orders 
-      (order_number, user_id, total_amount, currency, payment_method, 
-       payment_status, order_status, delivery_type, shipping_cost)
-      VALUES ($1, $2, $3, 'ARS', $4, 'pending', 'pending_payment', $5, $6)
+      (order_number, user_id, total_amount, currency, payment_method,
+       payment_status, order_status, delivery_type, shipping_cost, expires_at)
+      VALUES ($1, $2, $3, 'ARS', $4,
+              'pending', 'pending_payment', $5, $6, $7)
       RETURNING id
       `,
       [
@@ -112,6 +142,7 @@ export async function POST(req: Request) {
         payment_method,
         delivery_type,
         finalShipping,
+        expiresAt,
       ]
     );
 
@@ -119,7 +150,7 @@ export async function POST(req: Request) {
 
     // 7️⃣ Insertar order_items
     for (const item of cartItems) {
-      await query(
+      await client.query(
         `
         INSERT INTO order_items
         (order_id, product_id, product_name, unit_price, quantity, subtotal)
@@ -136,9 +167,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // 8️⃣ Guardar dirección si aplica
+    // 8️⃣ Guardar dirección
     if (delivery_type === "shipping") {
-      await query(
+      await client.query(
         `
         INSERT INTO order_addresses
         (order_id, full_name, phone, street, street_number, apartment,
@@ -159,24 +190,23 @@ export async function POST(req: Request) {
         ]
       );
     }
-    // 🧹 9️⃣ Limpiar carrito del usuario
-// Obtener cart_id
-const cartIdResult = await query(
-  `SELECT id FROM cart WHERE user_id = $1`,
-  [userId]
-);
 
-if (cartIdResult.rows.length > 0) {
-  const cartId = cartIdResult.rows[0].id;
+    // 9️⃣ Limpiar carrito
+    const cartIdResult = await client.query(
+      `SELECT id FROM cart WHERE user_id = $1`,
+      [userId]
+    );
 
-  // Eliminar items del carrito
-  await query(
-    `DELETE FROM cart_items WHERE cart_id = $1`,
-    [cartId]
-  );
-}
+    if (cartIdResult.rows.length > 0) {
+      await client.query(
+        `DELETE FROM cart_items WHERE cart_id = $1`,
+        [cartIdResult.rows[0].id]
+      );
+    }
 
-    // 10 Transferencia
+    await client.query("COMMIT");
+
+    // 🔟 Transferencia
     if (payment_method === "transfer") {
       return NextResponse.json({
         order_id: orderId,
@@ -184,7 +214,7 @@ if (cartIdResult.rows.length > 0) {
       });
     }
 
-    //11 Mercado Pago
+    // 11️⃣ MercadoPago
     if (payment_method === "mercadopago") {
       const preference = new Preference(mpClient);
 
@@ -211,11 +241,15 @@ if (cartIdResult.rows.length > 0) {
               : []),
           ],
           external_reference: orderId.toString(),
-          notification_url: `https://iphones-e-commerce.vercel.app/api/webhooks/mercadopago`,
+          notification_url:
+            "https://iphones-e-commerce.vercel.app/api/webhooks/mercadopago",
           back_urls: {
-            success: `https://iphones-e-commerce.vercel.app/checkout/success`,
-            failure: `https://iphones-e-commerce.vercel.app/checkout/failure`,
-            pending: `https://iphones-e-commerce.vercel.app/checkout/pending`,
+            success:
+              "https://iphones-e-commerce.vercel.app/checkout/success",
+            failure:
+              "https://iphones-e-commerce.vercel.app/checkout/failure",
+            pending:
+              "https://iphones-e-commerce.vercel.app/checkout/pending",
           },
           auto_return: "approved",
         },
@@ -232,10 +266,14 @@ if (cartIdResult.rows.length > 0) {
     );
 
   } catch (error: any) {
+    await client.query("ROLLBACK");
     console.error("Error creando orden:", error);
+
     return NextResponse.json(
       { error: "Error interno del servidor" },
       { status: 500 }
     );
+  } finally {
+    client.release();
   }
 }

@@ -1,24 +1,34 @@
 import { NextResponse } from "next/server";
-import { query } from "@/db";
+import { pool } from "@/db";
 import { mpClient } from "@/lib/mercadopago";
 import { Preference } from "mercadopago";
 import { randomUUID } from "crypto";
 
 export async function POST(req: Request) {
+  const client = await pool.connect();
+
   try {
     const {
       email,
       product_id,
+      quantity = 1,
       payment_method,
       delivery_type,
       shipping_cost = 0,
       address,
     } = await req.json();
-    
 
+    // 🔎 Validaciones básicas
     if (!email || !product_id || !payment_method || !delivery_type) {
       return NextResponse.json(
         { error: "Datos incompletos" },
+        { status: 400 }
+      );
+    }
+
+    if (!quantity || quantity < 1) {
+      return NextResponse.json(
+        { error: "Cantidad inválida" },
         { status: 400 }
       );
     }
@@ -32,16 +42,16 @@ export async function POST(req: Request) {
 
     const decodedEmail = decodeURIComponent(email);
 
-    await query("BEGIN");
+    await client.query("BEGIN");
 
-    // 🔹 1 Buscar usuario
-    const userResult = await query(
+    // 🔹 1️⃣ Buscar usuario
+    const userResult = await client.query(
       `SELECT id FROM users WHERE email = $1`,
       [decodedEmail]
     );
 
     if (userResult.rows.length === 0) {
-      await query("ROLLBACK");
+      await client.query("ROLLBACK");
       return NextResponse.json(
         { error: "Usuario no encontrado" },
         { status: 404 }
@@ -50,36 +60,41 @@ export async function POST(req: Request) {
 
     const userId = userResult.rows[0].id;
 
-  // 🔹 2 Descontar stock de forma atómica
-const stockUpdate = await query(
-  `
-  UPDATE products
-  SET stock = stock - 1
-  WHERE id = $1
-  AND stock >= 1
-  RETURNING id, name, price
-  `,
-  [product_id]
-);
+    // 🔹 2️⃣ Descontar stock de forma atómica según quantity
+    const stockUpdate = await client.query(
+      `
+      UPDATE products
+      SET quantity = quantity - $2
+      WHERE id = $1 
+      AND quantity >= $2
+      RETURNING id, name, price
+      `,
+      [product_id, quantity]
+    );
 
-if (stockUpdate.rows.length === 0) {
-  await query("ROLLBACK");
-  return NextResponse.json(
-    { error: "Producto sin stock disponible" },
-    { status: 400 }
-  );
-}
+    if (stockUpdate.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return NextResponse.json(
+        { error: "Stock insuficiente" },
+        { status: 400 }
+      );
+    }
 
-const product = stockUpdate.rows[0];
-
+    const product = stockUpdate.rows[0];
     const productPrice = Number(product.price);
-    const total = productPrice + (delivery_type === "shipping" ? Number(shipping_cost) : 0);
+
+    // 🔹 3️⃣ Calcular totales correctamente
+    const totalProduct = productPrice * quantity;
+
+    const total =
+      totalProduct +
+      (delivery_type === "shipping" ? Number(shipping_cost) : 0);
 
     const orderNumber = `ORD-${randomUUID().slice(0, 8).toUpperCase()}`;
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 min
 
-    // 🔹 3 Crear orden
-    const orderInsert = await query(
+    // 🔹 4️⃣ Crear orden
+    const orderInsert = await client.query(
       `
       INSERT INTO orders 
       (order_number, user_id, total_amount, currency, payment_method, payment_status, order_status, delivery_type, shipping_cost, expires_at)
@@ -100,8 +115,8 @@ const product = stockUpdate.rows[0];
 
     const orderId = orderInsert.rows[0].id;
 
-    // 🔹 4 Insertar item
-    await query(
+    // 🔹 5️⃣ Insertar order_item correcto
+    await client.query(
       `
       INSERT INTO order_items
       (order_id, product_id, product_name, unit_price, quantity, subtotal)
@@ -112,14 +127,14 @@ const product = stockUpdate.rows[0];
         product.id,
         product.name,
         productPrice,
-        1,
-        productPrice,
+        quantity,
+        totalProduct,
       ]
     );
 
-    // 🔹 5 Guardar dirección si es envío
+    // 🔹 6️⃣ Guardar dirección si corresponde
     if (delivery_type === "shipping") {
-      await query(
+      await client.query(
         `
         INSERT INTO order_addresses
         (order_id, full_name, phone, street, street_number, apartment,
@@ -141,9 +156,9 @@ const product = stockUpdate.rows[0];
       );
     }
 
-    await query("COMMIT");
+    await client.query("COMMIT");
 
-    // 🔹 6 Transferencia
+    // 🔹 7️⃣ Transferencia
     if (payment_method === "transfer") {
       return NextResponse.json({
         order_id: orderId,
@@ -151,7 +166,7 @@ const product = stockUpdate.rows[0];
       });
     }
 
-    // 🔹 7 Mercado Pago
+    // 🔹 8️⃣ MercadoPago correcto
     if (payment_method === "mercadopago") {
       const preference = new Preference(mpClient);
 
@@ -161,8 +176,8 @@ const product = stockUpdate.rows[0];
             {
               id: product.id.toString(),
               title: product.name,
-              unit_price: total,
-              quantity: 1,
+              unit_price: productPrice,
+              quantity: quantity,
               currency_id: "ARS",
             },
           ],
@@ -191,19 +206,14 @@ const product = stockUpdate.rows[0];
       { status: 400 }
     );
   } catch (error: any) {
-    await query("ROLLBACK");
+    await client.query("ROLLBACK");
     console.error("Error buy-now:", error);
 
     return NextResponse.json(
       { error: "Error interno del servidor" },
       { status: 500 }
     );
+  } finally {
+    client.release();
   }
 }
-
-
-
-
-
-
-

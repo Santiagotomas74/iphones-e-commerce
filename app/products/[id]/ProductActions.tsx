@@ -76,8 +76,9 @@ const createOrder = async (paymentMethod: "transfer" | "mercadopago") => {
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error();
-
+if (!res.ok) {
+  throw new Error(data.error || "Error desconocido");
+}
     if (paymentMethod === "mercadopago") {
       window.location.href = data.init_point;
     }
@@ -87,11 +88,11 @@ const createOrder = async (paymentMethod: "transfer" | "mercadopago") => {
       setStep("transferCard");
     }
 
-  } catch {
-    alert("Error creando orden");
-  } finally {
-    setLoading(false);
-  }
+  } catch (error: any) {
+  alert(error.message);
+} finally {
+  setLoading(false);
+}
 };
 
   const handleBack = () => {
