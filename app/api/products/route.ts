@@ -3,8 +3,8 @@ import { query } from "@/db";
 
 export async function GET() {
   const { rows } = await query(`
-    SELECT id, name, price, memory, color, quantity, description, image_1, image_2, image_3
-    FROM products
+    SELECT * FROM products
+    ORDER BY id ASC;
   `);
 
   return NextResponse.json(rows);

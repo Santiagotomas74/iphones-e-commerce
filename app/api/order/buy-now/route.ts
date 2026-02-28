@@ -14,6 +14,7 @@ export async function POST(req: Request) {
       shipping_cost = 0,
       address,
     } = await req.json();
+    
 
     if (!email || !product_id || !payment_method || !delivery_type) {
       return NextResponse.json(
@@ -49,33 +50,40 @@ export async function POST(req: Request) {
 
     const userId = userResult.rows[0].id;
 
-    // 🔹 2 Buscar producto
-    const productResult = await query(
-      `SELECT id, name, price FROM products WHERE id = $1`,
-      [product_id]
-    );
+  // 🔹 2 Descontar stock de forma atómica
+const stockUpdate = await query(
+  `
+  UPDATE products
+  SET stock = stock - 1
+  WHERE id = $1
+  AND stock >= 1
+  RETURNING id, name, price
+  `,
+  [product_id]
+);
 
-    if (productResult.rows.length === 0) {
-      await query("ROLLBACK");
-      return NextResponse.json(
-        { error: "Producto no encontrado" },
-        { status: 404 }
-      );
-    }
+if (stockUpdate.rows.length === 0) {
+  await query("ROLLBACK");
+  return NextResponse.json(
+    { error: "Producto sin stock disponible" },
+    { status: 400 }
+  );
+}
 
-    const product = productResult.rows[0];
+const product = stockUpdate.rows[0];
 
     const productPrice = Number(product.price);
     const total = productPrice + (delivery_type === "shipping" ? Number(shipping_cost) : 0);
 
     const orderNumber = `ORD-${randomUUID().slice(0, 8).toUpperCase()}`;
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
 
     // 🔹 3 Crear orden
     const orderInsert = await query(
       `
       INSERT INTO orders 
-      (order_number, user_id, total_amount, currency, payment_method, payment_status, order_status, delivery_type, shipping_cost)
-      VALUES ($1, $2, $3, $4, $5, 'pending', 'pending_payment', $6, $7)
+      (order_number, user_id, total_amount, currency, payment_method, payment_status, order_status, delivery_type, shipping_cost, expires_at)
+      VALUES ($1, $2, $3, $4, $5, 'pending', 'pending_payment', $6, $7, $8)
       RETURNING id
       `,
       [
@@ -86,6 +94,7 @@ export async function POST(req: Request) {
         payment_method,
         delivery_type,
         delivery_type === "shipping" ? shipping_cost : 0,
+        expiresAt,
       ]
     );
 
