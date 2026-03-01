@@ -2,6 +2,7 @@
 
 import { X, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
+import Swal from 'sweetalert2';
 
 interface CartSidebarProps {
   isOpen: boolean;
@@ -56,16 +57,30 @@ const [checkoutStep, setCheckoutStep] = useState<
     if (!isOpen) return;
 
     const fetchCart = async () => {
-      const email = getCookie("emailTech");
-      if (!email) return;
+
 
       try {
         setLoading(true);
+// 🔐 1️⃣ Verificar sesión real
+    const sessionRes = await fetch("/api/me", {
+      method: "GET",
+      credentials: "include",
+    });
 
+    if (!sessionRes.ok) {
+      Swal.fire({
+        text: "Debes iniciar sesión",
+        icon: "info",
+        confirmButtonText: "Ok",
+      });
+      return;
+    }
+
+    const sessionData = await sessionRes.json();
         const res = await fetch("/api/cart/get", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
+          body: JSON.stringify({  email: sessionData.user.email }), // Usamos el email del usuario autenticado
         });
 
         const data = await res.json();
