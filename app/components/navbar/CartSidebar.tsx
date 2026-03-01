@@ -77,6 +77,9 @@ const [checkoutStep, setCheckoutStep] = useState<
     }
 
     const sessionData = await sessionRes.json();
+
+
+
         const res = await fetch("/api/cart/get", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -120,18 +123,32 @@ const [checkoutStep, setCheckoutStep] = useState<
   };
   
  const removeItem = async (product_id: string) => {
-  const email = getCookie("emailTech");
-  
-
-  if (!email) return;
 
   try {
+
+    // 🔐 1️⃣ Verificar sesión real
+    const sessionRes = await fetch("/api/me", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (!sessionRes.ok) {
+      Swal.fire({
+        text: "Debes iniciar sesión",
+        icon: "info",
+        confirmButtonText: "Ok",
+      });
+      return;
+    }
+
+    const sessionData = await sessionRes.json();
+
     const res = await fetch("/api/cart/remove", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, product_id }),
+      body: JSON.stringify({ email: sessionData.user.email, product_id }),
     });
 
     if (res.ok) {
@@ -147,19 +164,36 @@ const [checkoutStep, setCheckoutStep] = useState<
   const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
   if (loading) return;
 
-    const email = getCookie("emailTech");
-    if (!email || !deliveryType) return;
+    
 
     if (deliveryType === "shipping" && !validateAddress()) return;
 
     try {
       setLoading(true);
+    
+// 🔐 1️⃣ Verificar sesión real
+    const sessionRes = await fetch("/api/me", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (!sessionRes.ok) {
+      Swal.fire({
+        text: "Debes iniciar sesión",
+        icon: "info",
+        confirmButtonText: "Ok",
+      });
+      return;
+    }
+
+    const sessionData = await sessionRes.json();
+
 
       const res = await fetch("/api/orders/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email,
+          email: sessionData.user.email,
           payment_method: paymentMethod,
           delivery_type: deliveryType,
           shipping_cost: deliveryType === "shipping" ? shippingCost : 0,
