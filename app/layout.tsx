@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "./components/navbar/Navbar";
-import type { NavItem } from "./components/navbar/Navbar.types";
+import type { NavbarProps } from "./components/navbar/Navbar.types";
 import TopBanner from "./components/Banner/TopBanner";
 import Footer from "./components/footer/Footer";
 import { cookies } from "next/headers";
 import { verify } from "jsonwebtoken";
 
-const navItems: NavItem[] = [
+const navItems: NavbarProps["items"] = [
   { label: "Inicio", href: "/" },
   { label: "Administracion", href: "/admin" },
   { label: "Consolas", href: "/user/dashboard" },
