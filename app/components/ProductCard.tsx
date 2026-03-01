@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ShoppingCart, Loader2 } from "lucide-react";
 import { useState } from "react";
 import Swal from 'sweetalert2';
+import { em } from "framer-motion/client";
 
 type Product = {
   id: string;
@@ -35,62 +36,71 @@ export default function ProductCard({ product }: { product: Product }) {
     router.push(`/products/${product.id}`);
   };
 
-  const addToCart = async (e: React.MouseEvent) => {
-    e.stopPropagation();
+ const addToCart = async (e: React.MouseEvent) => {
+  e.stopPropagation();
 
-    // Si ya está cargando, evitamos clicks dobles
-    if (loading) return;
+  if (loading) return;
 
-    const email = getCookie("emailTech");
+  setLoading(true);
 
-    if (!email) {
+  try {
+    // 🔐 1️⃣ Verificar sesión real
+    const sessionRes = await fetch("/api/me", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (!sessionRes.ok) {
       Swal.fire({
-        text: 'Debes iniciar sesión',
-        icon: 'info', // Cambiado a info para ser más preciso
-        confirmButtonText: 'Ok'
+        text: "Debes iniciar sesión",
+        icon: "info",
+        confirmButtonText: "Ok",
       });
       return;
     }
 
-    // Inicia la carga
-    setLoading(true);
+    const sessionData = await sessionRes.json();
+    console.log("Datos de sesión:", sessionData.user.email); // Verificar que el email esté presente
+    const user = sessionData.user;
 
-    try {
-      const res = await fetch("/api/cart/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: decodeURIComponent(email),
-          productId: product.id,
-        }),
-      });
+    // 🛒 2️⃣ Agregar producto al carrito
+    const res = await fetch("/api/cart/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include", // importante
+      body: JSON.stringify({
+        email: sessionData.user.email, // Usamos el email del usuario autenticado
+        productId: product.id,
+        
+      }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Error agregando producto");
-      }
-
-      Swal.fire({
-        text: 'Producto agregado al carrito...',
-        icon: 'success',
-        confirmButtonText: 'Ok'
-      });
-
-    } catch (error) {
-      console.error("Error agregando al carrito:", error);
-      Swal.fire({
-        text: 'Hubo un problema al agregar el producto...',
-        icon: 'error', // Cambiado a error para feedback visual correcto
-        confirmButtonText: 'Ok'
-      });
-    } finally {
-      // 3. Finaliza la carga pase lo que pase
-      setLoading(false);
+    if (!res.ok) {
+      throw new Error(data.error || "Error agregando producto");
     }
-  };
+
+    Swal.fire({
+      text: "Producto agregado al carrito...",
+      icon: "success",
+      confirmButtonText: "Ok",
+    });
+
+  } catch (error) {
+    console.error("Error agregando al carrito:", error);
+
+    Swal.fire({
+      text: "Hubo un problema al agregar el producto...",
+      icon: "error",
+      confirmButtonText: "Ok",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
  return (
   <div

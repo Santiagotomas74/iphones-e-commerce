@@ -54,19 +54,31 @@ export default function ProductActions({ productId }: { productId: string }) {
   };
 
 const createOrder = async (paymentMethod: "transfer" | "mercadopago") => {
-  const email = getCookie("emailTech");
-  if (!email || !deliveryType) return;
+  if (!deliveryType) return;
 
   if (deliveryType === "shipping" && !validateAddress()) return;
 
   try {
     setLoading(true);
 
+    // 🔐 1️⃣ Verificar sesión real
+    const sessionRes = await fetch("/api/me", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (!sessionRes.ok) {
+      alert("Debes iniciar sesión");
+      return;
+    }
+  const sessionData = await sessionRes.json();
+
+     // 🧾 2️⃣ Crear orden (sin enviar email)
     const res = await fetch("/api/order/buy-now", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        email: decodeURIComponent(email),
+        email: sessionData.user.email,
         product_id: productId,
         payment_method: paymentMethod,
         delivery_type: deliveryType,
