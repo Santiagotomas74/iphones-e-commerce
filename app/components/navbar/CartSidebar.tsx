@@ -202,6 +202,9 @@ const [checkoutStep, setCheckoutStep] = useState<
       });
 
       const data = await res.json();
+      if (!res.ok) {
+  throw new Error(data.error || "Error desconocido");
+}
 
       if (paymentMethod === "mercadopago") {
         window.location.href = data.init_point;
@@ -213,7 +216,9 @@ const [checkoutStep, setCheckoutStep] = useState<
   return;
 }
 
-    } finally {
+    }  catch (error: any) {
+  alert(error.message);
+}finally {
       setLoading(false);
     }
   };

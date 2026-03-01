@@ -15,7 +15,14 @@ export async function POST(req: Request) {
       shipping_cost = 0,
       address,
     } = await req.json();
-
+    console.log("Datos recibidos en create order:", {
+      email,
+      payment_method,
+      delivery_type,
+      shipping_cost,
+      address,
+    });
+    
     if (!email || !payment_method || !delivery_type) {
       return NextResponse.json(
         { error: "Datos incompletos" },
