@@ -56,6 +56,7 @@ export async function GET() {
       LEFT JOIN products p ON p.id = oi.product_id
 
       WHERE o.user_id = $1
+      AND o.payment_status = 'paid'
 
       GROUP BY 
         o.id,
