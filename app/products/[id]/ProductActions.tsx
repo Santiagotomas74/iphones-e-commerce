@@ -244,7 +244,7 @@ if (!res.ok) {
             onClick={() => createOrder("mercadopago")}
              className="w-full bg-white hover:bg-gray-50 text-gray-800 py-3 rounded-xl flex items-center justify-center gap-3 font-semibold transition border border-gray-300 shadow-sm">
        <img
-         src="/image/mercadopago.png"
+         src="/image/Mercadopago.png"
           alt="Mercado Pago"
           className="h-8 w-auto"
          />
