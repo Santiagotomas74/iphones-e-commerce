@@ -71,7 +71,7 @@ export default function ProductCard({ product }: { product: Product }) {
       },
       credentials: "include", // importante
       body: JSON.stringify({
-        email: sessionData.user.email, // Usamos el email del usuario autenticado
+        email: user.email, // Usamos el email del usuario autenticado
         productId: product.id,
         
       }),
