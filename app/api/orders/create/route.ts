@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       shipping_cost,
       address,
     });
-    
+
     if (!email || !payment_method || !delivery_type) {
       return NextResponse.json(
         { error: "Datos incompletos" },
@@ -130,7 +130,14 @@ export async function POST(req: Request) {
     const total = productsTotal + finalShipping;
 
     const orderNumber = `ORD-${randomUUID().slice(0, 8).toUpperCase()}`;
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+   let expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos para MP
+
+if (payment_method === "transfer") {
+  expiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000);  // 2 horas para transferencias
+}
+    
+    
 
     // 6️⃣ Crear orden
     const orderInsert = await client.query(

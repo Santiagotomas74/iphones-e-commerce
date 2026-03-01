@@ -244,15 +244,21 @@ const [checkoutStep, setCheckoutStep] = useState<
             <ShoppingBag size={20} />
             <h2 className="text-xl font-semibold">Tu Carrito</h2>
           </div>
-          <button onClick={onClose}>
-            <X size={22} />
-          </button>
+         <button
+  onClick={() => {
+    setCheckoutStep(null);
+    onClose();
+  }}
+  className="text-gray-400 hover:text-gray-600 transition"
+>
+  <X  size={22} />
+</button>
         </div>
 
         <div className="p-6 flex flex-col h-[85%]">
 
           {cartItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
+            <div className="flex flex-col items-center justify-center h-full text-center text-gray-500 gap-4">
               <p>Tu carrito está vacío</p>
             </div>
           ) : (
@@ -313,7 +319,7 @@ const [checkoutStep, setCheckoutStep] = useState<
               <div className="border-t pt-4 mt-4 space-y-4">
 
                 {/* Subtotal */}
-                <div className="flex justify-between">
+                <div className="flex justify-between text-gray-700">
                   <span>Subtotal</span>
                   <span>${subtotal.toLocaleString()}</span>
                 </div>
@@ -332,7 +338,7 @@ const [checkoutStep, setCheckoutStep] = useState<
                   <div className="space-y-3 fade-step">
                     <button
   onClick={() => setCheckoutStep(null)}
-  className="text-sm text-gray-500"
+  className="text-sm text-gray-700"
 >
   ← Volver
 </button>
@@ -361,7 +367,7 @@ const [checkoutStep, setCheckoutStep] = useState<
   <div className="space-y-3 fade-step bg-black" >
 <button
   onClick={() => setCheckoutStep("delivery")}
-  className="text-sm text-white"
+  className="text-sm text-white text-gray-700"
 >
   ← Volver
 </button>
@@ -458,7 +464,7 @@ const [checkoutStep, setCheckoutStep] = useState<
                   <div className="space-y-3 fade-step">
                     <button
   onClick={() => setCheckoutStep("delivery")}
-  className="text-sm text-gray-500"
+  className="text-sm text-gray-700"
 >
   ← Volver
 </button>
@@ -501,19 +507,25 @@ const [checkoutStep, setCheckoutStep] = useState<
                 {checkoutStep === "transferCard" && orderId && (
   <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4 animate-fade-in ">
     
-    <h3 className="text-lg font-semibold ">
+    <h3 className="text-lg font-semibold text-gray-700 ">
       Datos para realizar la transferencia
     </h3>
 
-    <div className="bg-gray-50 p-4 rounded-xl text-sm space-y-2">
+    <div className="bg-gray-50 p-4 rounded-xl text-sm space-y-2 text-gray-700 ">
       <p><strong>CBU:</strong> 0000003100000000000000</p>
       <p><strong>Alias:</strong> TECHSTORE.PAGOS</p>
       <p><strong>Titular:</strong> Tech Store S.A.</p>
     </div>
-
+    
     <p className="text-sm text-gray-900">
+      El total que deberás transferir es exactamente <strong>${total.toLocaleString()}</strong> para que podamos identificar tu pago.
+    </p>
+    
+     <p className="text-sm text-gray-900">
+   Tiene 2 horas para subir el comprobante de la transferencia. Pasado ese tiempo, la orden se cancelará automáticamente y el stock se liberará.
+    </p>
+   <p className="text-sm text-gray-900">
       ⏳ El pago puede demorar hasta 48 hs en acreditarse.
-      Luego deberás subir el comprobante desde tu panel.
     </p>
 
     <button

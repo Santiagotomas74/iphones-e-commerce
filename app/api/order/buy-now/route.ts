@@ -91,7 +91,11 @@ export async function POST(req: Request) {
       (delivery_type === "shipping" ? Number(shipping_cost) : 0);
 
     const orderNumber = `ORD-${randomUUID().slice(0, 8).toUpperCase()}`;
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+      let expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos para MP
+
+if (payment_method === "transfer") {
+  expiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000); // 2 horas para transferencias
+}
 
     // 🔹 4️⃣ Crear orden
     const orderInsert = await client.query(
