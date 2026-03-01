@@ -1,8 +1,11 @@
-export interface NavItem {
-  label: string;
-  href: string;
-}
-
 export interface NavbarProps {
-  items: NavItem[];
+  items: {
+    label: string;
+    href: string;
+  }[];
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
 }
