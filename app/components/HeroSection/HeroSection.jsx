@@ -5,64 +5,61 @@ export default function HeroIphone() {
       {/* Radial light effect desktop */}
       <div className="hidden lg:block absolute right-0 top-1/3 -translate-y-1/2
         w-[500px] xl:w-[700px] aspect-square rounded-full
-        bg-[radial-gradient(circle,rgba(160,140,255,0.6),transparent_70%)]
+        bg-[radial-gradient(circle,rgba(162, 148, 236, 0.6),transparent_70%)]
         blur-3xl"
       />
 
       <div className="relative grid lg:grid-cols-2 items-center gap-12 lg:gap-20">
 
         {/* LEFT */}
-        <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
+        <div className="w-full max-w-2xl mx-auto px-4 text-center lg:text-left">
 
-          <span className="inline-block bg-blue-100 text-blue-600 text-xs sm:text-sm font-medium px-4 py-1.5 rounded-full mb-6">
-            Nuevo
-          </span>
+  <span className="inline-block bg-blue-100 text-blue-600 text-xs sm:text-sm font-medium px-4 py-1.5 rounded-full mb-6">
+    Nuevo
+  </span>
 
-          <h1 className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-semibold text-gray-900 leading-tight mb-6">
-            iPhone 15 <br />
-            <span className="font-bold">Pro Max</span>
-          </h1>
+  <h1 className="text-[clamp(2rem,6vw,4.5rem)] font-medium text-gray-900 leading-tight mb-6 tracking-[-0.02em]">
+    iPhone 15 Pro Max
+  </h1>
 
-          <p className="text-gray-600 text-base sm:text-lg md:text-xl mb-6">
-            Más potencia. Más carácter. Nuevo acabado Orange
-          </p>
+  <p className="text-gray-600 text-base sm:text-lg md:text-xl mb-6">
+    Más potencia. Más carácter. Nuevo acabado Orange
+  </p>
 
-          <p className="text-2xl sm:text-3xl md:text-4xl font-medium text-gray-900 mb-8">
-            Desde $1.500.000
-          </p>
+  <p className="text-2xl sm:text-3xl md:text-4xl font-medium text-gray-900 mb-8">
+    Desde $1.500.000
+  </p>
 
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 sm:py-4 rounded-full shadow-md transition-all duration-300 hover:shadow-lg hover:scale-105">
-            Comprar ahora
-          </button>
+  <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 sm:py-4 rounded-full shadow-md transition-all duration-300 hover:shadow-lg hover:scale-105">
+    Comprar ahora
+  </button>
 
-        </div>
+</div>
 
         {/* RIGHT */}
         <div className="relative flex justify-center lg:justify-end">
 
           {/* Glow effect */}
           <div className="absolute bottom-10 w-[250px] sm:w-[350px] md:w-[450px] lg:w-[550px]  rounded-full
-            bg-[radial-gradient(circle,rgba(160,140,255,0.5),transparent_70%)]
+            bg-[radial-gradient(circle,rgba(60, 35, 185, 0.5),transparent_70%)]
             blur-3xl"
           />
 
-          <video
-            src="/videos/17protwo.mp4"
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="
-              relative z-10
-              w-[260px]
-              sm:w-[350px]
-              md:w-[450px]
-              lg:w-[520px]
-              xl:w-[600px]
-              h-auto
-              object-contain
-            "
-          />
+        <video
+  src="/videos/17protwo.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  className="
+    relative z-10
+    w-full
+    max-w-[760px]
+    min-w-[300px]
+    h-auto
+    object-contain
+  "
+/>
 
         </div>
 
