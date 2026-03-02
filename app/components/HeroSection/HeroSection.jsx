@@ -3,11 +3,16 @@ export default function HeroIphone() {
     <section className="relative w-full px-4 sm:px-8 lg:px-16 py-10 sm:py-16">
 
       {/* Radial light effect desktop */}
-      <div className="hidden lg:block absolute right-0 top-1/3 -translate-y-1/2
-        w-[500px] xl:w-[700px] aspect-square rounded-full
-        bg-[radial-gradient(circle,rgba(162, 148, 236, 0.6),transparent_70%)]
-        blur-3xl"
-      />
+    <div className="
+  hidden lg:block
+  absolute right-[-150px] top-1/2 -translate-y-1/2
+  w-[600px] xl:w-[800px]
+  aspect-square
+  rounded-full
+  bg-[radial-gradient(circle,rgba(120,80,255,0.55),transparent_60%)]
+  blur-[140px]
+  z-0
+"/>
 
       <div className="relative grid lg:grid-cols-2 items-center gap-12 lg:gap-20">
 
@@ -40,10 +45,15 @@ export default function HeroIphone() {
         <div className="relative flex justify-center lg:justify-end">
 
           {/* Glow effect */}
-          <div className="absolute bottom-10 w-[250px] sm:w-[350px] md:w-[450px] lg:w-[550px]  rounded-full
-            bg-[radial-gradient(circle,rgba(60, 35, 185, 0.5),transparent_70%)]
-            blur-3xl"
-          />
+           <div className="
+    absolute left-1/2 -translate-x-1/2 
+    w-[250px] sm:w-[350px] md:w-[450px] lg:w-[550px]
+    aspect-square
+    rounded-full
+    bg-[radial-gradient(circle,rgba(60,35,185,0.6),transparent_90%)]
+    blur-3xl
+    z-0
+  " />
 
         <video
   src="/videos/17protwo.mp4"
@@ -58,6 +68,7 @@ export default function HeroIphone() {
     min-w-[300px]
     h-auto
     object-contain
+    
   "
 />
 
