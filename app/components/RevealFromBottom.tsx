@@ -13,12 +13,13 @@ export default function RevealFromBottom({
       initial={{
         y: 80,
         opacity: 0,
-        scale: 0.98,
+        scale: 0.99,
       }}
       whileInView={{
         y: 0,
         opacity: 1,
         scale: 1,
+        filter: "blur(0px)",
       }}
       transition={{
         duration: 1,

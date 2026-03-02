@@ -6,13 +6,15 @@ import { Menu, X, User, ShoppingBag, LogOut } from "lucide-react";
 import CartSidebar from "./CartSidebar";
 import type { NavbarProps } from "./Navbar.types";
 
-export default function Navbar({ items }: NavbarProps) {
+export default function Navbar({ items, cartCount }: NavbarProps) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const cartItemsCount = cartCount; // Usamos el cartCount pasado desde RootLayout
+  console.log("Cart count en Navbar:", cartCount); // Verificar el valor de cartCount
 
   // 🔐 Chequeo real de sesión
   useEffect(() => {
@@ -27,6 +29,7 @@ export default function Navbar({ items }: NavbarProps) {
 
         const data = await res.json();
 
+
         setIsLoggedIn(true);
         setUserName(data.user.name);
       } catch {
@@ -36,9 +39,37 @@ export default function Navbar({ items }: NavbarProps) {
         setLoading(false);
       }
     };
+    
 
     checkSession();
   }, []);
+  
+    // 🔐 informacion del user con carritocount 
+  useEffect(() => {
+    const checkSessionNav = async () => {
+      try {
+        const res = await fetch("/api/user/me", {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (!res.ok) throw new Error();
+
+        const data = await res.json();
+        console.log("Usuario autenticado:", data);
+      
+        setUserName(data.full_name);
+      } catch (error) {
+        setUserName(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkSessionNav();
+  }, []);
+
+
 
   const handleLogout = async () => {
     //await fetch("/api/logout", {
@@ -143,7 +174,7 @@ export default function Navbar({ items }: NavbarProps) {
             >
               <ShoppingBag size={27} />
               <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-[2px] rounded-full">
-                20
+                {cartItemsCount}
               </span>
             </button>
           </div>
@@ -226,6 +257,7 @@ export default function Navbar({ items }: NavbarProps) {
 
       <CartSidebar
         isOpen={isCartOpen}
+        count={cartItemsCount}
         onClose={() => setIsCartOpen(false)}
       />
     </>

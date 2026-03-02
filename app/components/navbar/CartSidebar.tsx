@@ -3,10 +3,13 @@
 import { X, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import Swal from 'sweetalert2';
+import { useRouter } from "next/navigation";
+
 
 interface CartSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  count: number;
 }
 
 interface CartItem {
@@ -17,10 +20,11 @@ interface CartItem {
   price: number;
   quantity: number;
   image_1: string;
+  stock: number;
 }
 
-export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
-
+export default function CartSidebar({ isOpen, onClose, count }: CartSidebarProps) {
+  const router = useRouter();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -31,6 +35,7 @@ const [checkoutStep, setCheckoutStep] = useState<
   const [deliveryType, setDeliveryType] = useState<"pickup" | "shipping" | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<"transfer" | "mercadopago" | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   const shippingCost = 3500;
 
@@ -122,6 +127,47 @@ const [checkoutStep, setCheckoutStep] = useState<
     return true;
   };
   
+//actualizar cantidad en carrito
+const updateQuantity = async (productId: string, newQuantity: number) => {
+  if (newQuantity < 1) return;
+
+  const previousCart = [...cartItems];
+
+  setUpdatingId(productId);
+
+  // Optimistic UI
+  setCartItems((prev) =>
+    prev.map((item) =>
+      item.product_id === productId
+        ? { ...item, quantity: newQuantity }
+        : item
+    )
+  );
+
+  try {
+    const res = await fetch("/api/cart/update", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        product_id: productId,
+        quantity: newQuantity,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error);
+    }
+    router.refresh(); // Refrescar para actualizar el contador del carrito
+
+  } catch (error: any) {
+    setCartItems(previousCart); // rollback
+    alert(error.message);
+  } finally {
+    setUpdatingId(null);
+  }
+};
  const removeItem = async (product_id: string) => {
 
   try {
@@ -157,6 +203,7 @@ const [checkoutStep, setCheckoutStep] = useState<
         prev.filter((item) => item.product_id !== product_id)
       );
     }
+    router.refresh(); // Refrescar para actualizar el contador del carrito
   } catch (error) {
     console.error("Error eliminando producto:", error);
   }
@@ -242,7 +289,10 @@ const [checkoutStep, setCheckoutStep] = useState<
         <div className="flex items-center justify-between p-6 border-b bg-white">
           <div className="flex items-center gap-2 text-gray-700">
             <ShoppingBag size={20} />
-            <h2 className="text-xl font-semibold">Tu Carrito</h2>
+            <h2 className="text-xl font-semibold">Tu Carrito</h2> 
+            <span className="bg-blue-500 text-white text-xl px-2 py-1 rounded-md ml-2">
+              {count}
+            </span>
           </div>
          <button
   onClick={() => {
@@ -300,17 +350,41 @@ const [checkoutStep, setCheckoutStep] = useState<
       </div>
 
       {/* Controles cantidad */}
-      <div className="flex items-center justify-between mt-3">
-        <div className="flex items-center bg-white rounded-xl px-3 py-1 gap-3 shadow-sm text-gray-800">
-          <button className="text-lg">−</button>
-          <span>{item.quantity}</span>
-          <button className="text-lg">+</button>
-        </div>
+     <div className="flex items-center justify-between mt-3">
+  <div className="flex items-center bg-white rounded-xl px-3 py-1 gap-3 shadow-sm text-gray-800">
 
-        <p className="font-semibold text-base text-gray-800">
-          ${(item.price * item.quantity).toLocaleString()}
-        </p>
-      </div>
+    <button
+      className="text-lg disabled:opacity-40"
+      onClick={() =>
+        updateQuantity(item.product_id, item.quantity - 1)
+      }
+      disabled={item.quantity <= 1 || updatingId === item.product_id}
+    >
+      −
+    </button>
+
+    {updatingId === item.product_id ? (
+      <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+    ) : (
+      <span>{item.quantity}</span>
+    )}
+
+    <button
+      className="text-lg disabled:opacity-40"
+      onClick={() =>
+        updateQuantity(item.product_id, item.quantity + 1)
+      }
+      disabled={updatingId === item.product_id}
+    >
+      +
+    </button>
+
+  </div>
+
+  <p className="font-semibold text-base text-gray-800">
+    ${(item.price * item.quantity).toLocaleString()}
+  </p>
+</div>
     </div>
   </div>
 ))}

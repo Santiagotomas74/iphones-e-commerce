@@ -1,8 +1,10 @@
 "use client";
 
-import { ShoppingCart,Store, Truck } from "lucide-react";
+import { Loader2, ShoppingCart,Store, Truck } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Swal from 'sweetalert2';
+
 
 export default function ProductActions({ productId }: { productId: string }) {
   const router = useRouter();
@@ -116,6 +118,75 @@ if (!res.ok) {
     }
     if (step === "transferCard") setStep("payment");
   };
+   const addToCart = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+  
+    if (loading) return;
+  
+    setLoading(true);
+  
+    try {
+      // 🔐 1️⃣ Verificar sesión real
+      const sessionRes = await fetch("/api/me", {
+        method: "GET",
+        credentials: "include",
+      });
+  
+      if (!sessionRes.ok) {
+        Swal.fire({
+          text: "Debes iniciar sesión",
+          icon: "info",
+          confirmButtonText: "Ok",
+        });
+        return;
+      }
+  
+      const sessionData = await sessionRes.json();
+      console.log("Datos de sesión:", sessionData.user.email); // Verificar que el email esté presente
+      const user = sessionData.user;
+  
+      // 🛒 2️⃣ Agregar producto al carrito
+      const res = await fetch("/api/cart/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // importante
+        body: JSON.stringify({
+          email: user.email, // Usamos el email del usuario autenticado
+          productId: productId // Aseguramos usar el productId del componente
+          
+        }),
+      });
+  
+      const data = await res.json();
+  
+      if (!res.ok) {
+        throw new Error(data.error || "Error agregando producto");
+      }
+  
+      Swal.fire({
+        text: "Producto agregado al carrito...",
+        icon: "success",
+        confirmButtonText: "Ok",
+      }).then(() => {
+        router.refresh(); // Refrescar para actualizar el contador del carrito
+        
+      }
+      );
+  
+    } catch (error) {
+
+  
+      Swal.fire({
+        text: error instanceof Error ? error.message : "Error agregando al carrito",
+        icon: "error",
+        confirmButtonText: "Ok",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="mt-8 space-y-4">
@@ -131,10 +202,16 @@ if (!res.ok) {
           </button>
 
           <button
-            onClick={() => alert("Agregar al carrito")}
+            onClick={addToCart}
+            disabled={loading}
             className="w-full bg-neutral-100 hover:bg-neutral-200 text-black p-3 rounded-xl transition flex justify-center"
           >
+             {loading ? (
+            <Loader2 size={18} className="animate-spin" />
+          ) : (
             <ShoppingCart size={20} />
+          )}
+            
           </button>
         </>
       )}

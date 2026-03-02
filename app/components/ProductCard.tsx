@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ShoppingCart, Loader2 } from "lucide-react";
 import { useState } from "react";
 import Swal from 'sweetalert2';
-import { em } from "framer-motion/client";
+
 
 type Product = {
   id: string;
@@ -87,13 +87,17 @@ export default function ProductCard({ product }: { product: Product }) {
       text: "Producto agregado al carrito...",
       icon: "success",
       confirmButtonText: "Ok",
-    });
+    }).then(() => {
+      router.refresh(); // Refrescar para actualizar el contador del carrito
+      
+    }
+    );
 
   } catch (error) {
-    console.error("Error agregando al carrito:", error);
+    
 
     Swal.fire({
-      text: "Hubo un problema al agregar el producto...",
+      text: error instanceof Error ? error.message : "Error agregando al carrito",
       icon: "error",
       confirmButtonText: "Ok",
     });

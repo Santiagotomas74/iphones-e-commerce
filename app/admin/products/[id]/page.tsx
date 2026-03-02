@@ -100,8 +100,8 @@ export default function EditProduct() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
-          price: Number(form.price),
-          quantity: Number(form.quantity),
+          price: form.price,
+          quantity: form.quantity,
         }),
       });
       router.push("/admin");
