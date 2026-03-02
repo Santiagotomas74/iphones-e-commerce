@@ -27,9 +27,9 @@ export default function EditProduct() {
     name: "",
     memory: "",
     color: "",
-    quantity: "",
+    quantity: 0,
     description: "",
-    price: "",
+    price: 0,
     image_1: "",
     image_2: "",
     image_3: "",
@@ -76,9 +76,9 @@ export default function EditProduct() {
           name: data.name || "",
           memory: data.memory || "",
           color: data.color || "",
-          quantity: data.quantity?.toString() || "",
+          quantity: data.quantity || 0,
           description: data.description || "",
-          price: data.price?.toString() || "",
+          price: data.price || 0,
           image_1: data.image_1 || "",
           image_2: data.image_2 || "",
           image_3: data.image_3 || "",
@@ -228,10 +228,12 @@ export default function EditProduct() {
                   <Hash size={16} /> Stock Disponible
                 </label>
                 <input
-                  className="w-full border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 border outline-none transition-all"
                   type="number"
+                  min={0}
                   value={form.quantity}
-                  onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, quantity: Math.max(0, Number(e.target.value)) })
+                  }
                 />
               </div>
 
@@ -239,12 +241,19 @@ export default function EditProduct() {
                 <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                   <DollarSign size={16} /> Precio (USD)
                 </label>
-                <input
-                  className="w-full border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 border outline-none transition-all font-bold text-blue-600"
-                  type="number"
-                  value={form.price}
-                  onChange={(e) => setForm({ ...form, price: e.target.value })}
-                />
+               <input
+  className="w-full border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 border outline-none transition-all font-bold text-blue-600"
+  type="number"
+  min={0}
+  step="0.01"
+  value={form.price}
+  onChange={(e) =>
+    setForm({
+      ...form,
+      price: Math.max(0, Number(e.target.value))
+    })
+  }
+/>
               </div>
 
               <div className="md:col-span-2 space-y-1">
