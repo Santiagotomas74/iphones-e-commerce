@@ -1,11 +1,13 @@
 "use client";
 
+import { Loader2} from "lucide-react";
 import { ShoppingCart,Store, Truck, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import { sub } from "framer-motion/client";
 
-export default function ProductActions({ productId }: { productId: string }) {
+export default function ProductActions({ productId, price }: { productId: string, price: number }) {
   const router = useRouter();
 
   const [step, setStep] = useState<
@@ -31,6 +33,9 @@ export default function ProductActions({ productId }: { productId: string }) {
     postal_code: "",
     additional_info: "",
   });
+  const total = deliveryType === "shipping" ? price + shippingCost : price;
+  const discountedTotal = deliveryType === "shipping" ? Math.round((price + shippingCost) * 0.85) : Math.round(price * 0.85);
+
 
   const getCookie = (name: string) => {
     const value = `; ${document.cookie}`;
@@ -117,57 +122,83 @@ if (!res.ok) {
     }
     if (step === "transferCard") setStep("payment");
   };
-
-
-  const addToCart = async () => {
-  try {
+   const addToCart = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+  
+    if (loading) return;
+  
     setLoading(true);
-
-    const sessionRes = await fetch("/api/me", {
-      method: "GET",
-      credentials: "include",
-    });
-
-    if (!sessionRes.ok) {
-      Swal.fire({
-        icon: "info",
-        text: "Debes iniciar sesión",
+  
+    try {
+      // 🔐 1️⃣ Verificar sesión real
+      const sessionRes = await fetch("/api/me", {
+        method: "GET",
+        credentials: "include",
       });
-      return false;
+  
+      if (!sessionRes.ok) {
+        Swal.fire({
+          text: "Debes iniciar sesión",
+          icon: "info",
+          confirmButtonText: "Ok",
+        });
+        return;
+      }
+  
+      const sessionData = await sessionRes.json();
+      console.log("Datos de sesión:", sessionData.user.email); // Verificar que el email esté presente
+      const user = sessionData.user;
+  
+      // 🛒 2️⃣ Agregar producto al carrito
+      const res = await fetch("/api/cart/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // importante
+        body: JSON.stringify({
+          email: user.email, // Usamos el email del usuario autenticado
+          productId: productId // Aseguramos usar el productId del componente
+          
+        }),
+      });
+  
+      const data = await res.json();
+  
+      if (!res.ok) {
+        throw new Error(data.error || "Error agregando producto");
+      }
+  
+      Swal.fire({
+        text: "Producto agregado al carrito...",
+        icon: "success",
+        confirmButtonText: "Ok",
+      }).then(() => {
+        router.refresh(); // Refrescar para actualizar el contador del carrito
+        
+      }
+      );
+  
+    } catch (error) {
+
+  
+      Swal.fire({
+        text: error instanceof Error ? error.message : "Error agregando al carrito",
+        icon: "error",
+        confirmButtonText: "Ok",
+      });
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const sessionData = await sessionRes.json();
 
-    const res = await fetch("/api/cart/add", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        email: sessionData.user.email,
-        productId: productId,
-      }),
-    });
-
-    if (!res.ok) {
-      throw new Error("Error agregando producto");
-    }
-
-    return true;
-
-  } catch (error) {
-    Swal.fire({
-      icon: "error",
-      text: "Hubo un problema al agregar el producto",
-    });
-    return false;
-
-  } finally {
-    setLoading(false);
-  }
-};
 
   return (
     <div className="mt-8 space-y-4">
+        <p className="text-4xl font-bold text-gray-900">
+          ${total.toLocaleString()}
+        </p>
 
       {/* 🔹 PASO 0 */}
       {step === "initial" && (
@@ -182,29 +213,21 @@ if (!res.ok) {
             </span>
           </button>
 <button
-  onClick={async () => {
-    const added = await addToCart(); 
-
-    if (!added) return; 
-
-    const result = await Swal.fire({
-      icon: "success",
-      title: "Producto agregado",
-      confirmButtonColor: "#000",
-      // confirmButtonText: "Ver carrito",
-      showCancelButton: true,
-      cancelButtonText: "Seguir comprando",
-    });
-
-    if (result.isConfirmed) {
-      router.push("/");
-    }
-  }}
+  onClick={addToCart}
   disabled={loading}
   className="w-full bg-neutral-100 hover:bg-neutral-200 text-black p-3 rounded-xl transition flex items-center justify-center gap-2"
 >
-  <ShoppingCart size={20} />
-  <span>Agregar al carrito</span>
+  {loading ? (
+    <>
+      <Loader2 className="animate-spin" />
+      Agregando...
+      </>
+      ) : (
+        <>
+          <ShoppingCart size={20} />
+          Agregar al carrito
+        </>
+      )}
 </button>
         </>
       )}
@@ -388,10 +411,13 @@ if (!res.ok) {
           <span className="text-xs text-gray-500">
             Tarjetas · Cuotas
           </span>
+          <span className="text-ml text-gray-900">
+              ${total.toLocaleString()}
+          </span>
         </button>
 
         <div className="bg-blue-50 border border-blue-100 rounded-b-2xl px-5 py-3 text-xs text-blue-900">
-          Compra protegida · Pago 100% seguro · Aprobación inmediata
+          Compra protegida · Pago 100% seguro · Aceptamos todas las tarjetas
         </div>
       </div>
 
@@ -400,15 +426,22 @@ if (!res.ok) {
         <button
           disabled={loading}
           onClick={() => createOrder("transfer")}
-          className="w-full bg-gray-900 hover:bg-black text-white py-4 rounded-t-2xl flex items-center justify-between px-5 font-semibold transition border border-gray-800 disabled:opacity-50"
+          className="w-full bg-white hover:bg-gray-50 text-black py-4 rounded-t-2xl flex items-center justify-between px-5 font-semibold transition border border-gray-300 disabled:opacity-50"
         >
           <div className="flex items-center gap-2">
-            <span>$</span>
+            <img
+              src="/image/transferencia.png"
+              alt="Transferencia bancaria"
+              className="h-7 w-auto"
+            />
             <span>Transferencia bancaria</span>
           </div>
 
-          <span className="text-xs bg-green-500 px-3 py-1 rounded-full font-bold tracking-wide">
+          <span className="text-xs bg-green-400 px-3 py-1 rounded-full font-bold tracking-wide">
             15% OFF
+          </span>
+            <span className="text-ml font-bold tracking-wide">
+              ${discountedTotal.toLocaleString()}
           </span>
         </button>
 
@@ -420,36 +453,51 @@ if (!res.ok) {
     </div>
   </div>
 )}
+
       {/* 🔹 PASO 4 */}
       {step === "transferCard" && (
-        <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4 animate-fade-in text-black">
-          <h3 className="text-lg font-semibold ">
-            Datos para realizar la transferencia
-          </h3>
 
-          <div className="bg-gray-50 p-4 rounded-xl text-sm space-y-2  ">
-            <p><strong>CBU:</strong> 0000003100000000000000</p>
-            <p><strong>Alias:</strong> TECHSTORE.PAGOS</p>
-            <p><strong>Titular:</strong> Tech Store S.A.</p>
+         <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4 animate-fade-in">
+    
+    <h3 className="text-lg font-semibold text-black ">
+      Datos para realizar la transferencia
+    </h3>
+
+    <div className="bg-gray-50 p-4 rounded-xl text-sm space-y-2  ">
+            <p className="text-black"><strong>CBU:</strong> 0000003100000000000000</p>
+            <p className="text-black"><strong>Alias:</strong> TECHSTORE.PAGOS</p>
+            <p className="text-black"><strong>Titular:</strong> Tech Store S.A.</p>
           </div>
+    
+    <p className="text-sm text-gray-900">
+      El total que deberás transferir es exactamente <strong>${total.toLocaleString()}</strong> para que podamos identificar tu pago.
+    </p>
+    
+     <p className="text-sm text-gray-900">
+   Tiene 2 horas para subir el comprobante de la transferencia. Pasado ese tiempo, la orden se cancelará automáticamente y el stock se liberará.
+    </p>
+   <p className="text-sm text-gray-900">
+      ⏳ El pago puede demorar hasta 48 hs en acreditarse.
+    </p>
 
-          <p className="text-sm text-gray-600">
-            ⏳ El pago puede demorar hasta 48 hs en acreditarse.
-            Luego deberás subir el comprobante desde tu panel.
-          </p>
+    <button
+      onClick={() => window.location.href = "/user/dashboard"}
+      className="w-full bg-black text-white py-3 rounded-xl"
+    >
+      Subir comprobante
+    </button>
 
-          <button
-            onClick={() => router.push("/user/dashboard")}
-            className="w-full bg-black text-white py-3 rounded-xl"
-          >
-            Subir comprobante
-          </button>
+    <p className="text-xs text-gray-400 text-center">
+      Orden #{orderId}
+    </p>
 
-          <p className="text-xs text-gray-400 text-center">
-            Orden #{orderId}
-          </p>
-        </div>
+  </div>
       )}
+
+          
+
     </div>
+
   );
+
 }

@@ -8,4 +8,5 @@ export interface NavbarProps {
     name: string;
     email: string;
   } | null;
+  cartCount: number;
 }

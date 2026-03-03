@@ -1,45 +1,59 @@
 import { NextRequest, NextResponse } from "next/server";
-import { query } from "@/db";
+import { cookies } from "next/headers";
+import { verify } from "jsonwebtoken";
+import { pool } from "@/db";
 
 export async function POST(req: NextRequest) {
-  try {
-    const { email, productId } = await req.json();
+  const client = await pool.connect();
 
-    if (!email) {
+  try {
+    const cookieStore = cookies();
+    const token = (await cookieStore).get("tokenTech")?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    const decoded: any = verify(token, process.env.JWT_SECRET!);
+    const userId = decoded.id;
+
+    const { productId } = await req.json();
+
+    if (!productId) {
       return NextResponse.json(
-        { error: "Email requerido" },
+        { error: "Producto requerido" },
         { status: 400 }
       );
     }
 
-    // ⚠️ MUY IMPORTANTE: decodificar email
-    const decodedEmail = decodeURIComponent(email);
+    await client.query("BEGIN");
 
-    // 1️⃣ Buscar ID del usuario por email
-    const userRes = await query(
-      `SELECT id FROM users WHERE email = $1`,
-      [decodedEmail]
+    // 1️⃣ Verificar producto y stock
+    const productRes = await client.query(
+      `SELECT quantity FROM products WHERE id = $1 FOR UPDATE`,
+      [productId]
     );
 
-    if (userRes.rows.length === 0) {
+    if (productRes.rows.length === 0) {
+      await client.query("ROLLBACK");
       return NextResponse.json(
-        { error: "Usuario no encontrado" },
+        { error: "Producto no existe" },
         { status: 404 }
       );
     }
 
-    const userId = userRes.rows[0].id;
+    const stock = productRes.rows[0].quantity;
 
-    // 2️⃣ Buscar carrito del usuario
-    const cartRes = await query(
-      `SELECT * FROM cart WHERE user_id = $1`,
+    // 2️⃣ Buscar o crear carrito
+    let cartRes = await client.query(
+      `SELECT id FROM cart WHERE user_id = $1`,
       [userId]
     );
 
     let cartId;
 
     if (cartRes.rows.length === 0) {
-      const newCart = await query(
+      const newCart = await client.query(
         `INSERT INTO cart (user_id) VALUES ($1) RETURNING id`,
         [userId]
       );
@@ -48,35 +62,59 @@ export async function POST(req: NextRequest) {
       cartId = cartRes.rows[0].id;
     }
 
-    // 3️⃣ Ver si producto ya existe en carrito
-    const itemRes = await query(
-      `SELECT * FROM cart_items 
+    // 3️⃣ Ver si producto ya está en carrito
+    const itemRes = await client.query(
+      `SELECT id, quantity FROM cart_items 
        WHERE cart_id = $1 AND product_id = $2`,
       [cartId, productId]
     );
 
     if (itemRes.rows.length > 0) {
-      await query(
+      const currentQuantity = itemRes.rows[0].quantity;
+
+      if (currentQuantity + 1 > stock) {
+        await client.query("ROLLBACK");
+        return NextResponse.json(
+          { error: "Stock insuficiente" },
+          { status: 400 }
+        );
+      }
+
+      await client.query(
         `UPDATE cart_items
          SET quantity = quantity + 1
          WHERE id = $1`,
         [itemRes.rows[0].id]
       );
     } else {
-      await query(
+      if (stock < 1) {
+        await client.query("ROLLBACK");
+        return NextResponse.json(
+          { error: "Sin stock disponible" },
+          { status: 400 }
+        );
+      }
+
+      await client.query(
         `INSERT INTO cart_items (cart_id, product_id, quantity)
          VALUES ($1, $2, 1)`,
         [cartId, productId]
       );
     }
 
+    await client.query("COMMIT");
+
     return NextResponse.json({ success: true });
 
   } catch (error) {
+    await client.query("ROLLBACK");
     console.error(error);
+
     return NextResponse.json(
       { error: "Error carrito" },
       { status: 500 }
     );
+  } finally {
+    client.release();
   }
 }

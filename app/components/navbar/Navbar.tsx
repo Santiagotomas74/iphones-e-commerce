@@ -6,13 +6,15 @@ import { Menu, X, User, ShoppingBag, LogOut } from "lucide-react";
 import CartSidebar from "./CartSidebar";
 import type { NavbarProps } from "./Navbar.types";
 
-export default function Navbar({ items }: NavbarProps) {
+export default function Navbar({ items, cartCount }: NavbarProps) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const cartItemsCount = cartCount; // Usamos el cartCount pasado desde RootLayout
+  console.log("Cart count en Navbar:", cartCount); // Verificar el valor de cartCount
 
   // 🔐 Chequeo real de sesión
   useEffect(() => {
@@ -27,6 +29,7 @@ export default function Navbar({ items }: NavbarProps) {
 
         const data = await res.json();
 
+
         setIsLoggedIn(true);
         setUserName(data.user.name);
       } catch {
@@ -36,9 +39,37 @@ export default function Navbar({ items }: NavbarProps) {
         setLoading(false);
       }
     };
+    
 
     checkSession();
   }, []);
+  
+    // 🔐 informacion del user con carritocount 
+  useEffect(() => {
+    const checkSessionNav = async () => {
+      try {
+        const res = await fetch("/api/user/me", {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (!res.ok) throw new Error();
+
+        const data = await res.json();
+        console.log("Usuario autenticado:", data);
+      
+        setUserName(data.full_name);
+      } catch (error) {
+        setUserName(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkSessionNav();
+  }, []);
+
+
 
   const handleLogout = async () => {
     //await fetch("/api/logout", {
@@ -91,141 +122,184 @@ export default function Navbar({ items }: NavbarProps) {
 
           {/* CENTER DESKTOP */}
           <ul className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-8 text-lg">
-            {items.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="hover:text-black transition"
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+  {items.map((item) => (
+    <li key={item.href} className="group relative">
+      <Link
+        href={item.href}
+        className="relative text-gray-700 transition-colors duration-300 group-hover:text-black"
+      >
+        {item.label}
+        <span className="absolute left-1/2 -bottom-1 h-[2px] w-0 bg-blue-500 transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
+      </Link>
+    </li>
+  ))}
+</ul>
 
           {/* RIGHT */}
-          <div className="ml-auto flex items-center gap-6">
+         <div className="ml-auto flex items-center gap-6">
 
-            {!isLoggedIn && (
-              <Link
-                href="/login"
-                className="hidden md:flex items-center gap-2"
-              >
-                <User size={25} />
-                <span>Iniciar sesión</span>
-              </Link>
-            )}
+  {!isLoggedIn && (
+    <Link
+      href="/login"
+      className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl
+                 text-gray-700 transition-all duration-300
+                 hover:text-black hover:bg-gray-100 hover:-translate-y-[2px]"
+    >
+      <User size={23} className="transition-transform duration-300 group-hover:scale-105" />
+      <span className="font-medium">Iniciar sesión</span>
+    </Link>
+  )}
 
-            {isLoggedIn && (
-              <div className="hidden md:flex items-center gap-4">
-                <Link
-                  href="/user/dashboard"
-                  className="flex items-center gap-2"
-                >
-                  <User size={25} />
-                  <span>{userName}</span>
-                </Link>
+  {isLoggedIn && (
+    <div className="hidden md:flex items-center gap-4">
 
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 text-red-600"
-                >
-                  <LogOut size={22} />
-                  <span>Salir</span>
-                </button>
-              </div>
-            )}
+      <Link
+        href="/user/dashboard"
+        className="flex items-center gap-2 px-4 py-2 rounded-xl
+                   text-gray-700 transition-all duration-300
+                   hover:text-black hover:bg-gray-100 hover:-translate-y-[2px]"
+      >
+        <User size={23} />
+        <span className="font-medium">{userName}</span>
+      </Link>
 
-            {/* Cart */}
-            <button
-              onClick={() => setIsCartOpen(true)}
-              className="relative p-2"
-            >
-              <ShoppingBag size={27} />
-              <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-[2px] rounded-full">
-                20
-              </span>
-            </button>
-          </div>
+      <button
+        onClick={handleLogout}
+        className="flex items-center gap-2 px-4 py-2 rounded-xl
+                   text-red-500 transition-all duration-300
+                   hover:bg-red-50 hover:text-red-600 hover:-translate-y-[2px]"
+      >
+        <LogOut size={20} />
+        <span className="font-medium">Salir</span>
+      </button>
+
+    </div>
+  )}
+
+  {/* Cart */}
+  <button
+    onClick={() => setIsCartOpen(true)}
+    className="relative p-2 rounded-xl transition-all duration-300
+               hover:bg-gray-100 hover:-translate-y-[2px]"
+  >
+    <ShoppingBag size={26} className="transition-transform duration-300 hover:scale-110" />
+
+    {cartItemsCount > 0 && (
+      <span className="absolute -top-2 -right-2 min-w-[20px] h-[20px]
+                       flex items-center justify-center
+                       bg-blue-600 text-white text-xs font-semibold
+                       px-1.5 rounded-full shadow-md
+                       transition-all duration-300">
+        {cartItemsCount}
+      </span>
+    )}
+  </button>
+
+</div>
         </div>
       </nav>
 
       {/* Overlay mobile */}
       {isMenuOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 z-40 md:hidden"
-          onClick={() => setIsMenuOpen(false)}
-        />
-      )}
+  <div
+    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden
+               transition-opacity duration-400"
+    onClick={() => setIsMenuOpen(false)}
+  />
+)}
 
       {/* SIDEBAR MOBILE */}
       <div
-        className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform transition-transform duration-300 md:hidden ${
-          isMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <div className="flex items-center justify-between p-4 border-b">
-          <span className="font-semibold text-black">TechStore</span>
-          <button onClick={() => setIsMenuOpen(false)}>
-            <X size={20} />
-          </button>
-        </div>
+  className={`fixed top-0 left-0 h-full w-72 bg-white/95 backdrop-blur-xl
+              shadow-2xl z-50 transform transition-all duration-300 ease-out md:hidden
+              ${isMenuOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"}`}
+>
+        <div className="flex items-center justify-between p-5 border-b">
+  <span className="text-lg font-semibold tracking-wide text-black">
+    TechStore
+  </span>
+  <button
+    onClick={() => setIsMenuOpen(false)}
+    className="p-2 rounded-lg transition-all duration-300 text-gray-600 hover:bg-blue-400 hover:text-white"
+  >
+    <X size={20} />
+  </button>
+</div>
 
-        <ul className="flex flex-col gap-4 p-6">
-          {items.map((item) => (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                onClick={() => setIsMenuOpen(false)}
-                className="block py-2 hover:text-black text-black"
-              >
-                {item.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
+
+
+        <ul className="flex flex-col gap-2 p-6">
+  {items.map((item) => (
+    <li key={item.href} className="group relative">
+      <Link
+        href={item.href}
+        onClick={() => setIsMenuOpen(false)}
+        className="block py-3 px-4 rounded-xl
+                   text-gray-700 font-medium
+                   transition-all duration-300
+                   hover:bg-gray-100 hover:text-black"
+      >
+        {item.label}
+      </Link>
+
+      <span className="absolute left-0 top-1/2 -translate-y-1/2
+                       h-0 w-1 bg-black rounded-r
+                       transition-all duration-300
+                       group-hover:h-10"></span>
+    </li>
+  ))}
+</ul>
 
         {/* Login / Logout mobile */}
-        <div className="border-t p-6 flex flex-col gap-4">
+        <div className="border-t p-6 flex flex-col gap-3">
 
-          {!isLoggedIn && (
-            <Link
-              href="/login"
-              onClick={() => setIsMenuOpen(false)}
-              className="hover:text-black "
-            >
-              Iniciar sesión
-            </Link>
-          )}
+  {!isLoggedIn && (
+    <Link
+      href="/login"
+      onClick={() => setIsMenuOpen(false)}
+      className="py-3 px-4 rounded-xl font-medium
+                 transition-all duration-300
+                 hover:bg-gray-100 hover:text-black"
+    >
+      Iniciar sesión
+    </Link>
+  )}
 
-          {isLoggedIn && (
-            <>
-              <Link
-                href="/user/dashboard"
-                onClick={() => setIsMenuOpen(false)}
-                className="flex items-center text-black gap-2"
-              >
-                <User size={18} />
-                <span>{userName}</span>
-              </Link>
+  {isLoggedIn && (
+    <>
+      <Link
+        href="/user/dashboard"
+        onClick={() => setIsMenuOpen(false)}
+        className="flex items-center gap-2 py-3 px-4 rounded-xl
+                   text-gray-700 font-medium
+                   transition-all duration-300
+                   hover:bg-gray-100 hover:text-black"
+      >
+        <User size={18} />
+        <span>{userName}</span>
+      </Link>
 
-              <button
-                onClick={() => {
-                  handleLogout();
-                  setIsMenuOpen(false);
-                }}
-                className="flex items-center gap-2 text-red-600"
-              >
-                <LogOut size={18} />
-                <span>Salir</span>
-              </button>
-            </>
-          )}
-        </div>
+      <button
+        onClick={() => {
+          handleLogout();
+          setIsMenuOpen(false);
+        }}
+        className="flex items-center gap-2 py-3 px-4 rounded-xl
+                   text-red-500 font-medium
+                   transition-all duration-300
+                   hover:bg-red-50 hover:text-red-600"
+      >
+        <LogOut size={18} />
+        <span>Salir</span>
+      </button>
+    </>
+  )}
+</div>
       </div>
 
       <CartSidebar
         isOpen={isCartOpen}
+        count={cartItemsCount}
         onClose={() => setIsCartOpen(false)}
       />
     </>

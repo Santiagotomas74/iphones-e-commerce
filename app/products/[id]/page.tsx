@@ -46,11 +46,9 @@ export default async function ProductDetail({
           {product.memory} • {product.color}
         </p>
 
-        <p className="text-4xl font-bold mt-6 text-gray-900">
-          ${product.price.toLocaleString()}
-        </p>
+      
 
-       <ProductActions productId={product.id} />
+       <ProductActions productId={product.id} price={product.price} />
 
         <p className="mt-6 text-gray-600">
           {product.description}

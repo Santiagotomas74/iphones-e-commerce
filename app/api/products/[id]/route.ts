@@ -52,6 +52,18 @@ export async function PUT(
     image_2,
     image_3,
   } = await req.json();
+  console.log("Datos recibidos en PUT:", {
+    name,
+    memory,
+    color,
+    quantity,
+    description,
+    price,
+    image_1,
+    image_2,
+    image_3,
+  });
+  
 
   const { rows } = await query(
     `UPDATE products
