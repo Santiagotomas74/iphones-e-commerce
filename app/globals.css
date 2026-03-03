@@ -60,3 +60,16 @@ body {
   display: inline-block;
   animation: marquee 12s linear infinite alternate;
 }
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}

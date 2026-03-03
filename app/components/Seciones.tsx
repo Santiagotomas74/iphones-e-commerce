@@ -69,7 +69,7 @@ export default function FadeToDark() {
           
         </motion.div>
        </section>
-       <section className="bg-white min-h-screen flex items-center justify-center">
+       <section className="bg-white  flex items-center justify-center">
         <HeroSection />
       </section>
      
