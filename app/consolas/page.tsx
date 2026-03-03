@@ -1,6 +1,6 @@
 import HeroProduct from "@/app/components/HeroProduct/HeroProduct";
 import HeroSection from "@/app/components/HeroSection/HeroSection"
-import Seciones from "./Seciones"
+import Seciones from "../components/Seciones"
 
 export default function HomePage() {
   return (

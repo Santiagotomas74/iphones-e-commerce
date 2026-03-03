@@ -4,7 +4,7 @@ export default function NewSection() {
       
       <div className="absolute inset-0 z-0">
         <video
-          src="/videos/17pro.mp4"
+          src="/videos/17.mp4"
           autoPlay
           loop
           muted
@@ -53,7 +53,7 @@ export default function NewSection() {
         </div>
       </div>
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 hidden md:block opacity-50">
-        <div className="w-[1px] h-12 bg-gradient-to-b from-white to-transparent" />
+        
       </div>
 
     </section>

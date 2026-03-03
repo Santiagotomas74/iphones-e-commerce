@@ -6,7 +6,7 @@ export default function HeroIphone() {
     <div className="
   hidden lg:block
   absolute right-[-150px] top-1/2 -translate-y-1/2
-  w-[600px] xl:w-[800px]
+  w-[300px] xl:w-[400px]
   aspect-square
   rounded-full
   bg-[radial-gradient(circle,rgba(120,80,255,0.55),transparent_60%)]
@@ -50,13 +50,13 @@ export default function HeroIphone() {
     w-[250px] sm:w-[350px] md:w-[450px] lg:w-[550px]
     aspect-square
     rounded-full
-    bg-[radial-gradient(circle,rgba(60,35,185,0.6),transparent_90%)]
+    bg-[radial-gradient(circle,rgba(60,35,185,0.6),transparent_60%)]
     blur-3xl
     z-0
   " />
 
         <video
-  src="/videos/17protwo.mp4"
+  src="/videos/15.mp4"
   autoPlay
   loop
   muted

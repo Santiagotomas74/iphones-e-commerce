@@ -1,6 +1,6 @@
 import ProductCard from "./components/ProductCard";
 import { query } from "@/db";
-import Seciones from "@/app/consolas/Seciones";
+import Seciones from "@/app/components/Seciones";
 import RevealFromBottom from "./components/RevealFromBottom";
 import {FaWhatsapp} from "react-icons/fa";
 import NewSection from "./components/NewSection/NewSection";
