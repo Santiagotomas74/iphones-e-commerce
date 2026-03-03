@@ -27,9 +27,7 @@ export default function FadeToDark() {
   return (
     <>
       {/* Sección Blanca */}
-      <section className="bg-white min-h-screen flex items-center justify-center">
-        <HeroSection />
-      </section>
+    
 
       {/* Transición Blur */}
       <section
@@ -68,9 +66,12 @@ export default function FadeToDark() {
           }}
         >
           <HeroProduct />
+          
         </motion.div>
+       </section>
+       <section className="bg-white min-h-screen flex items-center justify-center">
+        <HeroSection />
       </section>
-
      
       
     </>

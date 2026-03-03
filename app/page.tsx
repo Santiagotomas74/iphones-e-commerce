@@ -3,6 +3,7 @@ import { query } from "@/db";
 import Seciones from "@/app/consolas/Seciones";
 import RevealFromBottom from "./components/RevealFromBottom";
 import {FaWhatsapp} from "react-icons/fa";
+import NewSection from "./components/NewSection/NewSection";
 
 type Product = {
   id: string;
@@ -29,17 +30,17 @@ export default async function HomePage() {
 
   return (
     <>
-      <Seciones />
-
-      <RevealFromBottom>
+       <NewSection />
+        <Seciones />
+        <RevealFromBottom>
         <main className="max-w-7xl mx-auto p-6 tracking-wide mt-10 mb-20">
           <h1 className="text-4xl md:text-5xl font-medium mb-6 text-center text-gray-900 tracking-[-0.02em]">
-  Nuestra Colección
-</h1>
+           Nuestra Colección
+            </h1>
 
-<span className="block text-gray-500 text-ml text-center mt-3 tracking-[-0.01em]">
-  Elegí el iPhone que se adapta a tu estilo.
-</span>
+         <span className="block text-gray-500 text-ml text-center mt-3 tracking-[-0.01em]">
+             Elegí el iPhone que se adapta a tu estilo.
+          </span>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-10">
             {products.map((product) => (
@@ -47,6 +48,7 @@ export default async function HomePage() {
             ))}
           </div>
         </main>
+        
       </RevealFromBottom>
       <a
   href="https://wa.me/549XXXXXXXXXX?text=Hola!%20Quiero%20consultar%20por%20un%20iPhone"
@@ -56,9 +58,7 @@ export default async function HomePage() {
 >
   <FaWhatsapp  size={40}/>
 </a>
-
-      
-    </>
+ </>
     
   );
 }
