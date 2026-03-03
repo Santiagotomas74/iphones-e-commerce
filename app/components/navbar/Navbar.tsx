@@ -257,7 +257,7 @@ export default function Navbar({ items, cartCount }: NavbarProps) {
     <Link
       href="/login"
       onClick={() => setIsMenuOpen(false)}
-      className="py-3 px-4 rounded-xl font-medium
+      className="py-3 px-4 rounded-xl font-medium text-gray-900
                  transition-all duration-300
                  hover:bg-gray-100 hover:text-black"
     >
