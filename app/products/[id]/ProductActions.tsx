@@ -34,7 +34,7 @@ export default function ProductActions({ productId, price }: { productId: string
     additional_info: "",
   });
   const total = deliveryType === "shipping" ? price + shippingCost : price;
-
+  const discountedTotal = deliveryType === "shipping" ? Math.round((price + shippingCost) * 0.85) : Math.round(price * 0.85);
 
 
   const getCookie = (name: string) => {
@@ -411,6 +411,9 @@ if (!res.ok) {
           <span className="text-xs text-gray-500">
             Tarjetas · Cuotas
           </span>
+          <span className="text-ml text-gray-900">
+              ${total.toLocaleString()}
+          </span>
         </button>
 
         <div className="bg-blue-50 border border-blue-100 rounded-b-2xl px-5 py-3 text-xs text-blue-900">
@@ -434,8 +437,11 @@ if (!res.ok) {
             <span>Transferencia bancaria</span>
           </div>
 
-          <span className="text-xs bg-green-500 px-3 py-1 rounded-full font-bold tracking-wide">
+          <span className="text-xs bg-green-400 px-3 py-1 rounded-full font-bold tracking-wide">
             15% OFF
+          </span>
+            <span className="text-ml font-bold tracking-wide">
+              ${discountedTotal.toLocaleString()}
           </span>
         </button>
 

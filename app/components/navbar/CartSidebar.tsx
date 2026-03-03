@@ -351,10 +351,10 @@ const updateQuantity = async (productId: string, newQuantity: number) => {
 
       {/* Controles cantidad */}
      <div className="flex items-center justify-between mt-3">
-  <div className="flex items-center bg-white rounded-xl px-3 py-1 gap-3 shadow-sm text-gray-800">
+  <div className="flex items-center bg-white rounded-xl  gap-3 shadow-sm text-gray-800">
 
     <button
-      className="text-lg disabled:opacity-40"
+      className="text-lg  bg-red-400 text-white rounded-lg px-2 py-1 hover:bg-red-500 transition"
       onClick={() =>
         updateQuantity(item.product_id, item.quantity - 1)
       }
@@ -364,13 +364,13 @@ const updateQuantity = async (productId: string, newQuantity: number) => {
     </button>
 
     {updatingId === item.product_id ? (
-      <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+      <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin "></div>
     ) : (
       <span>{item.quantity}</span>
     )}
 
     <button
-      className="text-lg disabled:opacity-40"
+      className="text-lg bg-green-400 text-white rounded-lg px-2 py-1 hover:bg-green-500 transition"
       onClick={() =>
         updateQuantity(item.product_id, item.quantity + 1)
       }
@@ -544,7 +544,7 @@ const updateQuantity = async (productId: string, newQuantity: number) => {
 </button>
                     {/* Total dinámico */}
                     <div className="bg-neutral-100 p-3 rounded-xl text-sm">
-                      <div className="flex justify-between">
+                      <div className="flex justify-between text-gray-700">
                         <span>Total</span>
                         <span className="font-semibold">
                           ${total.toLocaleString()}
