@@ -411,11 +411,11 @@ const updateQuantity = async (productId: string, newQuantity: number) => {
                 {checkoutStep === "delivery" && (
                   <div className="space-y-3 fade-step">
                     <button
-  onClick={() => setCheckoutStep(null)}
-  className="text-sm text-gray-700"
->
-  ← Volver
-</button>
+                   onClick={() => setCheckoutStep(null)}
+                   className="text-sm text-gray-700"
+                    >
+                   ← Volver
+                   </button>
                     <button
                       onClick={() => {
                         setDeliveryType("pickup");
@@ -438,65 +438,65 @@ const updateQuantity = async (productId: string, newQuantity: number) => {
                   </div>
                 )}
                 {checkoutStep === "address" && (
-  <div className="space-y-3 fade-step bg-black" >
-<button
-  onClick={() => setCheckoutStep("delivery")}
-  className="text-sm text-white text-gray-700"
->
-  ← Volver
-</button>
-    <input
-      type="text"
-      placeholder="Nombre completo"
-      value={address.full_name}
-      onChange={(e) =>
-        setAddress({ ...address, full_name: e.target.value })
-      }
-      className="w-full border rounded-xl p-3"
-    />
+              <div className="space-y-3 fade-step bg-black" >
+              <button
+                onClick={() => setCheckoutStep("delivery")}
+                className="text-sm text-white text-gray-700"
+                    >
+                 ← Volver
+              </button>
+               <input
+                 type="text"
+                 placeholder="Nombre completo"
+                 value={address.full_name}
+                 onChange={(e) =>
+                  setAddress({ ...address, full_name: e.target.value })
+              }
+                   className="w-full border rounded-xl p-3"
+               />
 
-    <input
-      type="text"
-      placeholder="Teléfono"
-      value={address.phone}
-      onChange={(e) =>
-        setAddress({ ...address, phone: e.target.value })
-      }
-      className="w-full border rounded-xl p-3"
-    />
+               <input
+                 type="text"
+                 placeholder="Teléfono"
+                 value={address.phone}
+                 onChange={(e) =>
+                  setAddress({ ...address, phone: e.target.value })
+              }
+                   className="w-full border rounded-xl p-3"
+            />
 
-    <input
-      type="text"
-      placeholder="Calle"
-      value={address.street}
-      onChange={(e) =>
-        setAddress({ ...address, street: e.target.value })
-      }
-      className="w-full border rounded-xl p-3"
-    />
+               <input
+                  type="text"
+                  placeholder="Calle"
+                  value={address.street}
+                  onChange={(e) =>
+                  setAddress({ ...address, street: e.target.value })
+               }
+               className="w-full border rounded-xl p-3"
+             />
 
-    <input
-      type="text"
-      placeholder="Número"
-      value={address.street_number}
-      onChange={(e) =>
-        setAddress({ ...address, street_number: e.target.value })
+            <input
+              type="text"
+              placeholder="Número"
+              value={address.street_number}
+              onChange={(e) =>
+                setAddress({ ...address, street_number: e.target.value })
       }
-      className="w-full border rounded-xl p-3"
-    />
- <input placeholder="Departamento"
-            value={address.apartment}
-            onChange={(e) => setAddress({ ...address, apartment: e.target.value })}
-            className="w-full border p-2 rounded-lg"
-          />
-    <input
-      type="text"
-      placeholder="Ciudad"
-      value={address.city}
-      onChange={(e) =>
-        setAddress({ ...address, city: e.target.value })
+               className="w-full border rounded-xl p-3"
+               />
+              <input placeholder="Departamento"
+                   value={address.apartment}
+                   onChange={(e) => setAddress({ ...address, apartment: e.target.value })}
+                   className="w-full border p-2 rounded-lg"
+               />
+            <input
+                type="text"
+                placeholder="Ciudad"
+                value={address.city}
+                onChange={(e) =>
+                  setAddress({ ...address, city: e.target.value })
       }
-      className="w-full border rounded-xl p-3"
+                  className="w-full border rounded-xl p-3"
     />
 
     <input
@@ -567,7 +567,7 @@ const updateQuantity = async (productId: string, newQuantity: number) => {
                     <button
                       disabled={loading}
                      onClick={() => handleCheckout("transfer")}
-                      className="w-full bg-blue-600 text-white py-3 rounded-xl flex justify-center items-center gap-2 disabled:opacity-60"
+                      className="w-full bg-blue-600 text- py-3 rounded-xl flex justify-center items-center gap-2 disabled:opacity-60"
                     >
                       {loading ? (
                         <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
@@ -579,13 +579,13 @@ const updateQuantity = async (productId: string, newQuantity: number) => {
                 )}
 
                 {checkoutStep === "transferCard" && orderId && (
-  <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4 animate-fade-in ">
+  <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4 animate-fade-in">
     
-    <h3 className="text-lg font-semibold text-gray-700 ">
+    <h3 className="text-lg font-semibold text-black ">
       Datos para realizar la transferencia
     </h3>
 
-    <div className="bg-gray-50 p-4 rounded-xl text-sm space-y-2 text-gray-700 ">
+    <div className="bg-gray-50 p-4 rounded-xl text-sm space-y-2">
       <p><strong>CBU:</strong> 0000003100000000000000</p>
       <p><strong>Alias:</strong> TECHSTORE.PAGOS</p>
       <p><strong>Titular:</strong> Tech Store S.A.</p>

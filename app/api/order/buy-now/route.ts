@@ -18,6 +18,8 @@ export async function POST(req: Request) {
       address,
     } = await req.json();
 
+    console.log(shipping_cost);
+
     // 🔎 Validaciones básicas
     if (!email || !product_id || !payment_method || !delivery_type) {
       return NextResponse.json(
@@ -89,7 +91,7 @@ export async function POST(req: Request) {
     const total =
       totalProduct +
       (delivery_type === "shipping" ? Number(shipping_cost) : 0);
-
+    console.log("Total calculado:", total);
     const orderNumber = `ORD-${randomUUID().slice(0, 8).toUpperCase()}`;
       let expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos para MP
 
@@ -180,7 +182,7 @@ if (payment_method === "transfer") {
             {
               id: product.id.toString(),
               title: product.name,
-              unit_price: productPrice,
+              unit_price: total,
               quantity: quantity,
               currency_id: "ARS",
             },
