@@ -35,7 +35,7 @@ export default function FadeToDark() {
         className="relative min-h-screen flex items-center justify-center"
       >
         <div
-          className="absolute inset-0 bg-black transition-all duration-100"
+          className="absolute inset-0 bg-black transition-all duration-50"
           style={{
             opacity: Math.min(progress * 2, 1),
             backdropFilter: `blur(${progress * 10}px)`,
@@ -69,7 +69,7 @@ export default function FadeToDark() {
           
         </motion.div>
        </section>
-       <section className="bg-white min-h-screen flex items-center justify-center">
+       <section className="bg-white  flex items-center justify-center">
         <HeroSection />
       </section>
      

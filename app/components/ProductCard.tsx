@@ -16,6 +16,8 @@ type Product = {
   quantity: number;
   description: string;
   image_1: string;
+  image_2: string;
+  image_3: string;
 };
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -108,46 +110,95 @@ export default function ProductCard({ product }: { product: Product }) {
 
  return (
   <div
-    onClick={goToProduct}
-    className="bg-white rounded-2xl shadow hover:shadow-lg transition p-6 cursor-pointer"
-  >
-    <img
-      src={product.image_1}
-      alt={product.name}
-      className="w-full h-56 object-contain"
-    />
+  onClick={goToProduct}
+  className="group relative bg-white rounded-3xl
+             border border-gray-100
+             shadow-sm
+             transition-all duration-500 ease-out
+             hover:shadow-xl hover:-translate-y-2
+             p-7 cursor-pointer"
+>
+  {/* Imagen */}
+<div className="relative h-56 overflow-hidden rounded-2xl group">
 
-    {/* Título */}
-    <h2 className="mt-4 text-black font-medium tracking-[-0.02em] text-lg">
-      {product.name}
-    </h2>
+  {/* Imagen 1 */}
+  <img
+    src={product.image_1}
+    alt={product.name}
+    className="absolute inset-0 w-full h-full object-contain
+               transition-opacity duration-500 ease-in-out
+               group-hover:opacity-0"
+  />
 
-    {/* Subtítulo */}
-    <p className="text-gray-500 text-sm mt-1 tracking-[-0.01em]">
-      {product.memory} • {product.color}
-    </p>
+  {/* Imagen 2 */}
+  <img
+    src={product.image_2}
+    alt={product.name}
+    className="absolute inset-0 w-full h-full object-contain
+               opacity-0
+               transition-opacity duration-500 ease-in-out
+               group-hover:opacity-100"
+  />
 
-      <div className="flex items-center justify-between mt-3">
-        <span className="text-2xl font-medium text-black tracking-[-0.03em]">
-          ${product.price.toLocaleString()}
-        </span>
-
-        {/* 4. Botón con condicional para el icono y deshabilitación */}
-        <button
-          onClick={addToCart}
-          disabled={loading}
-          className={`text-white p-2 rounded-xl transition flex items-center justify-center min-w-[36px] h-[36px] ${
-            loading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-          }`}
-        >
-          {loading ? (
-            <Loader2 size={18} className="animate-spin" />
-          ) : (
-            <ShoppingCart size={18} />
-          )}
-        </button>
-      </div>
+  {/* Cortina */}
+  <div className="absolute inset-0 pointer-events-none overflow-hidden">
+    <div className="absolute inset-0 bg-black
+                    -translate-x-[110%]
+                    group-hover:translate-x-[110%]
+                    transition-transform duration-700 ease-in-out
+                    will-change-transform">
     </div>
+  </div>
+
+</div>
+
+  {/* Título */}
+  <h2 className="mt-6 text-black font-medium tracking-[-0.02em] text-lg">
+    {product.name}
+  </h2>
+
+  {/* Subtítulo */}
+  <p className="text-gray-500 text-sm mt-1 tracking-[-0.01em]">
+    {product.memory} • {product.color}
+  </p>
+
+  {/* Precio + botón */}
+  <div className="flex items-center justify-between mt-5">
+    <span className="text-2xl font-semibold text-black tracking-[-0.03em]">
+      ${product.price.toLocaleString()}
+    </span>
+
+    <button
+      onClick={addToCart}
+      disabled={loading}
+      className={`relative text-white rounded-xl
+                  transition-all duration-300
+                  flex items-center justify-center
+                  w-10 h-10
+                  ${
+                    loading
+                      ? "bg-blue-400 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700 hover:scale-105 active:scale-95"
+                  }`}
+    >
+      {loading ? (
+        <Loader2 size={18} className="animate-spin" />
+      ) : (
+        <ShoppingCart size={18} />
+      )}
+    </button>
+  </div>
+
+  {/* Glow sutil al hover */}
+  <div className="absolute inset-0 rounded-3xl opacity-0
+                  group-hover:opacity-100
+                  transition-opacity duration-500
+                  pointer-events-none
+                  bg-gradient-to-tr from-blue-50/40 to-transparent">
+  </div>
+</div>
   );
 
 }
+
+    

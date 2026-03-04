@@ -1,9 +1,11 @@
 import ProductCard from "./components/ProductCard";
 import { query } from "@/db";
-import Seciones from "@/app/consolas/Seciones";
-import RevealFromBottom from "./components/RevealFromBottom";
+import Seciones from "@/app/components/Seciones";
 import {FaWhatsapp} from "react-icons/fa";
 import NewSection from "./components/NewSection/NewSection";
+import FadeInSection from "./components/FadeInSection";
+
+
 
 type Product = {
   id: string;
@@ -14,11 +16,13 @@ type Product = {
   quantity: number;
   description: string;
   image_1: string;
+  image_2: string;
+  image_3: string;
 };
 
 async function getProducts(): Promise<Product[]> {
   const { rows } = await query(`
-    SELECT id, name, memory, color, price, quantity, description, image_1
+    SELECT id, name, memory, color, price, quantity, description, image_1, image_2, image_3
     FROM products
   `);
 
@@ -32,15 +36,33 @@ export default async function HomePage() {
     <>
        <NewSection />
         <Seciones />
-        <RevealFromBottom>
-        <main className="max-w-7xl mx-auto p-6 tracking-wide mt-10 mb-20">
-          <h1 className="text-4xl md:text-5xl font-medium mb-6 text-center text-gray-900 tracking-[-0.02em]">
-           Nuestra Colección
-            </h1>
+       <FadeInSection>
+        <main className="max-w-7xl mx-auto mt-20 tracking-wide  mb-20">
+        <div className="text-center mb-14">
 
-         <span className="block text-gray-500 text-ml text-center mt-3 tracking-[-0.01em]">
-             Elegí el iPhone que se adapta a tu estilo.
-          </span>
+  <h1
+    className="text-4xl md:text-5xl font-medium text-gray-900
+               tracking-[-0.02em]
+               transition-all duration-700 ease-out
+               hover:tracking-[-0.01em]"
+  >
+    Nuestra Colección
+  </h1>
+  <div className="mx-auto mt-4 h-[4px] w-30 bg-blue-500 hover:w-60
+                  transition-all duration-500
+                  ">
+
+                  </div>
+
+  <span
+    className="block text-gray-500 text-base mt-6
+               tracking-[-0.01em]
+               transition-opacity duration-700"
+  >
+    Elegí el iPhone que se adapta a tu estilo.
+  </span>
+
+</div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-10">
             {products.map((product) => (
@@ -49,15 +71,16 @@ export default async function HomePage() {
           </div>
         </main>
         
-      </RevealFromBottom>
+      
       <a
   href="https://wa.me/549XXXXXXXXXX?text=Hola!%20Quiero%20consultar%20por%20un%20iPhone"
   target="_blank"
   rel="noopener noreferrer"
-  className="fixed bottom-10 left-10 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-50 text-2xl"
+  className="fixed bottom-10 left-3 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-50 text-2xl"
 >
   <FaWhatsapp  size={40}/>
 </a>
+      </FadeInSection>
  </>
     
   );

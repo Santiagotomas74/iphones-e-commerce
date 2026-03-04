@@ -1,18 +1,21 @@
 export default function NewSection() {
   return (
-    <section className="relative w-full h-[85vh] md:h-screen min-h-[600px] overflow-hidden bg-black">
-      
+<section className="relative w-full min-h-[600px] h-[85dvh] md:h-screen overflow-hidden bg-black">      
       <div className="absolute inset-0 z-0">
-        <video
-          src="/videos/17pro.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover"
-        />
+       <video
+  src="https://res.cloudinary.com/ddhtkntrd/video/upload/v1772582392/ns8hy0vpkvsgxtx7vqxd.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  preload="metadata"
+  className="absolute inset-0 w-full h-full object-cover md:object-cover object-center"
+/>
        
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-10" />
+        <div className="absolute inset-0 
+                bg-gradient-to-b md:bg-gradient-to-r
+                from-black/90 via-black/30 md:via-black/40 to-transparent 
+                z-10" />
         <div className="absolute -bottom-20 -left-20 w-[500px] h-[500px] bg-orange-500/20 blur-[120px] rounded-full z-0" />
       </div>
 
@@ -53,7 +56,7 @@ export default function NewSection() {
         </div>
       </div>
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 hidden md:block opacity-50">
-        <div className="w-[1px] h-12 bg-gradient-to-b from-white to-transparent" />
+        
       </div>
 
     </section>
