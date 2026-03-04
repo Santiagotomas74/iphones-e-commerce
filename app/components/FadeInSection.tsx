@@ -3,27 +3,22 @@
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
 
-export default function RevealFromBottom({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function RevealScale({ children }: { children: ReactNode }) {
   return (
     <motion.div
       initial={{
-        y: 80,
         opacity: 0,
-        scale: 0.99,
+        scale: 0.96,
+        filter: "blur(6px)",
       }}
       whileInView={{
-        y: 0,
         opacity: 1,
         scale: 1,
         filter: "blur(0px)",
       }}
       transition={{
-        duration: 1,
-        ease: [0.22, 1, 0.36, 1], // easing premium
+        duration: 0.8,
+        ease: [0.16, 1, 0.3, 1],
       }}
       viewport={{
         once: true,
