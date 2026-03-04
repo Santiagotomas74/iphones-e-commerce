@@ -35,7 +35,7 @@ export default async function HomePage() {
        <NewSection />
         <Seciones />
         <RevealFromBottom>
-        <main className="max-w-7xl mx-auto p-6 tracking-wide mt-10 mb-20">
+        <main className="max-w-7xl mx-auto  tracking-wide  mb-20">
         <div className="text-center mb-14">
 
   <h1

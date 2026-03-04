@@ -11,7 +11,7 @@ import { query } from "@/db"; // ajustá según tu path real
 const navItems: NavbarProps["items"] = [
   { label: "Inicio", href: "/" },
   { label: "Administracion", href: "/admin" },
-  { label: "Consolas", href: "/user/dashboard" },
+  { label: "Consolas", href: "/consolas" },
 ];
 
 export const metadata: Metadata = {

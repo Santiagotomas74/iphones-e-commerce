@@ -39,7 +39,7 @@ export default function HeroIphone() {
       
 
         <video
-  src="/videos/15.mp4"
+  src="https://res.cloudinary.com/ddhtkntrd/video/upload/v1772582366/phasr1b2dvljwyyowymo.mp4"
   autoPlay
   loop
   muted

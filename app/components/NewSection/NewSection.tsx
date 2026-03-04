@@ -3,7 +3,7 @@ export default function NewSection() {
 <section className="relative w-full min-h-[600px] h-[85dvh] md:h-screen overflow-hidden bg-black">      
       <div className="absolute inset-0 z-0">
        <video
-  src="/videos/17.mp4"
+  src="https://res.cloudinary.com/ddhtkntrd/video/upload/v1772582392/ns8hy0vpkvsgxtx7vqxd.mp4"
   autoPlay
   loop
   muted
