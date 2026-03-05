@@ -7,6 +7,7 @@ import Footer from "./components/footer/Footer";
 import { cookies } from "next/headers";
 import { verify } from "jsonwebtoken";
 import { query } from "@/db"; // ajustá según tu path real
+import ConditionalFooter from "./components/Conditional/ConditionalFooter";
 
 const navItems: NavbarProps["items"] = [
   { label: "Inicio", href: "/" },
@@ -71,7 +72,7 @@ cartCount = Number(rows[0].total_items);
         <TopBanner />
         <Navbar items={navItems} user={user} cartCount={cartCount} />
         {children}
-        <Footer />
+        <ConditionalFooter />
       </body>
     </html>
   );

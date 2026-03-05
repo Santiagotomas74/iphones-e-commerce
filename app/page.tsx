@@ -40,7 +40,7 @@ export default async function HomePage() {
         <main className="max-w-7xl mx-auto mt-20 tracking-wide  mb-20">
         <div className="text-center mb-14">
 
-  <h1
+       <h1
     className="text-4xl md:text-5xl font-medium text-gray-900
                tracking-[-0.02em]
                transition-all duration-700 ease-out
@@ -72,13 +72,18 @@ export default async function HomePage() {
         </main>
         
       
-      <a
-  href="https://wa.me/549XXXXXXXXXX?text=Hola!%20Quiero%20consultar%20por%20un%20iPhone"
+ <a
+  href="https://wa.me/549XXXXXXXXXX"
   target="_blank"
   rel="noopener noreferrer"
-  className="fixed bottom-10 left-3 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-50 text-2xl"
+
+  className="absolute bottom-4 right-6 bg-[#25D366] text-white p-4 rounded-full shadow-lg transition-all z-10 flex items-center justify-center group"
 >
-  <FaWhatsapp  size={40}/>
+  <FaWhatsapp size={32} className="md:w-10 md:h-10" />
+  
+  <span className="absolute right-20 bg-white text-black text-xs font-bold px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-md whitespace-nowrap hidden md:block">
+    ¡Chatea con nosotros!
+  </span>
 </a>
       </FadeInSection>
  </>
