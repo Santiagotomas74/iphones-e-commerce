@@ -4,7 +4,7 @@ type PS5HeroBannerProps = {
 
 export default function PS5HeroBanner({ backgroundImage }: PS5HeroBannerProps) {
   return (
-    <section className="relative w-full h-[60vh] sm:h-[70vh] lg:h-[80vh] overflow-hidden">
+    <section className="relative w-full sm:h-[70vh] lg:h-[80vh] h-[80vh] overflow-hidden">
 
       {/* Imagen de fondo */}
       <div
