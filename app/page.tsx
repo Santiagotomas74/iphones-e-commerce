@@ -4,7 +4,8 @@ import Seciones from "@/app/components/Seciones";
 import {FaWhatsapp} from "react-icons/fa";
 import NewSection from "./components/NewSection/NewSection";
 import FadeInSection from "./components/FadeInSection";
-
+import PromoCard from "./consolas/PromoCard";
+import ElegantHeroSection from "./components/ElegantHeroSection";
 
 
 type Product = {
@@ -34,9 +35,11 @@ export default async function HomePage() {
 
   return (
     <>
-       <NewSection />
+     
+      <ElegantHeroSection />
+     
         <Seciones />
-       <FadeInSection>
+       
         <main className="max-w-7xl mx-auto mt-20 tracking-wide  mb-20">
         <div className="text-center mb-14">
 
@@ -69,6 +72,53 @@ export default async function HomePage() {
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
+
+            <div className="text-center mb-14 mt-20">
+
+  <h1
+    className="text-4xl md:text-5xl font-medium text-gray-900
+               tracking-[-0.02em]
+               transition-all duration-700 ease-out
+               hover:tracking-[-0.01em]"
+  >
+    Acessorios originales
+  </h1>
+  <div className="mx-auto mt-4 h-[4px] w-30 bg-blue-500 hover:w-60
+                  transition-all duration-500
+                  ">
+
+                  </div>
+
+
+
+</div>
+
+          {/* Contenido */}
+           <div className="relative z-10 max-w-7xl mx-auto 
+                          grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 
+                          gap-6 sm:gap-8 lg:gap-10 
+                          mt-12 mb-12">
+
+                  
+                  <PromoCard
+                    title="Cargador Magnetic"
+                    subtitle="Original"
+                    backgroundImage="/image/charger.png"
+                  />
+          
+                  <PromoCard
+                    title="Apple AirPods"
+                    subtitle="Pro 2"
+                    backgroundImage="https://i.pinimg.com/1200x/52/ce/99/52ce99b8df2adf77f55ff42f18adc069.jpg"
+                  />
+          
+                  <PromoCard
+                    title="Apple Watch  "
+                    subtitle="Series 11"
+                    backgroundImage="https://i.pinimg.com/736x/cc/00/90/cc00909e143d7b0dc3029b048c6fc794.jpg"
+                  />
+          
+                </div>
         </main>
         
       
@@ -85,7 +135,7 @@ export default async function HomePage() {
     ¡Chatea con nosotros!
   </span>
 </a>
-      </FadeInSection>
+    
  </>
     
   );

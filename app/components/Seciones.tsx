@@ -29,7 +29,18 @@ export default function FadeToDark() {
       {/* Sección Blanca */}
     
 
-      {/* Transición Blur */}
+       <section className="bg-white  flex items-center justify-center">
+        <HeroSection />
+      </section>
+     
+      
+    </>
+  );
+}
+
+/*
+
+
       <section
         id="transition"
         className="relative min-h-screen flex items-center justify-center"
@@ -41,8 +52,7 @@ export default function FadeToDark() {
             backdropFilter: `blur(${progress * 10}px)`,
           }}
         />
-
-         {/* Sección Negra con animación premium */}
+ 
        <motion.div
           initial={{
             y: 140,
@@ -69,11 +79,5 @@ export default function FadeToDark() {
           
         </motion.div>
        </section>
-       <section className="bg-white  flex items-center justify-center">
-        <HeroSection />
-      </section>
-     
-      
-    </>
-  );
-}
+
+*/

@@ -16,7 +16,7 @@ export default function PromoCard({
       
       {/* Background Image */}
       <div
-        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+        className="absolute inset-0 bg-cover  bg-center transition-transform duration-700 group-hover:scale-105"
         style={{ backgroundImage: `url(${backgroundImage})` }}
       />
 
