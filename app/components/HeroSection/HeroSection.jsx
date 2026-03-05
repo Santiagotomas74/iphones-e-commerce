@@ -39,21 +39,20 @@ export default function HeroIphone() {
       
 
         <video
-  src="https://res.cloudinary.com/ddhtkntrd/video/upload/v1772582366/phasr1b2dvljwyyowymo.mp4"
-  autoPlay
-  loop
-  muted
-  playsInline
-  className="
-    relative z-10
-    w-full
-    max-w-[760px]
-    min-w-[300px]
-    h-auto
-    object-contain
-    
-  "
-/>
+             src="https://res.cloudinary.com/ddhtkntrd/video/upload/v1772582366/phasr1b2dvljwyyowymo.mp4"
+             autoPlay
+             loop
+             muted
+             playsInline
+             className="
+               relative z-10
+               w-full
+               max-w-[760px]
+               min-w-[300px]
+               h-auto
+               object-contain   
+               "
+             />
 
         </div>
 

@@ -1,7 +1,8 @@
 "use client";
+
 import Link from "next/link";
 import { useState } from "react";
-import { Mail, Lock, ArrowRight } from "lucide-react";
+import { Mail, Lock, ArrowRight, Smartphone, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
@@ -11,78 +12,109 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const data = await res.json();
-    console.log("Login response:", data);
+      const data = await res.json();
 
-    if (!res.ok) {
-      alert(data.error || "Credenciales inválidas");
-      return;
+      if (!res.ok) {
+        alert(data.error || "Credenciales inválidas");
+        return;
+      }
+
+      if (data.role === "admin") {
+        window.location.href = "/admin";
+      } else {
+        window.location.href = "/";
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error al iniciar sesión");
+    } finally {
+      setLoading(false);
     }
-
-    // Login exitoso
-    // Si usás cookie httpOnly no necesitás guardar nada en localStorage
-    // Solo redirigimos al home
-   if (data.role === "admin") {
-  window.location.href = "/admin";
-
-} else {
-  window.location.href = "/";
-
-}
-  } catch (err) {
-    console.error(err);
-    alert("Error al iniciar sesión");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-semibold text-gray-900">Iniciar Sesión</h1>
-          <p className="mt-2 text-sm font-medium text-gray-600 tracking-wide">Accede a tu cuenta Premium</p>
+    <div className="min-h-screen w-full flex flex-col md:flex-row bg-white overflow-hidden tracking-tight">
+      
+      <div className="relative w-full md:w-1/2 h-[40vh] md:h-screen flex flex-col justify-center p-8 md:p-20 text-white overflow-hidden">
+       <div 
+  className="absolute inset-0 bg-cover bg-center blur-md animate-world" 
+  style={{ 
+    backgroundImage: "url('https://wallpapers.com/images/featured-full/fondods-de-iphone-x-cl6oxggnjvcvt89q.jpg')", 
+  }}
+/>
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
+        
+        <div className="relative z-10 space-y-6">
+          <div className="flex items-center gap-3">
+            {/* <div className="p-3 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl"> // si pinta lo usamos !!
+              <Smartphone size={32} className="text-white" />
+            </div> */}
+            <span className="font-black text-2xl tracking-[0.2em] uppercase">TechStore</span>
+          </div>
+          
+          <div className="space-y-2">
+            <h2 className="text-5xl md:text-7xl font-black leading-none tracking-tighter">
+              DESCUBRE <br /> 
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-100 to-indigo-900">
+                EL FUTURO.
+              </span>
+            </h2>
+            <p className="text-white/60 text-lg md:text-xl font-medium max-w-sm leading-relaxed">
+              Inicia sesión para acceder a nuestra selección exclusiva de tecnología Apple.
+            </p>
+          </div>
         </div>
+      </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border p-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="text-sm text-gray-600">Correo electrónico</label>
-              <div className="mt-1 relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-900" size={18} />
+   
+      <div className="w-full md:w-1/2 min-h-[60vh] md:h-screen bg-white flex flex-col justify-center items-center p-8 md:p-24 relative">
+        
+        <div className="w-full max-w-md space-y-12">
+          
+          <div className="text-center md:text-left">
+            <h3 className="text-4xl font-black text-gray-900 mb-2 italic uppercase">SIGN IN</h3>  {/* si le dejo ingresar queda re para el culo  */}
+            <p className="text-gray-400 font-medium">Ingresa tus credenciales para continuar</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Email</label>
+              <div className="relative group">
+                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-black transition-colors" size={20} />
                 <input
                   type="email"
-                  placeholder="tu@email.com"
+                  placeholder="usuario@premium.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border  text-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-14 pr-6 py-5 bg-gray-50 border border-gray-100 rounded-[2rem] focus:bg-white focus:ring-4 focus:ring-purple-50 outline-none transition-all text-gray-700 font-medium"
                   required
                 />
               </div>
             </div>
 
-            <div>
-              <label className="text-sm text-gray-600">Contraseña</label>
-              <div className="mt-1 relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-900" size={18} />
+            <div className="space-y-2">
+              <div className="flex justify-between items-center px-1">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Password</label>
+                {/* <button type="button" className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline">Recuperar</button> */}
+              </div>
+              <div className="relative group">
+                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-black transition-colors" size={20} />
                 <input
                   type="password"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border  text-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-14 pr-6 py-5 bg-gray-50 border border-gray-100 rounded-[2rem] focus:bg-white focus:ring-4 focus:ring-purple-50 outline-none transition-all text-gray-700 font-medium"
                   required
                 />
               </div>
@@ -91,44 +123,29 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl flex items-center justify-center gap-2 transition"
+              className="w-full py-5 mt-6 bg-black text-white rounded-[2rem] font-black shadow-2xl shadow-gray-200 hover:bg-blue-700 active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-xs group"
             >
               {loading ? (
-                "Ingresando..."
+                <Loader2 size={20} className="animate-spin" />
               ) : (
                 <>
-                  <ArrowRight size={18} />
-                  Iniciar Sesión
+                  INGRESAR
+                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>
           </form>
 
-          {/* <div className="flex items-center my-6">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="px-3 text-sm text-gray-400">O continúa con</span>
-            <div className="flex-1 h-px bg-gray-200" />
-          </div> */}
-{/* 
-          <div className="grid grid-cols-2 gap-3">
-            <button className="border rounded-xl py-2 hover:bg-gray-50 transition">
-              Google
-            </button>
-            <button className="border rounded-xl py-2 hover:bg-gray-50 transition">
-              Apple
-            </button>
-          </div> */}
-            
-             
-          <p className="text-center text-sm text-gray-500 mt-6">
-
-            ¿No tienes cuenta? <span className="text-blue-600 cursor-pointer">
-                 <Link href="/register">
-                Regístrate
-                </Link>
-                </span>
-          </p>
+          <div className="text-center pt-4">
+            <p className="text-gray-400 text-sm font-medium">
+              ¿No tenes cuenta? <br />
+              <Link href="/register" className="text-black font-black hover:text-blue-600 transition-colors border-b-2 border-black/10 hover:border-blue-600">
+                CREA UNA CUENTA AHORA
+              </Link>
+            </p>
+          </div>
         </div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-purple-50 rounded-full blur-[100px] -z-10 opacity-50" />
       </div>
     </div>
   );

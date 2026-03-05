@@ -9,13 +9,13 @@ export default function TopBanner() {
             30% equipos refaccionados •
           </span>
           <span className="mx-8 text-gray-300 text-xs uppercase">
-            Aceptamos Todos los medios de pago •
+            Pagos asegurados por mercado pago •
           </span>
           <span className="mx-8 text-gray-300 text-xs uppercase">
-            Equipos semi nuevos •
+            Equipos Nuevos y Semi nuevos •
           </span>
           <span className="mx-8 text-yellow-400 text-xs uppercase">
-            10% en efectivo
+            15% en Transferencia Bancaria •
           </span>       
         </div> 
       </div>

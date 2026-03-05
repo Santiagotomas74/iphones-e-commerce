@@ -197,7 +197,18 @@ if (!res.ok) {
   return (
     <div className="mt-8 space-y-4">
         <p className="text-4xl font-bold text-gray-900">
-          ${total.toLocaleString()}
+          ?{discountedTotal < total && (
+            <span className="text-xl line-through text-gray-500 mr-2">
+              ${total.toLocaleString()
+              }
+          ${discountedTotal.toLocaleString()}
+            </span>
+          )}
+          {discountedTotal >= total && (
+            <span>
+              ${total.toLocaleString()}
+            </span>
+          )}
         </p>
 
       {/* 🔹 PASO 0 */}
@@ -470,7 +481,7 @@ if (!res.ok) {
           </div>
     
     <p className="text-sm text-gray-900">
-      El total que deberás transferir es exactamente <strong>${total.toLocaleString()}</strong> para que podamos identificar tu pago.
+      El total que deberás transferir es exactamente <strong>${discountedTotal.toLocaleString()}</strong> para que podamos identificar tu pago.
     </p>
     
      <p className="text-sm text-gray-900">

@@ -13,19 +13,43 @@ export default function Register() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+ const validateForm = () => {
+  if (name.trim().length < 3) {
+    return "El nombre debe tener al menos 3 caracteres";
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return "Correo electrónico inválido";
+  }
+
+  if (!passwordRules.length || !passwordRules.uppercase || !passwordRules.number) {
+    return "La contraseña debe tener mínimo 8 caracteres, una mayúscula y un número";
+  }
+
+  if (password !== confirmPassword) {
+    return "Las contraseñas no coinciden";
+  }
+
+  return null;
+};
+
+  const passwordRules = {
+  length: password.length >= 8,
+  uppercase: /[A-Z]/.test(password),
+  number: /[0-9]/.test(password),
+};
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden");
-      return;
-    }
+   const validationError = validateForm();
 
-    if (password.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres");
-      return;
-    }
+if (validationError) {
+  setError(validationError);
+  return;
+}
 
     setLoading(true);
 
@@ -58,6 +82,8 @@ export default function Register() {
       setLoading(false);
     }
   };
+
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 tracking-wide">
@@ -118,18 +144,31 @@ export default function Register() {
 
             {/* Password */}
             <div>
-              <label className="text-sm text-gray-900">Contraseña</label>
-              <div className="mt-1 relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-900" size={18} />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-            </div>
+  <label className="text-sm text-gray-900">Contraseña</label>
+
+  <div className="mt-1 relative">
+    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-900" size={18} />
+    <input
+      type="password"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      className="w-full pl-10 pr-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+      required
+    />
+  </div>
+
+  <div className="text-xs mt-2 space-y-1">
+    <p className={passwordRules.length ? "text-green-600" : "text-gray-400"}>
+      • Mínimo 8 caracteres
+    </p>
+    <p className={passwordRules.uppercase ? "text-green-600" : "text-gray-400"}>
+      • Al menos una letra mayúscula
+    </p>
+    <p className={passwordRules.number ? "text-green-600" : "text-gray-400"}>
+      • Al menos un número
+    </p>
+  </div>
+</div>
 
             {/* Confirm Password */}
             <div>
