@@ -8,7 +8,11 @@ export default function PS5HeroBanner({ backgroundImage }: PS5HeroBannerProps) {
 
       {/* Imagen de fondo */}
       <div
-        className="absolute inset-0  bg-center"
+        className="absolute inset-0 
+          bg-center
+          bg-contain
+          sm: bg-center
+        "
         style={{
           backgroundImage: `url(${backgroundImage})`,
         }}

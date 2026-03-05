@@ -94,31 +94,33 @@ export default async function HomePage() {
 </div>
 
           {/* Contenido */}
-           <div className="relative z-10 max-w-7xl mx-auto 
-                          grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 
-                          gap-6 sm:gap-8 lg:gap-10 
-                          mt-12 mb-12">
+<div
+  className="relative z-10 max-w-7xl mx-auto 
+  grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
+  justify-items-center
+  gap-6 sm:gap-8 lg:gap-10 
+  mt-12 mb-12"
+>
 
-                  
-                  <PromoCard
-                    title="Cargador Magnetic"
-                    subtitle="Original"
-                    backgroundImage="/image/charger.png"
-                  />
-          
-                  <PromoCard
-                    title="Apple AirPods"
-                    subtitle="Pro 2"
-                    backgroundImage="https://i.pinimg.com/1200x/52/ce/99/52ce99b8df2adf77f55ff42f18adc069.jpg"
-                  />
-          
-                  <PromoCard
-                    title="Apple Watch  "
-                    subtitle="Series 11"
-                    backgroundImage="https://i.pinimg.com/736x/cc/00/90/cc00909e143d7b0dc3029b048c6fc794.jpg"
-                  />
-          
-                </div>
+  <PromoCard
+    title="Cargador Magnetic"
+    subtitle="Original"
+    backgroundImage="/image/charger.png"
+  />
+
+  <PromoCard
+    title="Apple AirPods"
+    subtitle="Pro 2"
+    backgroundImage="https://i.pinimg.com/1200x/52/ce/99/52ce99b8df2adf77f55ff42f18adc069.jpg"
+  />
+
+  <PromoCard
+    title="Apple Watch"
+    subtitle="Series 11"
+    backgroundImage="https://i.pinimg.com/736x/cc/00/90/cc00909e143d7b0dc3029b048c6fc794.jpg"
+  />
+
+</div>
         </main>
         
       

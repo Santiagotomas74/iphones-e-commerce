@@ -12,11 +12,11 @@ export default function PromoCard({
   backgroundImage,
 }: PromoCardProps) {
   return (
-    <div className="relative group w-full max-w-sm h-[520px] rounded-3xl overflow-hidden cursor-pointer">
+    <div className="relative group w-full max-w-sm mx-auto h-[520px] rounded-3xl overflow-hidden cursor-pointer">
       
       {/* Background Image */}
       <div
-        className="absolute inset-0 bg-cover  bg-center transition-transform duration-700 group-hover:scale-105"
+        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
         style={{ backgroundImage: `url(${backgroundImage})` }}
       />
 
