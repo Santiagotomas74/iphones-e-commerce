@@ -27,6 +27,7 @@ export default function IphoneHeroElegant() {
           flex flex-col items-center
           justify-start sm:justify-center
           text-center
+          mt-20 sm:mt-0
           px-6
           pt-24 sm:pt-0
           sm:min-h-screen
