@@ -126,7 +126,7 @@ export default function Navbar({ items, cartCount }: NavbarProps) {
     <li key={item.href} className="group relative">
       <Link
         href={item.href}
-        className="relative text-gray-700 transition-colors duration-300 group-hover:text-black"
+        className="relative text-gray-700 transition-colors duration-300 group-hover:text-black h-full flex items-center"
       >
         {item.label}
         <span className="absolute left-1/2 -bottom-1 h-[2px] w-0 bg-blue-500 transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
