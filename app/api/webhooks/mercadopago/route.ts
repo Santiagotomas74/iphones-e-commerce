@@ -201,7 +201,7 @@ export async function POST(req: Request) {
       // 📧 Enviar email
       // =============================
       try {
-
+        console.log("📧 Preparando email de confirmación para:", userEmail);
         await sendOrderConfirmationEmail(
           userEmail,
           orderId,

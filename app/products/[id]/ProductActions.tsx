@@ -18,6 +18,7 @@ export default function ProductActions({ productId, price }: { productId: string
   const [selectedPayment, setSelectedPayment] = useState<"transfer" | "mercadopago" | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"transferencia" | "mercadopago">("mercadopago");
 
   const shippingCost = 3500;
 
@@ -98,10 +99,12 @@ if (!res.ok) {
   throw new Error(data.error || "Error desconocido");
 }
     if (paymentMethod === "mercadopago") {
+      setPaymentMethod("mercadopago");
       window.location.href = data.init_point;
     }
 
     if (paymentMethod === "transfer") {
+      setPaymentMethod("transferencia");
       setOrderId(data.order_id);
       setStep("transferCard");
     }
@@ -197,19 +200,12 @@ if (!res.ok) {
   return (
     <div className="mt-8 space-y-4">
         <p className="text-4xl font-bold text-gray-900">
-          ?{discountedTotal < total && (
-            <span className="text-xl line-through text-gray-500 mr-2">
-              ${total.toLocaleString()
-              }
-          ${discountedTotal.toLocaleString()}
-            </span>
-          )}
-          {discountedTotal >= total && (
-            <span>
-              ${total.toLocaleString()}
-            </span>
-          )}
-        </p>
+  $
+  {(paymentMethod === "transferencia"
+    ? discountedTotal
+    : total
+  ).toLocaleString()}
+</p>
 
       {/* 🔹 PASO 0 */}
       {step === "initial" && (
