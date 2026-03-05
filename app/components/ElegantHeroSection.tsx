@@ -1,6 +1,6 @@
 export default function IphoneHeroElegant() {
   return (
-    <section className="relative w-full overflow-hidden lg:h-[90vh] h-[85vh] bg-black">
+    <section className="relative w-full overflow-hidden lg:h-[90vh] h-[65vh] bg-black">
 
       {/* Fondo */}
       <div
