@@ -24,7 +24,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const router = useRouter();
   // 2. Estado para controlar la carga del botón
   const [loading, setLoading] = useState(false);
-
+  const [user, setUser] = useState<{ email: string } | null>(null);
   const getCookie = (name: string) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -46,25 +46,57 @@ export default function ProductCard({ product }: { product: Product }) {
   setLoading(true);
 
   try {
-    // 🔐 1️⃣ Verificar sesión real
-    const sessionRes = await fetch("/api/me", {
+  try {
+  // 1️⃣ verificar sesión
+  let sessionRes = await fetch("/api/me", {
+    method: "GET",
+    credentials: "include",
+  });
+
+  let data = await sessionRes.json();
+
+  // 2️⃣ si el token expiró → refrescar
+  if (sessionRes.status === 401 && data.error === "TokenExpired") {
+
+    const refreshRes = await fetch("/api/refresh", {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (!refreshRes.ok) {
+      throw new Error("Refresh failed");
+    }
+
+    // 3️⃣ volver a intentar /api/me
+    sessionRes = await fetch("/api/me", {
       method: "GET",
       credentials: "include",
     });
 
-    if (!sessionRes.ok) {
-      Swal.fire({
-        text: "Debes iniciar sesión",
-        icon: "info",
-        confirmButtonText: "Ok",
-      });
-      return;
-    }
+    data = await sessionRes.json();
+  }
 
-    const sessionData = await sessionRes.json();
-    console.log("Datos de sesión:", sessionData.user.email); // Verificar que el email esté presente
-    const user = sessionData.user;
+  // 4️⃣ si sigue fallando → usuario no logueado
+  if (!sessionRes.ok) {
+    Swal.fire({
+      text: "Debes iniciar sesión",
+      icon: "info",
+      confirmButtonText: "Ok",
+    });
+    return;
+  }
 
+  // 5️⃣ usuario válido
+  console.log("User:", data.user);
+  console.log("Datos de sesión:", data.user.email); // Verificar que el email esté presente
+  setUser({ email: data.user.email });
+
+
+} catch (error) {
+  console.error("Auth error:", error);
+}
+
+    
     // 🛒 2️⃣ Agregar producto al carrito
     const res = await fetch("/api/cart/add", {
       method: "POST",
@@ -73,7 +105,7 @@ export default function ProductCard({ product }: { product: Product }) {
       },
       credentials: "include", // importante
       body: JSON.stringify({
-        email: user.email, // Usamos el email del usuario autenticado
+        email: user?.email, // Usamos el email del usuario autenticado
         productId: product.id,
         
       }),

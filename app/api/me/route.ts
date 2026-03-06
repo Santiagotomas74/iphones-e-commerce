@@ -1,16 +1,19 @@
 import { cookies } from "next/headers";
-import { verify } from "jsonwebtoken";
+import jwt, { TokenExpiredError } from "jsonwebtoken";
 
 export async function GET() {
-  const cookieStore = cookies();
-  const token = (await cookieStore).get("tokenTtech")?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get("tokenTtech")?.value;
 
   if (!token) {
-    return new Response("Unauthorized", { status: 401 });
+    return Response.json(
+      { error: "No token provided" },
+      { status: 401 }
+    );
   }
 
   try {
-    const decoded = verify(token, process.env.JWT_SECRET!) as any;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
 
     return Response.json({
       user: {
@@ -19,7 +22,21 @@ export async function GET() {
         email: decoded.email,
       },
     });
-  } catch {
-    return new Response("Unauthorized", { status: 401 });
+
+  } catch (error) {
+
+    // TOKEN EXPIRADO
+    if (error instanceof TokenExpiredError) {
+      return Response.json(
+        { error: "TokenExpired" },
+        { status: 401 }
+      );
+    }
+
+    // TOKEN INVÁLIDO
+    return Response.json(
+      { error: "InvalidToken" },
+      { status: 401 }
+    );
   }
 }

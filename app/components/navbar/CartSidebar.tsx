@@ -57,50 +57,76 @@ const [checkoutStep, setCheckoutStep] = useState<
     if (parts.length === 2) return parts.pop()?.split(";").shift();
     return null;
   };
+useEffect(() => {
+  if (!isOpen) return;
 
-  useEffect(() => {
-    if (!isOpen) return;
+  const fetchCart = async () => {
+    try {
+      setLoading(true);
 
-    const fetchCart = async () => {
-
-
-      try {
-        setLoading(true);
-// 🔐 1️⃣ Verificar sesión real
-    const sessionRes = await fetch("/api/me", {
-      method: "GET",
-      credentials: "include",
-    });
-
-    if (!sessionRes.ok) {
-      Swal.fire({
-        text: "Debes iniciar sesión",
-        icon: "info",
-        confirmButtonText: "Ok",
+      // 🔐 1️⃣ verificar sesión
+      let sessionRes = await fetch("/api/me", {
+        method: "GET",
+        credentials: "include",
       });
-      return;
-    }
 
-    const sessionData = await sessionRes.json();
+      if (!sessionRes.ok) {
+        const data = await sessionRes.json().catch(() => null);
 
+        if (sessionRes.status === 401 && data?.error === "TokenExpired") {
+          // 🔄 refrescar token
+          const refreshRes = await fetch("/api/refresh", {
+            method: "POST",
+            credentials: "include",
+          });
 
+          if (!refreshRes.ok) {
+            Swal.fire({
+              text: "Debes iniciar sesión",
+              icon: "info",
+              confirmButtonText: "Ok",
+            });
+            return;
+          }
 
-        const res = await fetch("/api/cart/get", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({  email: sessionData.user.email }), // Usamos el email del usuario autenticado
-        });
-
-        const data = await res.json();
-        if (res.ok) setCartItems(data.items);
-
-      } finally {
-        setLoading(false);
+          // 🔁 reintentar
+          sessionRes = await fetch("/api/me", {
+            method: "GET",
+            credentials: "include",
+          });
+        } else {
+          Swal.fire({
+            text: "Debes iniciar sesión",
+            icon: "info",
+            confirmButtonText: "Ok",
+          });
+          return;
+        }
       }
-    };
 
-    fetchCart();
-  }, [isOpen]);
+      const sessionData = await sessionRes.json();
+
+      // 🛒 2️⃣ obtener carrito
+      const res = await fetch("/api/cart/get", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: sessionData.user.email,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) setCartItems(data.items);
+
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchCart();
+}, [isOpen]);
 
   const subtotal = cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
@@ -168,107 +194,167 @@ const updateQuantity = async (productId: string, newQuantity: number) => {
     setUpdatingId(null);
   }
 };
- const removeItem = async (product_id: string) => {
 
+ const removeItem = async (product_id: string) => {
   try {
 
-    // 🔐 1️⃣ Verificar sesión real
-    const sessionRes = await fetch("/api/me", {
+    // 🔐 1️⃣ verificar sesión
+    let sessionRes = await fetch("/api/me", {
       method: "GET",
       credentials: "include",
     });
 
     if (!sessionRes.ok) {
-      Swal.fire({
-        text: "Debes iniciar sesión",
-        icon: "info",
-        confirmButtonText: "Ok",
-      });
-      return;
+      const data = await sessionRes.json().catch(() => null);
+
+      if (sessionRes.status === 401 && data?.error === "TokenExpired") {
+        // 🔄 refrescar token
+        const refreshRes = await fetch("/api/refresh", {
+          method: "POST",
+          credentials: "include",
+        });
+
+        if (!refreshRes.ok) {
+          Swal.fire({
+            text: "Debes iniciar sesión",
+            icon: "info",
+            confirmButtonText: "Ok",
+          });
+          return;
+        }
+
+        // 🔁 reintentar sesión
+        sessionRes = await fetch("/api/me", {
+          method: "GET",
+          credentials: "include",
+        });
+
+      } else {
+        Swal.fire({
+          text: "Debes iniciar sesión",
+          icon: "info",
+          confirmButtonText: "Ok",
+        });
+        return;
+      }
     }
 
     const sessionData = await sessionRes.json();
 
+    // 🛒 eliminar item
     const res = await fetch("/api/cart/remove", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email: sessionData.user.email, product_id }),
+      credentials: "include",
+      body: JSON.stringify({
+        email: sessionData.user.email,
+        product_id
+      }),
     });
 
     if (res.ok) {
-      // 🔥 Actualizamos estado sin volver a pedir todo
       setCartItems((prev) =>
         prev.filter((item) => item.product_id !== product_id)
       );
     }
-    router.refresh(); // Refrescar para actualizar el contador del carrito
+
+    router.refresh();
+
   } catch (error) {
     console.error("Error eliminando producto:", error);
   }
 };
-  const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
+
+
+const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
   if (loading) return;
 
-    
+  if (deliveryType === "shipping" && !validateAddress()) return;
 
-    if (deliveryType === "shipping" && !validateAddress()) return;
+  try {
+    setLoading(true);
 
-    try {
-      setLoading(true);
-    
-// 🔐 1️⃣ Verificar sesión real
-    const sessionRes = await fetch("/api/me", {
+    // 🔐 1️⃣ verificar sesión
+    let sessionRes = await fetch("/api/me", {
       method: "GET",
       credentials: "include",
     });
 
     if (!sessionRes.ok) {
-      Swal.fire({
-        text: "Debes iniciar sesión",
-        icon: "info",
-        confirmButtonText: "Ok",
-      });
-      return;
+      const data = await sessionRes.json().catch(() => null);
+
+      if (sessionRes.status === 401 && data?.error === "TokenExpired") {
+        // 🔄 refrescar token
+        const refreshRes = await fetch("/api/refresh", {
+          method: "POST",
+          credentials: "include",
+        });
+
+        if (!refreshRes.ok) {
+          Swal.fire({
+            text: "Debes iniciar sesión",
+            icon: "info",
+            confirmButtonText: "Ok",
+          });
+          return;
+        }
+
+        // 🔁 reintentar sesión
+        sessionRes = await fetch("/api/me", {
+          method: "GET",
+          credentials: "include",
+        });
+
+      } else {
+        Swal.fire({
+          text: "Debes iniciar sesión",
+          icon: "info",
+          confirmButtonText: "Ok",
+        });
+        return;
+      }
     }
 
     const sessionData = await sessionRes.json();
 
+    // 🧾 crear orden
+    const res = await fetch("/api/orders/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        email: sessionData.user.email,
+        payment_method: paymentMethod,
+        delivery_type: deliveryType,
+        shipping_cost: deliveryType === "shipping" ? shippingCost : 0,
+        address: deliveryType === "shipping" ? address : null,
+      }),
+    });
 
-      const res = await fetch("/api/orders/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: sessionData.user.email,
-          payment_method: paymentMethod,
-          delivery_type: deliveryType,
-          shipping_cost: deliveryType === "shipping" ? shippingCost : 0,
-          address: deliveryType === "shipping" ? address : null,
-        }),
-      });
+    const data = await res.json();
 
-      const data = await res.json();
-      if (!res.ok) {
-  throw new Error(data.error || "Error desconocido");
-}
-
-      if (paymentMethod === "mercadopago") {
-        window.location.href = data.init_point;
-      }
-
-     if (paymentMethod === "transfer") {
-  setOrderId(data.order_id);
-  setCheckoutStep("transferCard");
-  return;
-}
-
-    }  catch (error: any) {
-  alert(error.message);
-}finally {
-      setLoading(false);
+    if (!res.ok) {
+      throw new Error(data.error || "Error desconocido");
     }
-  };
+
+    if (paymentMethod === "mercadopago") {
+      window.location.href = data.init_point;
+    }
+
+    if (paymentMethod === "transfer") {
+      setOrderId(data.order_id);
+      setCheckoutStep("transferCard");
+      return;
+    }
+
+  } catch (error: any) {
+    alert(error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <>

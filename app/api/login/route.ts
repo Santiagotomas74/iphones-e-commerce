@@ -5,10 +5,9 @@ import jwt from "jsonwebtoken";
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("Login API called");
     const { email, password } = await req.json();
 
-    // 1. buscar usuario
+    // 1️⃣ Buscar usuario
     const { rows } = await query(
       `SELECT * FROM users WHERE email = $1`,
       [email]
@@ -23,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     const user = rows[0];
 
-    // 2. comparar password
+    // 2️⃣ Verificar password
     const isValid = await bcrypt.compare(password, user.password);
 
     if (!isValid) {
@@ -32,39 +31,61 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
-   console.log(isValid ? "Password válido" : "Password inválido");
-    // 3. generar JWT
-    const token = jwt.sign(
+
+    // 3️⃣ Crear ACCESS TOKEN (corto)
+    const accessToken = jwt.sign(
       {
         id: user.id,
         email: user.email,
         role: user.role,
       },
       process.env.JWT_SECRET!,
-      { expiresIn: "2d" }
+      { expiresIn: "15m" }
     );
 
-    // 4. guardarlo en cookie segura
-     const response = NextResponse.json({
+    // 4️⃣ Crear REFRESH TOKEN (largo)
+    const refreshToken = jwt.sign(
+      {
+        id: user.id,
+      },
+      process.env.JWT_REFRESH_SECRET!,
+      { expiresIn: "7d" }
+    );
+
+    const response = NextResponse.json({
       success: true,
       role: user.role,
     });
 
-     response.cookies.set("emailTech", user.email, {
+    // 📧 Email visible para frontend
+    response.cookies.set("emailTech", user.email, {
       httpOnly: false,
-  });
+      path: "/",
+    });
 
-    response.cookies.set("tokenTtech", token, {
-      httpOnly: false,
+    // 🔐 Access Token
+    response.cookies.set("tokenTtech", accessToken, {
+      httpOnly: true,
       secure: true,
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: 60 * 15, // 15 minutos
+    });
+
+    // 🔄 Refresh Token
+    response.cookies.set("refreshTokenTech", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/api/auth/refresh",
+      maxAge: 60 * 60 * 24 * 7, // 7 días
     });
 
     return response;
+
   } catch (error) {
     console.error(error);
+
     return NextResponse.json(
       { error: "Error en login" },
       { status: 500 }

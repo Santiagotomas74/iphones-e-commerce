@@ -62,28 +62,53 @@ export default function ProductActions({ productId, price }: { productId: string
 
 const createOrder = async (paymentMethod: "transfer" | "mercadopago") => {
   if (!deliveryType) return;
-
   if (deliveryType === "shipping" && !validateAddress()) return;
 
   try {
     setLoading(true);
 
-    // 🔐 1️⃣ Verificar sesión real
-    const sessionRes = await fetch("/api/me", {
+    // 🔐 1️⃣ verificar sesión
+    let sessionRes = await fetch("/api/me", {
       method: "GET",
       credentials: "include",
     });
 
+    // si el token expiró
     if (!sessionRes.ok) {
-      alert("Debes iniciar sesión");
-      return;
-    }
-  const sessionData = await sessionRes.json();
+      const data = await sessionRes.json().catch(() => null);
 
-     // 🧾 2️⃣ Crear orden (sin enviar email)
+      if (sessionRes.status === 401 && data?.error === "TokenExpired") {
+
+        // 🔄 refrescar token
+        const refreshRes = await fetch("/api/refresh", {
+          method: "POST",
+          credentials: "include",
+        });
+
+        if (!refreshRes.ok) {
+          alert("Debes iniciar sesión");
+          return;
+        }
+
+        // 🔁 volver a intentar
+        sessionRes = await fetch("/api/me", {
+          method: "GET",
+          credentials: "include",
+        });
+
+      } else {
+        alert("Debes iniciar sesión");
+        return;
+      }
+    }
+
+    const sessionData = await sessionRes.json();
+
+    // 🧾 2️⃣ crear orden
     const res = await fetch("/api/order/buy-now", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({
         email: sessionData.user.email,
         product_id: productId,
@@ -95,9 +120,11 @@ const createOrder = async (paymentMethod: "transfer" | "mercadopago") => {
     });
 
     const data = await res.json();
-if (!res.ok) {
-  throw new Error(data.error || "Error desconocido");
-}
+
+    if (!res.ok) {
+      throw new Error(data.error || "Error desconocido");
+    }
+
     if (paymentMethod === "mercadopago") {
       setPaymentMethod("mercadopago");
       window.location.href = data.init_point;
@@ -110,12 +137,11 @@ if (!res.ok) {
     }
 
   } catch (error: any) {
-  alert(error.message);
-} finally {
-  setLoading(false);
-}
+    alert(error.message);
+  } finally {
+    setLoading(false);
+  }
 };
-
   const handleBack = () => {
     if (step === "delivery") setStep("initial");
     if (step === "address") setStep("delivery");
@@ -125,21 +151,47 @@ if (!res.ok) {
     }
     if (step === "transferCard") setStep("payment");
   };
-   const addToCart = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-  
-    if (loading) return;
-  
-    setLoading(true);
-  
-    try {
-      // 🔐 1️⃣ Verificar sesión real
-      const sessionRes = await fetch("/api/me", {
-        method: "GET",
-        credentials: "include",
-      });
-  
-      if (!sessionRes.ok) {
+
+
+const addToCart = async (e: React.MouseEvent) => {
+  e.stopPropagation();
+
+  if (loading) return;
+
+  setLoading(true);
+
+  try {
+    // 🔐 1️⃣ verificar sesión
+    let sessionRes = await fetch("/api/me", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (!sessionRes.ok) {
+      const data = await sessionRes.json().catch(() => null);
+
+      if (sessionRes.status === 401 && data?.error === "TokenExpired") {
+        // 🔄 refrescar token
+        const refreshRes = await fetch("/api/refresh", {
+          method: "POST",
+          credentials: "include",
+        });
+
+        if (!refreshRes.ok) {
+          Swal.fire({
+            text: "Debes iniciar sesión",
+            icon: "info",
+            confirmButtonText: "Ok",
+          });
+          return;
+        }
+
+        // 🔁 reintentar obtener sesión
+        sessionRes = await fetch("/api/me", {
+          method: "GET",
+          credentials: "include",
+        });
+      } else {
         Swal.fire({
           text: "Debes iniciar sesión",
           icon: "info",
@@ -147,53 +199,48 @@ if (!res.ok) {
         });
         return;
       }
-  
-      const sessionData = await sessionRes.json();
-      console.log("Datos de sesión:", sessionData.user.email); // Verificar que el email esté presente
-      const user = sessionData.user;
-  
-      // 🛒 2️⃣ Agregar producto al carrito
-      const res = await fetch("/api/cart/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // importante
-        body: JSON.stringify({
-          email: user.email, // Usamos el email del usuario autenticado
-          productId: productId // Aseguramos usar el productId del componente
-          
-        }),
-      });
-  
-      const data = await res.json();
-  
-      if (!res.ok) {
-        throw new Error(data.error || "Error agregando producto");
-      }
-  
-      Swal.fire({
-        text: "Producto agregado al carrito...",
-        icon: "success",
-        confirmButtonText: "Ok",
-      }).then(() => {
-        router.refresh(); // Refrescar para actualizar el contador del carrito
-        
-      }
-      );
-  
-    } catch (error) {
-
-  
-      Swal.fire({
-        text: error instanceof Error ? error.message : "Error agregando al carrito",
-        icon: "error",
-        confirmButtonText: "Ok",
-      });
-    } finally {
-      setLoading(false);
     }
-  };
+
+    const sessionData = await sessionRes.json();
+    const user = sessionData.user;
+
+    // 🛒 2️⃣ agregar al carrito
+    const res = await fetch("/api/cart/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        email: user.email,
+        productId: productId,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Error agregando producto");
+    }
+
+    Swal.fire({
+      text: "Producto agregado al carrito...",
+      icon: "success",
+      confirmButtonText: "Ok",
+    }).then(() => {
+      router.refresh();
+    });
+
+  } catch (error) {
+    Swal.fire({
+      text: error instanceof Error ? error.message : "Error agregando al carrito",
+      icon: "error",
+      confirmButtonText: "Ok",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
 
 
