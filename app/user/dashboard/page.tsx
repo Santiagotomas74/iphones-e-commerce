@@ -107,7 +107,12 @@ export default function UserDashboard() {
   };
 
   if (loading)
-    return <p className="text-center mt-10 italic text-gray-400">Cargando dashboard...</p>;
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[300px] space-y-4 mt-40 mb-50">
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-black"></div>
+      <p className="text-gray-500 animate-pulse">Cargando dashboard...</p>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[#F8F9FB] py-12 px-4">

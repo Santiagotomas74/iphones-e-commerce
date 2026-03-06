@@ -33,20 +33,22 @@ export async function POST(req: NextRequest) {
     }
 
     // 3️⃣ Crear ACCESS TOKEN (corto)
-    const accessToken = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      },
-      process.env.JWT_SECRET!,
-      { expiresIn: "15m" }
-    );
+const accessToken = jwt.sign(
+  {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+  },
+  process.env.JWT_SECRET!,
+  { expiresIn: "1m" } // 👈 1 minuto
+);
 
     // 4️⃣ Crear REFRESH TOKEN (largo)
     const refreshToken = jwt.sign(
       {
         id: user.id,
+        email: user.email,
+    role: user.role,
       },
       process.env.JWT_REFRESH_SECRET!,
       { expiresIn: "7d" }
@@ -63,21 +65,21 @@ export async function POST(req: NextRequest) {
       path: "/",
     });
 
-    // 🔐 Access Token
-    response.cookies.set("tokenTtech", accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 15, // 15 minutos
-    });
+ // 🔐 Access Token
+response.cookies.set("tokenTtech", accessToken, {
+  httpOnly: true,
+  secure: true,
+  sameSite: "lax",
+  path: "/",
+  maxAge: 60 * 3, // 👈 2 minutos
+});
 
     // 🔄 Refresh Token
     response.cookies.set("refreshTokenTech", refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: "lax",
-      path: "/api/auth/refresh",
+      path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 días
     });
 

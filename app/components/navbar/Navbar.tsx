@@ -74,9 +74,11 @@ useEffect(() => {
 
       if (!res.ok) {
         const data = await res.json().catch(() => null);
+        
 
         // 🔄 token expirado → refrescar
         if (res.status === 401 && data?.error === "TokenExpired") {
+          console.log("Token expirado, intentando refrescar...");
           const refreshRes = await fetch("/api/refresh", {
             method: "POST",
             credentials: "include",

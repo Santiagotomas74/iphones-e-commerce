@@ -9,6 +9,7 @@ type TokenPayload = {
 };
 
 export async function GET() {
+  console.log("GET /api/user/me - Verificando token...");
   try {
     const cookieStore = cookies();
     const token = (await cookieStore).get("tokenTtech")?.value;

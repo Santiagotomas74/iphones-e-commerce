@@ -8,10 +8,14 @@ type RefreshPayload = {
 };
 
 export async function POST() {
-  try {
-    const cookieStore = cookies();
+  console.log("Intentando refrescar token...");
 
-    const refreshToken = (await cookieStore).get("refreshToken")?.value;
+  try {
+    // 👇 ahora cookies es async
+    const cookieStore = await cookies();
+
+    const refreshToken = cookieStore.get("refreshTokenTech")?.value;
+    console.log("Refresh token recibido:", refreshToken);
 
     if (!refreshToken) {
       return NextResponse.json(
@@ -20,13 +24,13 @@ export async function POST() {
       );
     }
 
-    // 🔐 Verificar refresh token
+    // 🔐 verificar refresh token
     const decoded = jwt.verify(
       refreshToken,
       process.env.JWT_REFRESH_SECRET!
     ) as RefreshPayload;
 
-    // 🆕 Crear nuevo access token
+    // 🆕 crear nuevo access token
     const newAccessToken = jwt.sign(
       {
         id: decoded.id,
@@ -36,13 +40,13 @@ export async function POST() {
       { expiresIn: "15m" }
     );
 
-    // 🍪 Guardar nueva cookie
-    (await cookieStore).set("tokenTtech", newAccessToken, {
+    // 🍪 guardar cookie
+    cookieStore.set("tokenTtech", newAccessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 15, // 15 minutos
+      maxAge: 60 * 15,
     });
 
     return NextResponse.json({

@@ -1,5 +1,6 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function AdminOrders() {
@@ -51,7 +52,12 @@ export default function AdminOrders() {
     }
   };
 
-  if (loading) return <p className="p-10">Cargando órdenes...</p>;
+  if (loading) return <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+      <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mb-3" />
+      <p className="text-sm font-medium animate-pulse">
+        Cargando ordenes...
+      </p>
+    </div>;
 
   return (
     <div className="max-w-6xl mx-auto py-10 space-y-6">

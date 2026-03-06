@@ -4,6 +4,7 @@ import { X, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import Swal from 'sweetalert2';
 import { useRouter } from "next/navigation";
+import { ShoppingCart,Store, Truck, ArrowLeft } from "lucide-react";
 
 
 interface CartSidebarProps {
@@ -38,6 +39,14 @@ const [checkoutStep, setCheckoutStep] = useState<
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   const shippingCost = 3500;
+  let discountedTotal = cartItems.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  ) * 0.85; // 15% de descuento por transferencia
+   discountedTotal =
+    deliveryType === "shipping"
+      ? discountedTotal + shippingCost
+      : discountedTotal; // agregar costo de envío si corresponde
 
   const [address, setAddress] = useState({
     full_name: "",
@@ -112,7 +121,7 @@ useEffect(() => {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          email: sessionData.user.email,
+          email: sessionData.user.email || getCookie("emailTech"),
         }),
       });
 
@@ -249,7 +258,7 @@ const updateQuantity = async (productId: string, newQuantity: number) => {
       },
       credentials: "include",
       body: JSON.stringify({
-        email: sessionData.user.email,
+        email: sessionData.user.email || getCookie("emailTech"),
         product_id
       }),
     });
@@ -325,7 +334,7 @@ const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({
-        email: sessionData.user.email,
+        email: sessionData.user.email || getCookie("emailTech"),
         payment_method: paymentMethod,
         delivery_type: deliveryType,
         shipping_cost: deliveryType === "shipping" ? shippingCost : 0,
@@ -333,7 +342,7 @@ const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
       }),
     });
 
-    const data = await res.json();
+    const data = await res.json(); 
 
     if (!res.ok) {
       throw new Error(data.error || "Error desconocido");
@@ -488,9 +497,9 @@ const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
                 {!checkoutStep && (
                   <button
                     onClick={() => setCheckoutStep("delivery")}
-                    className="w-full bg-blue-600 text-white py-3 rounded-xl"
+                    className="w-full bg-blue-600 text-white py-3 h-full rounded-xl mt-2 flex items-center justify-center gap-2"
                   >
-                    Ir a pagar
+                    Continuar con la compra
                   </button>
                 )}
 
@@ -507,108 +516,129 @@ const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
                         setDeliveryType("pickup");
                         setCheckoutStep("payment");
                       }}
-                      className="w-full bg-black text-white py-3 rounded-xl"
+                      className="group flex items-center justify-between p-5 bg-white border-2 border-gray-100 rounded-3xl transition-all text-left w-full"
                     >
-                      Retiro en local
-                    </button>
+                     <div className="flex items-center gap-4">
+                <div className="p-3 bg-gray-900 rounded-2xl   transition-colors">
+                  <Store size={24} />
+                </div>
+                <div>
+                  <p className="font-bold text-gray-900">Retiro en local</p>
+                  <p className="text-xs text-gray-500">Estamos en CABA</p>
+                </div>
+              </div>
+              <span className="font-black text-green-600 text-sm">Gratis</span>
+            </button>
 
                     <button
                       onClick={() => {
                         setDeliveryType("shipping");
                         setCheckoutStep("address");
                       }}
-                      className="w-full bg-black text-white py-3 rounded-xl"
+                      className="group flex items-center justify-between p-5 bg-white border-2 border-gray-100 rounded-3xl  transition-all text-left w-full"
                     >
-                      Envío a domicilio (+ ${shippingCost})
-                    </button>
+                     <div className="flex items-center gap-4">
+                <div className="p-3 bg-gray-900 rounded-2xl  transition-colors">
+                  <Truck size={24} />
+                </div>
+                <div>
+                  <p className="font-bold text-gray-900">Envío a domicilio</p>
+                  <p className="text-xs text-gray-500">Llega en 24-48hs</p>
+                </div>
+              </div>
+              <span className="font-black text-gray-900 text-sm">+${shippingCost}</span>
+            </button>
                   </div>
                 )}
                 {checkoutStep === "address" && (
-              <div className="space-y-3 fade-step bg-black" >
+              <div className="space-y-6 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
               <button
                 onClick={() => setCheckoutStep("delivery")}
-                className="text-sm text-white text-gray-700"
+                className="text-sm  text-gray-700"
                     >
                  ← Volver
               </button>
-               <input
-                 type="text"
-                 placeholder="Nombre completo"
-                 value={address.full_name}
-                 onChange={(e) =>
-                  setAddress({ ...address, full_name: e.target.value })
-              }
-                   className="w-full border rounded-xl p-3"
-               />
+              
+               {/* GRID FORM */}
+                 <div>
+    <h3 className="text-xl font-semibold text-gray-900">
+      Dirección de entrega
+    </h3>
+    <p className="text-sm text-gray-500 mt-1">
+      Completá los datos para recibir tu pedido.
+    </p>
+  </div>
+  <div className="space-y-4 text-black">
 
-               <input
-                 type="text"
-                 placeholder="Teléfono"
-                 value={address.phone}
-                 onChange={(e) =>
-                  setAddress({ ...address, phone: e.target.value })
-              }
-                   className="w-full border rounded-xl p-3"
-            />
-
-               <input
-                  type="text"
-                  placeholder="Calle"
-                  value={address.street}
-                  onChange={(e) =>
-                  setAddress({ ...address, street: e.target.value })
-               }
-               className="w-full border rounded-xl p-3"
-             />
-
-            <input
-              type="text"
-              placeholder="Número"
-              value={address.street_number}
-              onChange={(e) =>
-                setAddress({ ...address, street_number: e.target.value })
-      }
-               className="w-full border rounded-xl p-3"
-               />
-              <input placeholder="Departamento"
-                   value={address.apartment}
-                   onChange={(e) => setAddress({ ...address, apartment: e.target.value })}
-                   className="w-full border p-2 rounded-lg"
-               />
-            <input
-                type="text"
-                placeholder="Ciudad"
-                value={address.city}
-                onChange={(e) =>
-                  setAddress({ ...address, city: e.target.value })
-      }
-                  className="w-full border rounded-xl p-3"
+    <input
+      placeholder="Nombre completo *"
+      value={address.full_name}
+      onChange={(e) => setAddress({ ...address, full_name: e.target.value })}
+      className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none transition"
     />
 
     <input
-      type="text"
-      placeholder="Provincia"
-      value={address.province}
-      onChange={(e) =>
-        setAddress({ ...address, province: e.target.value })
-      }
-      className="w-full border rounded-xl p-3"
+      placeholder="Teléfono"
+      value={address.phone}
+      onChange={(e) => setAddress({ ...address, phone: e.target.value })}
+      className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none transition"
     />
 
+    <div className="grid grid-cols-3 gap-3">
+      <input
+        placeholder="Calle *"
+        value={address.street}
+        onChange={(e) => setAddress({ ...address, street: e.target.value })}
+        className="col-span-2 bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
+      />
+
+      <input
+        placeholder="N° *"
+        value={address.street_number}
+        onChange={(e) => setAddress({ ...address, street_number: e.target.value })}
+        className="bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
+      />
+    </div>
+
     <input
-      type="text"
-      placeholder="Código Postal"
+      placeholder="Departamento"
+      value={address.apartment}
+      onChange={(e) => setAddress({ ...address, apartment: e.target.value })}
+      className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
+    />
+
+    <div className="grid grid-cols-2 gap-3">
+      <input
+        placeholder="Ciudad *"
+        value={address.city}
+        onChange={(e) => setAddress({ ...address, city: e.target.value })}
+        className="bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
+      />
+
+      <input
+        placeholder="Provincia *"
+        value={address.province}
+        onChange={(e) => setAddress({ ...address, province: e.target.value })}
+        className="bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
+      />
+    </div>
+
+    <input
+      placeholder="Código Postal *"
       value={address.postal_code}
-      onChange={(e) =>
-        setAddress({ ...address, postal_code: e.target.value })
-      }
-      className="w-full border rounded-xl p-3"
+      onChange={(e) => setAddress({ ...address, postal_code: e.target.value })}
+      className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
     />
-     <textarea placeholder="Información adicional"
-            value={address.additional_info}
-            onChange={(e) => setAddress({ ...address, additional_info: e.target.value })}
-            className="w-full border p-2 rounded-lg"
-          />
+
+    <textarea
+      placeholder="Información adicional (opcional)"
+      value={address.additional_info}
+      onChange={(e) => setAddress({ ...address, additional_info: e.target.value })}
+      className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition resize-none"
+      rows={3}
+    />
+  </div>
+
 
     <button
       onClick={() => setCheckoutStep("payment")}
@@ -627,6 +657,7 @@ const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
   className="text-sm text-gray-700"
 >
   ← Volver
+    
 </button>
                     {/* Total dinámico */}
                     <div className="bg-neutral-100 p-3 rounded-xl text-sm">
@@ -637,48 +668,82 @@ const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
                         </span>
                       </div>
                     </div>
-
+                    {/* MP */}
+<div className="space-y-0">
                     <button
-                      disabled={loading}
+                     disabled={loading}
                      onClick={() => handleCheckout("mercadopago")}
-                      className="w-full bg-blue-500 text-white py-3 rounded-xl flex justify-center items-center gap-2 disabled:opacity-60"
+                        className="w-full bg-white hover:bg-gray-50 text-gray-800 py-4 rounded-t-2xl flex items-center justify-between px-5 font-semibold transition border border-gray-300 shadow-sm disabled:opacity-50"
                     >
-                      {loading ? (
-                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                      ) : (
-                        "Mercado Pago"
-                      )}
-                    </button>
+                     <div className="flex items-center gap-3">
+            <img
+              src="/image/Mercadopago.png"
+              alt="Mercado Pago"
+              className="h-7 w-auto"
+            />
+            <span>Mercado Pago</span>
+          </div>
+
+          <span className="text-xs text-gray-500">
+            Tarjetas · Cuotas
+          </span>
+          <span className="text-ml text-gray-900">
+              ${total.toLocaleString()}
+          </span>
+        </button>
+         <div className="bg-blue-50 border border-blue-100 rounded-b-2xl px-5 py-3 text-xs text-blue-900">
+          Compra protegida · Pago 100% seguro · Aceptamos todas las tarjetas
+        </div>
+        </div>
+
+{/* transferencia */}
+<div className="space-y-0">
 
                     <button
                       disabled={loading}
                      onClick={() => handleCheckout("transfer")}
-                      className="w-full bg-blue-600 text- py-3 rounded-xl flex justify-center items-center gap-2 disabled:opacity-60"
+                     className="w-full bg-white hover:bg-gray-50 text-black py-4 rounded-t-2xl flex items-center justify-between px-5 font-semibold transition border border-gray-300 disabled:opacity-50"
+        
                     >
-                      {loading ? (
-                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                      ) : (
-                        "Transferencia"
-                      )}
-                    </button>
+                      <div className="flex items-center gap-2">
+            <img
+              src="/image/transferencia.png"
+              alt="Transferencia bancaria"
+              className="h-7 w-auto"
+            />
+            <span>Transferencia bancaria</span>
+          </div>
+
+          <span className="text-xs bg-green-400 px-3 py-1 rounded-full font-bold tracking-wide">
+            15% OFF
+          </span>
+            <span className="text-ml font-bold tracking-wide">
+              ${discountedTotal.toLocaleString()}
+          </span>
+        </button>
+        <div className="bg-green-50 border border-green-100 rounded-b-2xl px-5 py-3 text-xs text-green-900">
+          Ahorrás pagando por transferencia · Acreditación hasta 48hs
+        </div>
+
+</div>
                   </div>
                 )}
 
                 {checkoutStep === "transferCard" && orderId && (
-  <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4 animate-fade-in">
+    <div className="bg-white border rounded-2xl p-6 shadow-lg space-y-4 animate-fade-in">
     
     <h3 className="text-lg font-semibold text-black ">
       Datos para realizar la transferencia
     </h3>
 
-    <div className="bg-gray-50 p-4 rounded-xl text-sm space-y-2">
-      <p><strong>CBU:</strong> 0000003100000000000000</p>
-      <p><strong>Alias:</strong> TECHSTORE.PAGOS</p>
-      <p><strong>Titular:</strong> Tech Store S.A.</p>
-    </div>
+    <div className="bg-gray-50 p-4 rounded-xl text-sm space-y-2  ">
+            <p className="text-black"><strong>CBU:</strong> 0000003100000000000000</p>
+            <p className="text-black"><strong>Alias:</strong> TECHSTORE.PAGOS</p>
+            <p className="text-black"><strong>Titular:</strong> Tech Store S.A.</p>
+          </div>
     
     <p className="text-sm text-gray-900">
-      El total que deberás transferir es exactamente <strong>${total.toLocaleString()}</strong> para que podamos identificar tu pago.
+      El total que deberás transferir es exactamente <strong>${discountedTotal.toLocaleString()}</strong> para que podamos identificar tu pago.
     </p>
     
      <p className="text-sm text-gray-900">
