@@ -88,7 +88,7 @@ export async function POST(req: Request) {
     // 🔹 3️⃣ Calcular totales correctamente
     const totalProduct = productPrice * quantity;
 
-    const total =
+    let total =
       totalProduct +
       (delivery_type === "shipping" ? Number(shipping_cost) : 0);
     console.log("Total calculado:", total);
@@ -96,6 +96,8 @@ export async function POST(req: Request) {
       let expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos para MP
 
 if (payment_method === "transfer") {
+  const discountedTotal = delivery_type === "shipping" ? Math.round((productPrice * quantity + Number(shipping_cost)) * 0.85) : Math.round(productPrice * quantity * 0.85);
+  total = discountedTotal; // Solo el producto, sin envío
   expiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000); // 2 horas para transferencias
 }
 

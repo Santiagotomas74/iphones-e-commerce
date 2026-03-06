@@ -18,6 +18,7 @@ export default function ProductActions({ productId, price }: { productId: string
   const [selectedPayment, setSelectedPayment] = useState<"transfer" | "mercadopago" | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"transferencia" | "mercadopago">("mercadopago");
 
   const shippingCost = 3500;
 
@@ -98,10 +99,12 @@ if (!res.ok) {
   throw new Error(data.error || "Error desconocido");
 }
     if (paymentMethod === "mercadopago") {
+      setPaymentMethod("mercadopago");
       window.location.href = data.init_point;
     }
 
     if (paymentMethod === "transfer") {
+      setPaymentMethod("transferencia");
       setOrderId(data.order_id);
       setStep("transferCard");
     }
@@ -197,8 +200,12 @@ if (!res.ok) {
   return (
     <div className="mt-8 space-y-4">
         <p className="text-4xl font-bold text-gray-900">
-          ${total.toLocaleString()}
-        </p>
+  $
+  {(paymentMethod === "transferencia"
+    ? discountedTotal
+    : total
+  ).toLocaleString()}
+</p>
 
       {/* 🔹 PASO 0 */}
       {step === "initial" && (
@@ -470,7 +477,7 @@ if (!res.ok) {
           </div>
     
     <p className="text-sm text-gray-900">
-      El total que deberás transferir es exactamente <strong>${total.toLocaleString()}</strong> para que podamos identificar tu pago.
+      El total que deberás transferir es exactamente <strong>${discountedTotal.toLocaleString()}</strong> para que podamos identificar tu pago.
     </p>
     
      <p className="text-sm text-gray-900">
