@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 
 export function proxy(req: NextRequest) {
-  const token = req.cookies.get("tokenTech")?.value;
+  const token = req.cookies.get("tokenTtech")?.value;
   const { pathname } = req.nextUrl;
 
   // 🔹 Si intenta entrar a /login o /register estando logueado

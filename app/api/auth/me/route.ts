@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
 export async function GET(req: NextRequest) {
-  const token = req.cookies.get("tokenTech")?.value;
+  const token = req.cookies.get("tokenTtech")?.value;
 
   if (!token) {
     return NextResponse.json({ user: null });

@@ -6,7 +6,7 @@ import { query } from "@/db";
 export async function PUT(req: Request) {
   try {
     const cookieStore = cookies();
-    const token = (await cookieStore).get("tokenTech")?.value;
+    const token = (await cookieStore).get("tokenTtech")?.value;
 
     if (!token) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 });

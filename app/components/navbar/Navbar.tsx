@@ -80,7 +80,7 @@ export default function Navbar({ items, cartCount }: NavbarProps) {
     setIsLoggedIn(false);
     setUserName(null);
     document.cookie = "emailTech=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;"; 
-    document.cookie = "tokenTech=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;"; 
+    document.cookie = "tokenTtech=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;"; 
     window.location.href = "/";
   };
 

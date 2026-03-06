@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       httpOnly: false,
   });
 
-    response.cookies.set("tokenTech", token, {
+    response.cookies.set("tokenTtech", token, {
       httpOnly: false,
       secure: true,
       sameSite: "lax",

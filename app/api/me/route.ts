@@ -3,7 +3,7 @@ import { verify } from "jsonwebtoken";
 
 export async function GET() {
   const cookieStore = cookies();
-  const token = (await cookieStore).get("tokenTech")?.value;
+  const token = (await cookieStore).get("tokenTtech")?.value;
 
   if (!token) {
     return new Response("Unauthorized", { status: 401 });
