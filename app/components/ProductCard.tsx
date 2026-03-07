@@ -18,9 +18,13 @@ type Product = {
   image_1: string;
   image_2: string;
   image_3: string;
+  status: "new" | "used";
 };
 
 export default function ProductCard({ product }: { product: Product }) {
+
+   console.log("CONDICION PRODUCTO:", product.status);
+
   const router = useRouter();
   // 2. Estado para controlar la carga del botón
   const [loading, setLoading] = useState(false);
@@ -120,6 +124,19 @@ export default function ProductCard({ product }: { product: Product }) {
 >
   {/* Imagen */}
 <div className="relative h-56 overflow-hidden rounded-2xl group">
+    <div className="absolute top-3 left-3 z-10">
+    <span
+  className={`px-3 py-1 text-xs font-semibold rounded-full shadow-sm
+  ${
+    product.status === "new"
+      ? "bg-blue-100 text-blue-700"
+      : "bg-amber-400 text-amber-700"
+  }`}
+>
+  {product.status === "new" ? "Nuevo" : "Usado"}
+</span>
+  </div>
+
 
   {/* Imagen 1 */}
   <img
