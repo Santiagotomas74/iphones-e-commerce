@@ -18,12 +18,10 @@ type Product = {
   image_1: string;
   image_2: string;
   image_3: string;
-  status: "new" | "used";
+  status: string;
 };
 
 export default function ProductCard({ product }: { product: Product }) {
-
-   console.log("CONDICION PRODUCTO:", product.status);
 
   const router = useRouter();
   // 2. Estado para controlar la carga del botón
@@ -155,52 +153,48 @@ export default function ProductCard({ product }: { product: Product }) {
              p-7 cursor-pointer"
 >
   {/* Imagen */}
-<div className="relative h-56 overflow-hidden rounded-2xl group">
-    <div className="absolute top-3 left-3 z-10">
-    <span
-  className={`px-3 py-1 text-xs font-semibold rounded-full shadow-sm
-  ${
-    product.status === "new"
-      ? "bg-blue-100 text-blue-700"
-      : "bg-amber-400 text-amber-700"
-  }`}
->
-  {product.status === "new" ? "Nuevo" : "Usado"}
-</span>
-  </div>
+  <div className="relative h-56 overflow-hidden rounded-2xl group">
+    
 
+    {/* Imagen 1 */}
+    <img
+      src={product.image_1}
+      alt={product.name}
+      className="absolute inset-0 w-full h-full object-contain
+                 transition-opacity duration-500 ease-in-out
+                 group-hover:opacity-0"
+    />
 
-  {/* Imagen 1 */}
-  <img
-    src={product.image_1}
-    alt={product.name}
-    className="absolute inset-0 w-full h-full object-contain
-               transition-opacity duration-500 ease-in-out
-               group-hover:opacity-0"
-  />
+    {/* Imagen 2 */}
+    <img
+      src={product.image_2}
+      alt={product.name}
+      className="absolute inset-0 w-full h-full object-contain
+                 opacity-0
+                 transition-opacity duration-500 ease-in-out
+                 group-hover:opacity-100"
+    />
 
-  {/* Imagen 2 */}
-  <img
-    src={product.image_2}
-    alt={product.name}
-    className="absolute inset-0 w-full h-full object-contain
-               opacity-0
-               transition-opacity duration-500 ease-in-out
-               group-hover:opacity-100"
-  />
-
-  {/* Cortina */}
-  <div className="absolute inset-0 pointer-events-none overflow-hidden">
-    <div className="absolute inset-0 bg-black
-                    -translate-x-[110%]
-                    group-hover:translate-x-[110%]
-                    transition-transform duration-700 ease-in-out
-                    will-change-transform">
+    {/* Cortina */}
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <div className="absolute inset-0 bg-black
+                      -translate-x-[110%]
+                      group-hover:translate-x-[110%]
+                      transition-transform duration-700 ease-in-out
+                      will-change-transform">
+      </div>
     </div>
   </div>
-
-</div>
-
+{/* Badge de estado en la esquina superior derecha */}
+    <span
+      className={`absolute top-3 right-3 px-3 py-1 text-sm font-semibold rounded-full shadow-sm tracking-[-0.02em]
+        ${product.status === "Nuevo"
+          ? "bg-blue-100 text-blue-700"
+          : "bg-green-100 text-green-700"
+        }`}
+    >
+      {product.status === "Nuevo" ? "Nuevo" : "Reacondicionado"}
+    </span>
   {/* Título */}
   <h2 className="mt-6 text-black font-medium tracking-[-0.02em] text-lg">
     {product.name}
@@ -208,7 +202,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
   {/* Subtítulo */}
   <p className="text-gray-500 text-sm mt-1 tracking-[-0.01em]">
-    {product.memory} • {product.color}
+    {product.memory} • {product.color} 
   </p>
 
   {/* Precio + botón */}

@@ -6,6 +6,7 @@ import { Menu, X, User, ShoppingBag, LogOut } from "lucide-react";
 import CartSidebar from "./CartSidebar";
 import type { NavbarProps } from "./Navbar.types";
 
+
 export default function Navbar({ items, cartCount }: NavbarProps) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -141,6 +142,7 @@ useEffect(() => {
           scrolled ? "bg-white/70 backdrop-blur-md shadow-sm" : "bg-white"
         }`}
       >
+          
         <div className="relative w-full h-20 flex items-center px-6 md:px-10 text-gray-900">
 
           {/* LEFT */}
@@ -237,6 +239,7 @@ useEffect(() => {
 
 </div>
         </div>
+        
       </nav>
 
       {/* Overlay mobile */}
@@ -334,6 +337,7 @@ useEffect(() => {
       </button>
     </>
   )}
+
 </div>
       </div>
 
@@ -342,6 +346,7 @@ useEffect(() => {
         count={cartItemsCount}
         onClose={() => setIsCartOpen(false)}
       />
+   
     </>
   );
 }

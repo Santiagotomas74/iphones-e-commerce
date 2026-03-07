@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 export async function POST(req: NextRequest) {
   try {
     console.log("Login API called");
-    const { name, email, password, phone } = await req.json();
+    const { name, lastName, email, password, phone } = await req.json();
     
     const existingUser = await query(
       `SELECT * FROM users WHERE email = $1`,
@@ -22,10 +22,10 @@ export async function POST(req: NextRequest) {
     const newPass = await bcrypt.hash(password, 10);
     const role = "user"; // Asignar rol por defecto
     const { rows } = await query(
-    `INSERT INTO users (name, email, password, phone, role)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO users (name, lastname, email, password, phone, role)
+     VALUES ($1, $2, $3, $4, $5, $6)
      RETURNING *`,
-    [name, email, newPass, phone, role]
+    [name, lastName, email, newPass, phone, role]
   );
  
 

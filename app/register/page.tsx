@@ -61,6 +61,7 @@ export default function Register() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
+          lastName,
           email,
           phone,
           password,
@@ -189,6 +190,7 @@ export default function Register() {
                   <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-black transition-colors" size={18} />
                   <input
                     type="email"
+                    placeholder=" email@ejemplo.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-10 pr-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"

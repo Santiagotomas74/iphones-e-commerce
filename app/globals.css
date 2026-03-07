@@ -113,3 +113,27 @@ body {
     animation: heroScrollX 70s linear infinite; /* también un poco más suave */
   }
 }
+.marquee {
+  overflow: hidden;
+  width: 100%;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 50s linear infinite;
+}
+
+.marquee-group {
+  display: flex;
+  align-items: center;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(63%);
+  }
+  to {
+    transform: translateX(-97%);
+  }
+}

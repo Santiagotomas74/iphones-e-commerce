@@ -110,7 +110,7 @@ const createOrder = async (paymentMethod: "transfer" | "mercadopago") => {
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({
-        email: sessionData.user.email,
+        email: sessionData.user.email || getCookie("emailTech"),
         product_id: productId,
         payment_method: paymentMethod,
         delivery_type: deliveryType,
