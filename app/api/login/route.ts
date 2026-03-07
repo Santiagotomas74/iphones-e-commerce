@@ -40,7 +40,7 @@ const accessToken = jwt.sign(
     role: user.role,
   },
   process.env.JWT_SECRET!,
-  { expiresIn: "1m" } // 👈 1 minuto
+  { expiresIn: "15m" } // 👈 1 minuto
 );
 
     // 4️⃣ Crear REFRESH TOKEN (largo)
@@ -71,7 +71,7 @@ response.cookies.set("tokenTtech", accessToken, {
   secure: true,
   sameSite: "lax",
   path: "/",
-  maxAge: 60 * 3, // 👈 2 minutos
+  maxAge: 60 * 16, // 👈 2 minutos
 });
 
     // 🔄 Refresh Token
@@ -82,7 +82,7 @@ response.cookies.set("tokenTtech", accessToken, {
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 días
     });
-
+    console.log("Login exitoso para %s y token de 1 minuto:", email);
     return response;
 
   } catch (error) {

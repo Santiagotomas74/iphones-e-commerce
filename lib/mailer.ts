@@ -122,3 +122,86 @@ export async function sendOrderConfirmationEmail(
     `,
   });
 }
+export async function sendReceiptUploadedEmail(
+  orderId: string,
+  receiptUrl: string
+) {
+  const admins = process.env.ADMIN_EMAILS?.split(",") || [];
+
+  await transporter.sendMail({
+    from: `"iPhone Store" <${process.env.EMAIL_USER}>`,
+    to: admins,
+    subject: `Nuevo comprobante subido - Orden #${orderId}`,
+    html: `
+      <div style="font-family:Arial;padding:30px;">
+        
+        <h2>Nuevo comprobante de pago subido</h2>
+
+        <p>
+          Se ha subido un comprobante de pago para la orden:
+        </p>
+
+        <p>
+          <strong>Orden:</strong> #${orderId}
+        </p>
+
+        <p>
+          Podés revisar el comprobante aquí:
+        </p>
+
+        <p>
+          <a href="${receiptUrl}" target="_blank">
+            Ver comprobante
+          </a>
+        </p>
+
+        <br/>
+
+        <p>
+          También podés revisarlo desde el panel de administración.
+        </p>
+
+      </div>
+    `,
+  });
+}
+export async function sendAdminPaymentNotification(
+  orderId: string,
+  amount: number,
+  currency: string,
+  userEmail: string
+) {
+  const admins = process.env.ADMIN_EMAILS?.split(",") || [];
+
+  await transporter.sendMail({
+    from: `"iPhone Store" <${process.env.EMAIL_USER}>`,
+    to: admins,
+    subject: `💰 Pago acreditado - Orden #${orderId}`,
+    html: `
+      <div style="font-family:Arial;padding:30px;">
+        
+        <h2>Pago acreditado en Mercado Pago</h2>
+
+        <p><strong>Orden:</strong> #${orderId}</p>
+        <p><strong>Cliente:</strong> ${userEmail}</p>
+        <p><strong>Monto:</strong> ${currency} ${amount}</p>
+
+        <br/>
+
+        <a 
+          href="https://tutienda.com/admin/orders/${orderId}"
+          style="
+            background:black;
+            color:white;
+            padding:10px 16px;
+            border-radius:6px;
+            text-decoration:none;
+          "
+        >
+          Ver orden en admin
+        </a>
+
+      </div>
+    `,
+  });
+}
