@@ -7,8 +7,8 @@ export async function GET() {
   try {
     // 🔐 1️⃣ Obtener token desde cookie
     const cookieStore = cookies();
-    const token = (await cookieStore).get("tokenTech")?.value;
-    console.log("Token recibido:", token);
+    const token = (await cookieStore).get("tokenTtech")?.value;
+    
 
     if (!token) {
       return NextResponse.json(

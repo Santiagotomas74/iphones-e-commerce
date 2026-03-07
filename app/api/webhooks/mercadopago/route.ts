@@ -4,6 +4,7 @@ import { mpClient } from "@/lib/mercadopago";
 import { sendOrderConfirmationEmail } from "@/lib/mailer";
 import { Payment, MerchantOrder } from "mercadopago";
 import { randomUUID } from "crypto";
+import { sendAdminPaymentNotification } from "@/lib/mailer";
 
 export async function POST(req: Request) {
   try {
@@ -173,6 +174,22 @@ export async function POST(req: Request) {
         `,
         [orderId]
       );
+      try {
+
+  await sendAdminPaymentNotification(
+    orderId,
+    paidAmount,
+    currency,
+    userEmail
+  );
+
+  console.log("📧 Email enviado a admins");
+
+} catch (error) {
+
+  console.error("❌ Error enviando email a admins:", error);
+
+}
 
       console.log("✅ Orden marcada como dispatch");
 

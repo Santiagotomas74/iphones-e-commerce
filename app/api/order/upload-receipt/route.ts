@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { query } from "@/db";
 import { v2 as cloudinary } from "cloudinary";
+import { sendReceiptUploadedEmail } from "@/lib/mailer";
+
 
 // Config Cloudinary
 cloudinary.config({
@@ -91,6 +93,7 @@ export async function POST(req: Request) {
        WHERE id = $2`,
       [imageUrl, orderId]
     );
+    await sendReceiptUploadedEmail(orderId, imageUrl);
 
     return NextResponse.json({
       message: "Comprobante subido",

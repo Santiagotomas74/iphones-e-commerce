@@ -16,74 +16,114 @@ export default function Navbar({ items, cartCount }: NavbarProps) {
   const cartItemsCount = cartCount; // Usamos el cartCount pasado desde RootLayout
   console.log("Cart count en Navbar:", cartCount); // Verificar el valor de cartCount
 
-  // 🔐 Chequeo real de sesión
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const res = await fetch("/api/me", {
-          method: "GET",
-          credentials: "include",
-        });
+ useEffect(() => {
+  const checkSession = async () => {
+    try {
+      let res = await fetch("/api/me", {
+        method: "GET",
+        credentials: "include",
+      });
 
-        if (!res.ok) throw new Error();
+      // Si falló, ver si fue por token expirado
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
 
-        const data = await res.json();
+        if (res.status === 401 && data?.error === "TokenExpired") {
+          // 🔄 intentar refrescar token
+          const refreshRes = await fetch("/api/refresh", {
+            method: "POST",
+            credentials: "include",
+          });
 
+          if (!refreshRes.ok) throw new Error("Refresh failed");
 
-        setIsLoggedIn(true);
-        setUserName(data.user.name);
-      } catch {
-        setIsLoggedIn(false);
-        setUserName(null);
-      } finally {
-        setLoading(false);
+          // 🔁 volver a intentar obtener usuario
+          res = await fetch("/api/me", {
+            method: "GET",
+            credentials: "include",
+          });
+        } else {
+          throw new Error("Not authenticated");
+        }
       }
-    };
-    
 
-    checkSession();
-  }, []);
+      const data = await res.json();
+
+      setIsLoggedIn(true);
+      setUserName(data.user.name);
+
+    } catch {
+      setIsLoggedIn(false);
+      setUserName(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  checkSession();
+}, []);
   
-    // 🔐 informacion del user con carritocount 
-  useEffect(() => {
-    const checkSessionNav = async () => {
-      try {
-        const res = await fetch("/api/user/me", {
-          method: "GET",
-          credentials: "include",
-        });
+ // 🔐 información del user con cartCount
+useEffect(() => {
+  const checkSessionNav = async () => {
+    try {
+      let res = await fetch("/api/user/me", {
+        method: "GET",
+        credentials: "include",
+      });
 
-        if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        
 
-        const data = await res.json();
-        console.log("Usuario autenticado:", data);
-      
-        setUserName(data.full_name);
-      } catch (error) {
-        setUserName(null);
-      } finally {
-        setLoading(false);
+        // 🔄 token expirado → refrescar
+        if (res.status === 401 && data?.error === "TokenExpired") {
+          console.log("Token expirado, intentando refrescar...");
+          const refreshRes = await fetch("/api/refresh", {
+            method: "POST",
+            credentials: "include",
+          });
+
+          if (!refreshRes.ok) throw new Error();
+
+          // 🔁 volver a pedir sesión
+          res = await fetch("/api/user/me", {
+            method: "GET",
+            credentials: "include",
+          });
+        } else {
+          throw new Error();
+        }
       }
-    };
 
-    checkSessionNav();
-  }, []);
+      const data = await res.json();
 
+      console.log("Usuario autenticado:", data);
+
+      setUserName(data.full_name);
+
+    } catch {
+      setUserName(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  checkSessionNav();
+}, []);
 
 
   const handleLogout = async () => {
-    //await fetch("/api/logout", {
-    //  method: "POST",
-    //  credentials: "include",
-    //});
+  await fetch("/api/logout", {
+    method: "POST",
+    credentials: "include",
+  });
 
-    setIsLoggedIn(false);
-    setUserName(null);
-    document.cookie = "emailTech=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;"; 
-    document.cookie = "tokenTech=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;"; 
-    window.location.href = "/";
-  };
+  setIsLoggedIn(false);
+  setUserName(null);
 
+  window.location.href = "/";
+};
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);

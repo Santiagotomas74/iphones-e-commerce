@@ -26,7 +26,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const cookieStore = cookies();
-  const token = (await cookieStore).get("tokenTech")?.value;
+  const token = (await cookieStore).get("tokenTtech")?.value;
 
   let user = null;
   let cartCount = 0;

@@ -7,7 +7,7 @@ export async function GET() {
   try {
     const cookieStore = cookies();
 
-    const token = (await cookieStore).get("tokenTech")?.value;
+    const token = (await cookieStore).get("tokenTtech")?.value;
     const email = (await cookieStore).get("emailTech")?.value;
 
     if (!token || !email) {

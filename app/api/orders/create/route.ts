@@ -116,25 +116,26 @@ export async function POST(req: Request) {
         );
       }
     }
+// 5️⃣ Calcular total
+const productsTotal = cartItems.reduce(
+  (acc: number, item: any) =>
+    acc + Number(item.price) * Number(item.quantity),
+  0
+);
 
-    // 5️⃣ Calcular total
-    const productsTotal = cartItems.reduce(
-      (acc: number, item: any) =>
-        acc + Number(item.price) * Number(item.quantity),
-      0
-    );
+const finalShipping =
+  delivery_type === "shipping" ? Number(shipping_cost) : 0;
 
-    const finalShipping =
-      delivery_type === "shipping" ? Number(shipping_cost) : 0;
+let total = productsTotal + finalShipping;
 
-    const total = productsTotal + finalShipping;
+const orderNumber = `ORD-${randomUUID().slice(0, 8).toUpperCase()}`;
 
-    const orderNumber = `ORD-${randomUUID().slice(0, 8).toUpperCase()}`;
+let expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 min MercadoPago
 
-   let expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos para MP
-
+// Pago por transferencia (15% OFF)
 if (payment_method === "transfer") {
-  expiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000);  // 2 horas para transferencias
+  total = Math.round(total * 0.85); // aplicar descuento
+  expiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000); // 2 horas
 }
     
     

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 
 type Order = {
   id: string;
@@ -22,17 +23,42 @@ export default function UserOrders() {
   }, []);
 
   const fetchOrders = async () => {
-    try {
-      const res = await fetch("/api/user/orders");
-      const data = await res.json();
-      setOrders(data.orders);
-      console.log("Orders fetched:", data.orders);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
+  try {
+    let res = await fetch("/api/user/orders");
+
+    // 🔐 si access token venció
+    if (res.status === 401) {
+      console.log("Token vencido, intentando refresh...");
+
+      const refresh = await fetch("/api/refresh", {
+        method: "POST",
+      });
+
+      if (refresh.ok) {
+        // 🔁 reintentar request original
+        res = await fetch("/api/user/orders");
+      } else {
+        // refresh token vencido
+        window.location.href = "/login";
+        return;
+      }
     }
-  };
+
+    if (!res.ok) {
+      throw new Error("Error al obtener pedidos");
+    }
+
+    const data = await res.json();
+    setOrders(data.orders);
+
+    console.log("Orders fetched:", data.orders);
+
+  } catch (err) {
+    console.error("Error cargando pedidos:", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const getStatusLabel = (status: string) => {
     switch (status) {
@@ -47,7 +73,15 @@ export default function UserOrders() {
     }
   };
 
-  if (loading) return <p className="p-10">Cargando pedidos...</p>;
+  if (loading)
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+      <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mb-3" />
+      <p className="text-sm font-medium animate-pulse">
+        Cargando pedidos...
+      </p>
+    </div>
+  );
 
   return (
     <div className="max-w-4xl mx-auto py-10 space-y-6 bg-black rounded-lg p-6">
@@ -59,9 +93,9 @@ export default function UserOrders() {
         orders.map((order) => (
           <div
             key={order.id}
-            className="border rounded-xl p-6 shadow bg-white space-y-4 bg-black"
+            className=" rounded-xl p-6 shadow  space-y-4 bg-gray-100"
           >
-            <div className="flex justify-between bg-black">
+            <div className="flex justify-between bg-white text-gray-800 p-3 rounded-lg">
               <div>
                 <p><strong>Orden:</strong> {order.order_number}</p>
                 <p><strong>Fecha:</strong> {new Date(order.created_at).toLocaleDateString()}</p>
@@ -76,7 +110,7 @@ export default function UserOrders() {
             </div>
 
             {/* Productos */}
-            <div className=" bg-black p-3 rounded-lg">
+            <div className=" bg-white text-gray-800 p-3 rounded-lg">
               <strong>Productos:</strong>
               <div className="mt-2 space-y-1">
                 {order.items.map((item, index) => (

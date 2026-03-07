@@ -6,15 +6,39 @@ import jwt from "jsonwebtoken";
 export async function GET() {
   try {
     const cookieStore = cookies();
-    const token = (await cookieStore).get("tokenTech")?.value;
+    const token = (await cookieStore).get("tokenTtech")?.value;
 
     if (!token) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    let decoded: any;
 
-    const result = await query(`
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    } catch (err: any) {
+
+      // 🔹 Token expirado → el frontend debe usar refresh
+      if (err.name === "TokenExpiredError") {
+        return NextResponse.json(
+          { error: "Token expirado" },
+          { status: 401 }
+        );
+      }
+
+      // 🔹 Token inválido
+      if (err.name === "JsonWebTokenError") {
+        return NextResponse.json(
+          { error: "Token inválido" },
+          { status: 401 }
+        );
+      }
+
+      throw err;
+    }
+
+    const result = await query(
+      `
       SELECT 
         o.id,
         o.order_number,
@@ -56,7 +80,7 @@ export async function GET() {
       LEFT JOIN products p ON p.id = oi.product_id
 
       WHERE o.user_id = $1
-      AND o.payment_status = 'paid'
+      AND o.payment_status = 'approved'
 
       GROUP BY 
         o.id,
@@ -71,14 +95,20 @@ export async function GET() {
         a.additional_info
 
       ORDER BY o.created_at DESC
-    `, [decoded.id]);
+      `,
+      [decoded.id]
+    );
 
     return NextResponse.json({
-      orders: result.rows
+      orders: result.rows,
     });
 
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Error interno" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Error interno" },
+      { status: 500 }
+    );
   }
 }
