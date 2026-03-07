@@ -23,17 +23,42 @@ export default function UserOrders() {
   }, []);
 
   const fetchOrders = async () => {
-    try {
-      const res = await fetch("/api/user/orders");
-      const data = await res.json();
-      setOrders(data.orders);
-      console.log("Orders fetched:", data.orders);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
+  try {
+    let res = await fetch("/api/user/orders");
+
+    // 🔐 si access token venció
+    if (res.status === 401) {
+      console.log("Token vencido, intentando refresh...");
+
+      const refresh = await fetch("/api/refresh", {
+        method: "POST",
+      });
+
+      if (refresh.ok) {
+        // 🔁 reintentar request original
+        res = await fetch("/api/user/orders");
+      } else {
+        // refresh token vencido
+        window.location.href = "/login";
+        return;
+      }
     }
-  };
+
+    if (!res.ok) {
+      throw new Error("Error al obtener pedidos");
+    }
+
+    const data = await res.json();
+    setOrders(data.orders);
+
+    console.log("Orders fetched:", data.orders);
+
+  } catch (err) {
+    console.error("Error cargando pedidos:", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const getStatusLabel = (status: string) => {
     switch (status) {

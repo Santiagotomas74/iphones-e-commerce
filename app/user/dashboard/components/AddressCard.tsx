@@ -29,24 +29,51 @@ export default function UserAddress({ address, onAddressUpdated }: Props) {
   });
 
   const handleSave = async () => {
-    try {
-      const res = await fetch("/api/user/address", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+  try {
+    let res = await fetch("/api/user/address", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(form),
+    });
+
+    // 🔐 access token vencido
+    if (res.status === 401) {
+      console.log("Token vencido, intentando refresh...");
+
+      const refresh = await fetch("/api/refresh", {
+        method: "POST",
         credentials: "include",
-        body: JSON.stringify(form),
       });
 
-      if (!res.ok) throw new Error("Error actualizando dirección");
-
-      const data = await res.json();
-
-      onAddressUpdated?.(data.address);
-      setEditing(false);
-    } catch (err) {
-      console.error(err);
+      if (refresh.ok) {
+        // 🔁 repetir request
+        res = await fetch("/api/user/address", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(form),
+        });
+      } else {
+        // refresh token vencido
+        window.location.href = "/login";
+        return;
+      }
     }
-  };
+
+    if (!res.ok) {
+      throw new Error("Error actualizando dirección");
+    }
+
+    const data = await res.json();
+
+    onAddressUpdated?.(data.address);
+    setEditing(false);
+
+  } catch (err) {
+    console.error("Error guardando dirección:", err);
+  }
+};
 
   return (
     <div className="border p-6 rounded shadow text-gray-900">
