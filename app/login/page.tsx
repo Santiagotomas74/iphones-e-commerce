@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Mail, Lock, ArrowRight, Smartphone, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 export default function Login() {
   const router = useRouter();
@@ -30,9 +31,23 @@ export default function Login() {
       }
 
       if (data.role === "admin") {
-        window.location.href = "/admin";
+          Swal.fire({
+                    text: "Bienvenido admin. ",
+                    icon: "success",
+                    confirmButtonText: "Redirigir al panel de administración",
+                  })
+                  .then(() => {
+                    window.location.href = "/admin";
+                  });
+      
       } else {
-        window.location.href = "/";
+        Swal.fire({
+          text: "Inicio de sesión exitoso. ",
+          icon: "success",
+          confirmButtonText: "Ir a la tienda",
+        }).then(() => {
+        window.location.href = "/"
+       });
       }
     } catch (err) {
       console.error(err);

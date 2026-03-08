@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { UploadCloud, Image as ImageIcon, Save } from "lucide-react";
+import Swal from "sweetalert2";
 
 type ImageField = "image_1" | "image_2" | "image_3";
 
@@ -22,59 +24,6 @@ export default function NewProduct() {
 
   const [loading, setLoading] = useState(false);
 
- // 🔥 Upload a Cloudinary usando variables de entorno
-const uploadToCloudinary = async (file: File): Promise<string> => {
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-
-  if (!cloudName || !uploadPreset) {
-    throw new Error("Cloudinary no está configurado correctamente");
-  }
-
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("upload_preset", uploadPreset);
-
-  const res = await fetch(
-    `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
-    {
-      method: "POST",
-      body: formData,
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error("Error subiendo imagen a Cloudinary");
-  }
-
-  const data = await res.json();
-  return data.secure_url;
-};
-
-  const handleImageUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: ImageField
-  ) => {
-    if (!e.target.files) return;
-
-    try {
-      setLoading(true);
-
-      const file = e.target.files[0];
-      const url = await uploadToCloudinary(file);
-
-      setForm((prev) => ({
-        ...prev,
-        [field]: url,
-      }));
-    } catch (err) {
-      console.error(err);
-      alert("Error subiendo imagen");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -85,149 +34,203 @@ const uploadToCloudinary = async (file: File): Promise<string> => {
   };
 
   const renderImageInput = (field: ImageField, label: string) => (
-    <div className="space-y-2 border p-3 rounded">
-      <label className="font-medium">{label}</label>
+    <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 hover:border-blue-300 transition">
+      <div className="flex items-center gap-2 mb-3 text-gray-700">
+        <ImageIcon size={18} />
+        <label className="font-semibold text-sm uppercase tracking-wider">
+          {label}
+        </label>
+      </div>
 
-      {/* URL manual */}
+      {form[field] ? (
+        <div className="relative group w-full h-40 rounded-lg overflow-hidden border bg-white">
+          <img
+            src={form[field]}
+            alt="preview"
+            className="w-full h-full object-contain p-2"
+          />
+
+          <button
+            type="button"
+            onClick={() => setForm({ ...form, [field]: "" })}
+            className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition"
+          >
+            ✕
+          </button>
+        </div>
+      ) : (
+        <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-white hover:bg-gray-100 transition">
+          <UploadCloud className="w-8 h-8 mb-2 text-gray-400" />
+          <span className="text-sm text-gray-500">Click para subir</span>
+
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+          />
+        </label>
+      )}
+
       <input
         name={field}
-        placeholder="Pegar URL manual"
+        placeholder="O pegar URL de imagen"
         value={form[field]}
         onChange={handleChange}
-        className="w-full border p-2 rounded"
+        className="w-full mt-3 text-sm border border-gray-200 p-2 rounded bg-white focus:ring-1 focus:ring-blue-500 outline-none"
       />
-
-      {/* File upload */}
-      <input
-        type="file"
-        accept="image/*"
-        disabled={!!form[field]} // 🔒 bloquea si hay URL
-        onChange={(e) => handleImageUpload(e, field)}
-      />
-
-      {/* Preview */}
-      {form[field] && (
-        <img
-          src={form[field]}
-          alt="preview"
-          className="w-32 mt-2 rounded"
-        />
-      )}
     </div>
   );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
 
-    if (!form.image_1) {
-      alert("Debes cargar al menos la Imagen 1");
-      return;
-    }
+  try {
+    const res = await fetch("/api/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...form,
+        price: Number(form.price),
+        quantity: Number(form.quantity),
+      }),
+    });
 
-    setLoading(true);
+    if (!res.ok) throw new Error("Error creando producto");
 
-    try {
-      const res = await fetch("/api/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          price: Number(form.price),
-          quantity: Number(form.quantity),
-        }),
-      });
+    await Swal.fire({
+      icon: "success",
+      title: "Producto creado",
+      text: "El producto se creó correctamente",
+      confirmButtonColor: "#2563eb",
+    });
 
-      if (!res.ok) {
-        alert("Error al crear producto");
-        return;
-      }
+    router.push("/admin");
+    router.refresh();
 
-      router.push("/admin");
-      router.refresh();
-    } catch (error) {
-      console.error(error);
-      alert("Error inesperado");
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "No se pudo crear el producto",
+      confirmButtonColor: "#dc2626",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
-    <div className="max-w-3xl mx-auto bg-white p-6 rounded shadow">
-      <h1 className="text-2xl font-bold mb-6">Crear Producto</h1>
+    <div className="min-h-screen bg-gray-100 py-12 px-4">
+      <div className="max-w-4xl mx-auto space-y-8">
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          name="name"
-          placeholder="Nombre"
-          value={form.name}
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-          required
-        />
-
-        <div className="grid grid-cols-2 gap-4">
-          <input
-            name="memory"
-            placeholder="Memoria (ej: 128GB)"
-            value={form.memory}
-            onChange={handleChange}
-            className="border p-2 rounded"
-          />
-
-          <input
-            name="color"
-            placeholder="Color"
-            value={form.color}
-            onChange={handleChange}
-            className="border p-2 rounded"
-          />
+        {/* HEADER */}
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Crear Producto
+          </h1>
+          <p className="text-gray-500 mt-1">
+            Agrega un nuevo producto al catálogo
+          </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <input
-            name="quantity"
-            type="number"
-            placeholder="Cantidad disponible"
-            value={form.quantity}
-            onChange={handleChange}
-            className="border p-2 rounded"
-          />
+        <form onSubmit={handleSubmit} className="space-y-6">
 
-          <input
-            name="price"
-            type="number"
-            step="0.01"
-            placeholder="Precio"
-            value={form.price}
-            onChange={handleChange}
-            className="border p-2 rounded"
-            required
-          />
-        </div>
+          {/* CARD INFO */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 space-y-6">
 
-        <textarea
-          name="description"
-          placeholder="Descripción"
-          value={form.description}
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-          rows={4}
-        />
+            <h2 className="text-lg font-semibold text-gray-800">
+              Información Principal
+            </h2>
 
-        {/* 🔥 Imágenes */}
-        {renderImageInput("image_1", "Imagen 1 (obligatoria)")}
-        {renderImageInput("image_2", "Imagen 2")}
-        {renderImageInput("image_3", "Imagen 3")}
+            <input
+              name="name"
+              placeholder="Nombre del producto"
+              value={form.name}
+              onChange={handleChange}
+              className="w-full border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 border outline-none"
+              required
+            />
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-        >
-          {loading ? "Procesando..." : "Crear Producto"}
-        </button>
-      </form>
+            <div className="grid grid-cols-2 gap-4">
+              <input
+                name="memory"
+                placeholder="Memoria (128GB)"
+                value={form.memory}
+                onChange={handleChange}
+                className="border p-2.5 rounded-lg"
+              />
+
+              <input
+                name="color"
+                placeholder="Color"
+                value={form.color}
+                onChange={handleChange}
+                className="border p-2.5 rounded-lg"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <input
+                name="quantity"
+                type="number"
+                placeholder="Stock disponible"
+                value={form.quantity}
+                onChange={handleChange}
+                className="border p-2.5 rounded-lg"
+              />
+
+              <input
+                name="price"
+                type="number"
+                step="1"
+                placeholder="Precio"
+                value={form.price}
+                onChange={handleChange}
+                className="border p-2.5 rounded-lg font-semibold text-blue-600"
+                required
+              />
+            </div>
+
+            <textarea
+              name="description"
+              placeholder="Descripción del producto"
+              value={form.description}
+              onChange={handleChange}
+              className="w-full border p-2.5 rounded-lg min-h-[120px]"
+            />
+
+          </div>
+
+          {/* CARD IMAGES */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 space-y-6">
+
+            <h2 className="text-lg font-semibold text-gray-800">
+              Imágenes
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {renderImageInput("image_1", "Imagen Principal")}
+              {renderImageInput("image_2", "Vista lateral")}
+              {renderImageInput("image_3", "Detalle")}
+            </div>
+
+          </div>
+
+          {/* BOTÓN */}
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition shadow-sm"
+            >
+              <Save size={18} />
+              {loading ? "Creando..." : "Crear Producto"}
+            </button>
+          </div>
+
+        </form>
+      </div>
     </div>
   );
 }

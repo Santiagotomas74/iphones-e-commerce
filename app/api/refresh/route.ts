@@ -37,7 +37,7 @@ export async function POST() {
         role: decoded.role,
       },
       process.env.JWT_SECRET!,
-      { expiresIn: "15m" }
+      { expiresIn: "2h" }
     );
 
     // 🍪 guardar cookie
@@ -46,7 +46,7 @@ export async function POST() {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 17,// ,
+      maxAge: 60 * 60 * 3,// ,
     });
 
     return NextResponse.json({

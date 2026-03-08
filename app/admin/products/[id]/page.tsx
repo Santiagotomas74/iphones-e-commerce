@@ -13,7 +13,7 @@ import {
   Palette, 
   DollarSign 
 } from "lucide-react";
-
+import Swal from "sweetalert2";
 type ImageField = "image_1" | "image_2" | "image_3";
 
 export default function EditProduct() {
@@ -27,7 +27,7 @@ export default function EditProduct() {
     name: "",
     memory: "",
     color: "",
-    quantity: 0,
+    quantity: "",
     description: "",
     price: 0,
     image_1: "",
@@ -92,23 +92,43 @@ export default function EditProduct() {
   }, [id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      await fetch(`/api/products/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          price: form.price,
-          quantity: form.quantity,
-        }),
-      });
-      router.push("/admin");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  e.preventDefault();
+  setIsSubmitting(true);
+
+  try {
+    const res = await fetch(`/api/products/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...form,
+        price: form.price,
+        quantity: Number(form.quantity),
+      }),
+    });
+
+    if (!res.ok) throw new Error("Error actualizando producto");
+
+    await Swal.fire({
+      icon: "success",
+      title: `Producto: ${form.name} actualizado`,
+      text: "Los cambios se guardaron correctamente",
+      confirmButtonColor: "#2563eb",
+    });
+
+    router.push("/admin");
+    router.refresh();
+
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "No se pudo actualizar el producto",
+      confirmButtonColor: "#dc2626",
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
  
   const renderImageInput = (field: ImageField, label: string) => (
@@ -228,24 +248,26 @@ export default function EditProduct() {
                   <Hash size={16} /> Stock Disponible
                 </label>
                 <input
-                  type="number"
-                  min={0}
-                  value={form.quantity}
-                  onChange={(e) =>
-                    setForm({ ...form, quantity: Math.max(0, Number(e.target.value)) })
-                  }
-                />
+  className="w-full border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 border outline-none transition-all font-bold text-blue-600"
+  type="text"
+  inputMode="numeric"
+  value={form.quantity}
+  onChange={(e) => {
+    const value = e.target.value.replace(/\D/g, "");
+    setForm({ ...form, quantity: value });
+  }}
+/>
               </div>
 
               <div className="space-y-1">
                 <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <DollarSign size={16} /> Precio (USD)
+                  <DollarSign size={16} /> Precio (Arg)
                 </label>
                <input
   className="w-full border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 border outline-none transition-all font-bold text-blue-600"
   type="number"
   min={0}
-  step="0.01"
+  step="1"
   value={form.price}
   onChange={(e) =>
     setForm({

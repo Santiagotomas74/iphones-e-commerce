@@ -5,9 +5,11 @@ import { useState, useEffect } from "react";
 import { Menu, X, User, ShoppingBag, LogOut } from "lucide-react";
 import CartSidebar from "./CartSidebar";
 import type { NavbarProps } from "./Navbar.types";
+import { useRouter } from "next/navigation";
 
 
 export default function Navbar({ items, cartCount }: NavbarProps) {
+  const router = useRouter();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -48,10 +50,14 @@ export default function Navbar({ items, cartCount }: NavbarProps) {
         }
       }
 
-      const data = await res.json();
+      const data = await res.json(); 
+      
+      setUserName(data.user.name);
+      if (!data.user.name) setUserName(data.user.email); // fallback a email si no hay nombre
+
 
       setIsLoggedIn(true);
-      setUserName(data.user.name);
+      
 
     } catch {
       setIsLoggedIn(false);
@@ -122,8 +128,8 @@ useEffect(() => {
 
   setIsLoggedIn(false);
   setUserName(null);
-
-  window.location.href = "/";
+  router.refresh();
+  
 };
   useEffect(() => {
     const handleScroll = () => {

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { User, Mail, Lock, UserPlus, Phone, ArrowRight, Eye, EyeOff } from "lucide-react";
+import Swal from "sweetalert2";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -74,8 +75,15 @@ export default function Register() {
         setError(data.error || "Error al registrar usuario");
         return;
       }
-
-      window.location.href = "/login";
+        Swal.fire({
+            text: "Registro exitoso. Redirigiendo a inicio de sesión...",
+            icon: "success",
+            confirmButtonText: "Iniciar sesión",
+          })
+          .then(() => {
+            window.location.href = "/login";
+          });
+      
     } catch (err) {
       console.error(err);
       setError("Error del servidor");
