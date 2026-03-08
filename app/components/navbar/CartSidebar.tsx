@@ -400,7 +400,7 @@ const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
 </button>
         </div>
 
-        <div className="p-6 flex flex-col h-[85%]">
+        <div className="p-6 flex flex-col h-[85vh] overflow-y-auto">
 
           {cartItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center text-gray-500 gap-4">
