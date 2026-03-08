@@ -242,6 +242,47 @@ const addToCart = async (e: React.MouseEvent) => {
   }
 };
 
+const handleBuyNow = async () => {
+  try {
+    const res = await fetch("/api/me", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+
+      if (res.status === 401 && data?.error === "TokenExpired") {
+        const refresh = await fetch("/api/refresh", {
+          method: "POST",
+          credentials: "include",
+        });
+
+        if (!refresh.ok) {
+          Swal.fire({
+            icon: "info",
+            text: "Debes iniciar sesión para comprar",
+            confirmButtonText: "Iniciar sesión",
+          });
+          return;
+        }
+      } else {
+        Swal.fire({
+          icon: "info",
+          text: "Debes iniciar sesión para comprar",
+          confirmButtonText: "Iniciar sesión",
+        });
+        return;
+      }
+    }
+
+    // ✅ usuario válido
+    setStep("delivery");
+
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 
   return (
@@ -258,14 +299,14 @@ const addToCart = async (e: React.MouseEvent) => {
       {step === "initial" && (
         <>
           <button
-            onClick={() => setStep("delivery")}
-            className="w-full bg-black text-white px-6 py-4 rounded-2xl transition-all font-semibold flex flex-col items-center justify-center shadow-lg hover:bg-neutral-900 active:scale-[0.98]"
-          >
-            <span className="text-lg">Comprar ahora</span>
-            < span className="text-xs text-white/70 mt-1">
-              Envíos rápidos · Pago seguro
-            </span>
-          </button>
+  onClick={handleBuyNow}
+  className="w-full bg-black text-white px-6 py-4 rounded-2xl transition-all font-semibold flex flex-col items-center justify-center shadow-lg hover:bg-neutral-900 active:scale-[0.98]"
+>
+  <span className="text-lg">Comprar ahora</span>
+  <span className="text-xs text-white/70 mt-1">
+    Envíos rápidos · Pago seguro
+  </span>
+</button>
 <button
   onClick={addToCart}
   disabled={loading}
