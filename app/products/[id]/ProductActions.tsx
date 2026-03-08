@@ -435,8 +435,9 @@ const addToCart = async (e: React.MouseEvent) => {
       )}
 
       {/* 🔹 PASO 3 - PAGO */}
-    {step === "payment" && (
+{step === "payment" && (
   <div className="space-y-6">
+
     <button
       onClick={handleBack}
       className="text-sm text-gray-500 hover:text-black"
@@ -446,62 +447,89 @@ const addToCart = async (e: React.MouseEvent) => {
 
     <div className="space-y-4">
 
-      {/* 🔵 MERCADO PAGO */}
+      {/* MERCADO PAGO */}
       <div className="space-y-0">
         <button
           disabled={loading}
           onClick={() => createOrder("mercadopago")}
-          className="w-full bg-white hover:bg-gray-50 text-gray-800 py-4 rounded-t-2xl flex items-center justify-between px-5 font-semibold transition border border-gray-300 shadow-sm disabled:opacity-50"
+          className="w-full bg-white hover:bg-gray-50 active:scale-[0.99] transition-all border border-gray-200 rounded-2xl p-4 shadow-sm disabled:opacity-50"
         >
-          <div className="flex items-center gap-3">
-            <img
-              src="/image/Mercadopago.png"
-              alt="Mercado Pago"
-              className="h-7 w-auto"
-            />
-            <span>Mercado Pago</span>
-          </div>
+          <div className="flex items-center justify-between">
 
-          <span className="text-xs text-gray-500">
-            Tarjetas · Cuotas
-          </span>
-          <span className="text-ml text-gray-900">
+            <div className="flex items-center gap-3">
+              <img
+                src="/image/Mercadopago.png"
+                alt="Mercado Pago"
+                className="h-7 w-auto"
+              />
+
+              <div className="text-left">
+                <p className="font-semibold text-gray-900">
+                  Mercado Pago
+                </p>
+                <p className="text-xs text-gray-500">
+                  Tarjetas · Cuotas
+                </p>
+              </div>
+            </div>
+
+            <span className="text-lg font-bold text-gray-900">
               ${total.toLocaleString()}
-          </span>
+            </span>
+
+          </div>
         </button>
 
-        <div className="bg-blue-50 border border-blue-100 rounded-b-2xl px-5 py-3 text-xs text-blue-900">
+        <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 text-xs text-blue-900 mt-2">
           Compra protegida · Pago 100% seguro · Aceptamos todas las tarjetas
         </div>
       </div>
 
-      {/* ⚫ TRANSFERENCIA */}
+
+      {/* TRANSFERENCIA */}
       <div className="space-y-0">
+
         <button
           disabled={loading}
           onClick={() => createOrder("transfer")}
-          className="w-full bg-white hover:bg-gray-50 text-black py-4 rounded-t-2xl flex items-center justify-between px-5 font-semibold transition border border-gray-300 disabled:opacity-50"
+          className="w-full bg-white hover:bg-gray-50 active:scale-[0.99] transition-all border border-gray-200 rounded-2xl p-4 shadow-sm disabled:opacity-50"
         >
-          <div className="flex items-center gap-2">
-            <img
-              src="/image/transferencia.png"
-              alt="Transferencia bancaria"
-              className="h-7 w-auto"
-            />
-            <span>Transferencia bancaria</span>
-          </div>
+          <div className="flex items-center justify-between">
 
-          <span className="text-xs bg-green-400 px-3 py-1 rounded-full font-bold tracking-wide">
-            15% OFF
-          </span>
-            <span className="text-ml font-bold tracking-wide">
-              ${discountedTotal.toLocaleString()}
-          </span>
+            <div className="flex items-center gap-3">
+              <img
+                src="/image/transferencia.png"
+                alt="Transferencia bancaria"
+                className="h-7 w-auto"
+              />
+
+              <div className="text-left">
+                <p className="font-semibold text-gray-900">
+                  Transferencia bancaria
+                </p>
+                <p className="text-xs text-gray-500">
+                  Acreditación hasta 48 hs
+                </p>
+              </div>
+            </div>
+
+            <div className="text-right">
+              <span className="block text-lg font-bold text-gray-900">
+                ${discountedTotal.toLocaleString()}
+              </span>
+
+              <span className="text-xs bg-green-500 text-white px-2 py-1 rounded-full font-semibold">
+                15% OFF
+              </span>
+            </div>
+
+          </div>
         </button>
 
-        <div className="bg-green-50 border border-green-100 rounded-b-2xl px-5 py-3 text-xs text-green-900">
-          Ahorrás pagando por transferencia · Acreditación hasta 48hs
+        <div className="bg-green-50 border border-green-100 rounded-xl px-4 py-3 text-xs text-green-900 mt-2">
+          Ahorrás pagando por transferencia
         </div>
+
       </div>
 
     </div>
