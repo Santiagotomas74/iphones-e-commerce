@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { CreditCard } from "lucide-react";
 
 interface Address {
   street: string;
@@ -12,29 +11,14 @@ interface Address {
   address_description: string;
 }
 
-interface Payment {
-  id: number;
-  order_number: string;
-  amount: number;
-  provider: string;
-  status: string;
-}
-
 interface Props {
   address?: Address;
-  payments?: Payment[];
   onAddressUpdated?: (newAddress: Address) => void;
 }
 
-export default function UserAddress({
-  address,
-  payments = [],
-  onAddressUpdated,
-}: Props) {
+export default function UserAddress({ address, onAddressUpdated }: Props) {
   const [editing, setEditing] = useState(false);
-
-  console.log("Address en UserAddress:", address);
-
+    console.log("Address en UserAddress:", address);
   const [form, setForm] = useState<Address>({
     street: address?.street || "",
     altura: address?.altura || "",
@@ -45,53 +29,57 @@ export default function UserAddress({
   });
 
   const handleSave = async () => {
-    try {
-      let res = await fetch("/api/user/address", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+  try {
+    let res = await fetch("/api/user/address", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(form),
+    });
+
+    // 🔐 access token vencido
+    if (res.status === 401) {
+      console.log("Token vencido, intentando refresh...");
+
+      const refresh = await fetch("/api/refresh", {
+        method: "POST",
         credentials: "include",
-        body: JSON.stringify(form),
       });
 
-      // 🔐 access token vencido
-      if (res.status === 401) {
-        console.log("Token vencido, intentando refresh...");
-
-        const refresh = await fetch("/api/refresh", {
-          method: "POST",
+      if (refresh.ok) {
+        // 🔁 repetir request
+        res = await fetch("/api/user/address", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
           credentials: "include",
+          body: JSON.stringify(form),
         });
-
-        if (refresh.ok) {
-          // 🔁 repetir request
-          res = await fetch("/api/user/address", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify(form),
-          });
-        } else {
-          window.location.href = "/login";
-          return;
-        }
+      } else {
+        // refresh token vencido
+        window.location.href = "/login";
+        return;
       }
-
-      if (!res.ok) {
-        throw new Error("Error actualizando dirección");
-      }
-
-      const data = await res.json();
-
-      onAddressUpdated?.(data.address);
-      setEditing(false);
-    } catch (err) {
-      console.error("Error guardando dirección:", err);
     }
-  };
+
+    if (!res.ok) {
+      throw new Error("Error actualizando dirección");
+    }
+
+    const data = await res.json();
+
+    onAddressUpdated?.(data.address);
+    setEditing(false);
+
+  } catch (err) {
+    console.error("Error guardando dirección:", err);
+  }
+};
 
   return (
     <div className="border p-6 rounded shadow text-gray-900">
-      <h2 className="text-xl font-semibold mb-4">Dirección de Envío</h2>
+      <h2 className="text-xl font-semibold mb-4">
+        Dirección de Envío
+      </h2>
 
       {!editing ? (
         <>
@@ -104,61 +92,20 @@ export default function UserAddress({
               <p>
                 Ciudad: {address.city} - Provincia {address.province}
               </p>
-              <p>Descripción: {address.address_description}</p>
+              <p>
+                Descripción: {address.address_description}
+              </p>
             </>
           ) : (
             <p>No tenés dirección cargada.</p>
           )}
 
-          <section className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-8 mt-6">
-            <h2 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
-              <CreditCard size={20} className="text-gray-400" />
-              Historial de Pagos
-            </h2>
-
-            {payments.length === 0 ? (
-              <p className="text-gray-400 text-sm italic">
-                No hay pagos registrados.
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {payments.map((payment) => (
-                  <div
-                    key={payment.id}
-                    className="p-5 bg-gray-50 rounded-3xl border border-gray-100 hover:border-red-100 transition"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase">
-                          Orden #{payment.order_number}
-                        </p>
-
-                        <p className="font-bold text-gray-800 text-lg">
-                          ${Number(payment.amount).toLocaleString()}
-                        </p>
-                      </div>
-
-                      <span className="text-[9px] font-black px-2 py-0.5 rounded-lg bg-white border border-gray-100 text-gray-400 uppercase italic">
-                        {payment.provider}
-                      </span>
-                    </div>
-
-                    <p
-                      className={`text-[10px] mt-2 font-bold uppercase ${
-                        payment.status === "approved"
-                          ? "text-green-500"
-                          : payment.status === "rejected"
-                          ? "text-red-500"
-                          : "text-amber-500"
-                      }`}
-                    >
-                      ● {payment.status}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
+        <button
+  className="mt-6 w-full flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-500 text-amber-950 px-6 py-3 rounded-2xl font-bold text-sm transition-all duration-300 shadow-lg shadow-amber-200/50 active:scale-95 text-white text-bold shadow"
+>
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+  Editar Dirección
+</button>
         </>
       ) : (
         <div className="space-y-3">

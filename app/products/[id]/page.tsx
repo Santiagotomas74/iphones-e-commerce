@@ -2,6 +2,7 @@ import { query } from "@/db";
 import { notFound } from "next/navigation";
 import ProductGallery from "./ProductGallery";
 import ProductActions from "./ProductActions";
+import ScrollToTop from "./ScrollToTop";
 async function getProduct(id: string) {
   const { rows } = await query(
     `SELECT * FROM products WHERE id = $1`,
@@ -34,9 +35,11 @@ export default async function ProductDetail({
     product.image_3,
   ].filter(Boolean);
 
-  return (
+ return (
+  <>
+    <ScrollToTop />
+
     <main className="max-w-6xl mx-auto p-6 grid md:grid-cols-2 gap-10 mt-30">
-      
       <ProductGallery images={images} />
 
       <div>
@@ -46,14 +49,13 @@ export default async function ProductDetail({
           {product.memory} • {product.color}
         </p>
 
-      
-
-       <ProductActions productId={product.id} price={product.price} />
+        <ProductActions productId={product.id} price={product.price} />
 
         <p className="mt-6 text-gray-600">
           {product.description}
         </p>
       </div>
     </main>
-  );
+  </>
+);
 }
