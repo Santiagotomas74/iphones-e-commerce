@@ -146,21 +146,20 @@ useEffect(() => {
     deliveryType === "shipping"
       ? subtotal + shippingCost
       : subtotal;
-
-  const validateAddress = () => {
-    if (
-      !address.full_name ||
-      !address.street ||
-      !address.street_number ||
-      !address.city ||
-      !address.province ||
-      !address.postal_code
-    ) {
-      alert("Completá todos los campos obligatorios");
+const validateAddress = () => {
+    if (!address.full_name || !address.street || !address.street_number || !address.city || !address.province || !address.postal_code) {
+      Swal.fire({
+        icon: "warning",
+        title: "Faltan datos",
+        text: "Completá todos los campos obligatorios para continuar",
+        confirmButtonText: "Ok",
+        confirmButtonColor: "#2563eb"
+      });
       return false;
     }
     return true;
   };
+
   
 //actualizar cantidad en carrito
 const updateQuantity = async (productId: string, newQuantity: number) => {
@@ -553,12 +552,12 @@ const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
             </button>
                   </div>
                 )}
-               {checkoutStep === "address" && (
+  {checkoutStep === "address" && (
   <div className="space-y-5 bg-white p-4 sm:p-6 rounded-2xl border border-gray-200 shadow-sm w-full max-w-2xl mx-auto mb-5">
-
+    
     <button
       onClick={() => setCheckoutStep("delivery")}
-      className="text-sm text-gray-600 hover:text-black"
+      className="text-sm text-gray-600 hover:text-black flex items-center gap-1"
     >
       ← Volver
     </button>
@@ -569,114 +568,86 @@ const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
         Dirección de entrega
       </h3>
       <p className="text-sm text-gray-500 mt-1">
-        Completá los datos para recibir tu pedido.
+        Completá los datos obligatorios (*) para recibir tu pedido.
       </p>
     </div>
 
-    {/* Form */}
+    {/* Formulario */}
     <div className="space-y-4 text-black">
-
       <input
         placeholder="Nombre completo *"
         value={address.full_name}
         onChange={(e) => setAddress({ ...address, full_name: e.target.value })}
-        className="w-full bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
+        className="w-full bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
       />
 
       <input
-        placeholder="Teléfono"
+        placeholder="Teléfono *"
         value={address.phone}
         onChange={(e) => setAddress({ ...address, phone: e.target.value })}
-        className="w-full bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
+        className="w-full bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
       />
 
-      {/* Calle + Número */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <input
           placeholder="Calle *"
           value={address.street}
           onChange={(e) => setAddress({ ...address, street: e.target.value })}
-          className="sm:col-span-2 bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
+          className="sm:col-span-2 bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
         />
-
         <input
           placeholder="N° *"
           value={address.street_number}
-          onChange={(e) =>
-            setAddress({ ...address, street_number: e.target.value })
-          }
-          className="bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
+          onChange={(e) => setAddress({ ...address, street_number: e.target.value })}
+          className="bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
         />
       </div>
 
-      <input
-        placeholder="Departamento"
-        value={address.apartment}
-        onChange={(e) =>
-          setAddress({ ...address, apartment: e.target.value })
-        }
-        className="w-full bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
-      />
-
-      {/* Ciudad + Provincia */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <input
           placeholder="Ciudad *"
           value={address.city}
           onChange={(e) => setAddress({ ...address, city: e.target.value })}
-          className="bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
+          className="bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
         />
-
         <input
           placeholder="Provincia *"
           value={address.province}
-          onChange={(e) =>
-            setAddress({ ...address, province: e.target.value })
-          }
-          className="bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
+          onChange={(e) => setAddress({ ...address, province: e.target.value })}
+          className="bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
         />
       </div>
 
       <input
         placeholder="Código Postal *"
         value={address.postal_code}
-        onChange={(e) =>
-          setAddress({ ...address, postal_code: e.target.value })
-        }
-        className="w-full bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
-      />
-
-      <textarea
-        placeholder="Información adicional (opcional)"
-        value={address.additional_info}
-        onChange={(e) =>
-          setAddress({ ...address, additional_info: e.target.value })
-        }
-        className="w-full bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition resize-none"
-        rows={3}
+        onChange={(e) => setAddress({ ...address, postal_code: e.target.value })}
+        className="w-full bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
       />
     </div>
 
-    {/* Botón */}
+    {/* Botón con validación reforzada */}
     <button
-      onClick={() => setCheckoutStep("payment")}
-      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-semibold transition"
+      onClick={() => {
+        if (validateAddress()) {
+          setCheckoutStep("payment");
+        }
+      }}
+      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold shadow-lg active:scale-95 transition-all"
     >
-      Continuar al pago
+      Continuar Compra
     </button>
-
   </div>
 )}
-
                 {checkoutStep === "payment" && (
                   <div className="space-y-3 fade-step">
                     <button
-  onClick={() => setCheckoutStep("delivery")}
-  className="text-sm text-gray-700"
->
-  ← Volver
+             onClick={() => setCheckoutStep("delivery")}
+             className="text-sm text-gray-700"
+          >
+            ← Volver
     
-</button>
+         </button>
                     {/* Total dinámico */}
                     <div className="bg-neutral-100 p-3 rounded-xl text-sm">
                       <div className="flex justify-between text-gray-700">
