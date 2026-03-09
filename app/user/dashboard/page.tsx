@@ -323,7 +323,7 @@ export default function UserDashboard() {
             </section>
 
             {/* HISTORIAL DE PAGOS */}
-            <section className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-8">
+            {/* <section className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-8">
               <h2 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
                 <CreditCard size={20} className="text-gray-400" />
                 Historial de Pagos
@@ -351,7 +351,7 @@ export default function UserDashboard() {
                   ))}
                 </div>
               )}
-            </section>
+            </section> */}
 
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Mail, Lock, ArrowRight, Smartphone, Loader2 } from "lucide-react";
+import { Mail, Lock, ArrowRight, Smartphone, Loader2, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
@@ -10,6 +10,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,22 +103,37 @@ export default function Login() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex justify-between items-center px-1">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Password</label>
-                {/* <button type="button" className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline">Recuperar</button> */}
-              </div>
-              <div className="relative group">
-                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-black transition-colors" size={20} />
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-14 pr-6 py-5 bg-gray-50 border border-gray-100 rounded-[2rem] focus:bg-white focus:ring-4 focus:ring-purple-50 outline-none transition-all text-gray-700 font-medium"
-                  required
-                />
-              </div>
+        <div className="space-y-2">
+  <div className="flex justify-between items-center px-1">
+    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+      Password
+    </label>
+  </div>
+
+  <div className="relative group">
+    <Lock
+      className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-black transition-colors"
+      size={20}
+    />
+
+    <input
+      type={showPassword ? "text" : "password"}
+      placeholder="••••••••"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      className="w-full pl-14 pr-14 py-5 bg-gray-50 border border-gray-100 rounded-[2rem] focus:bg-white focus:ring-4 focus:ring-purple-50 outline-none transition-all text-gray-700 font-medium"
+      required
+    />
+
+    <button
+      type="button"
+      onClick={() => setShowPassword(!showPassword)}
+      className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition"
+    >
+      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+    </button>
+  </div>
+
             </div>
 
             <button

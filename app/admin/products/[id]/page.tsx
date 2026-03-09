@@ -223,19 +223,35 @@ export default function EditProduct() {
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Hash size={16} /> Stock Disponible
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  value={form.quantity}
-                  onChange={(e) =>
-                    setForm({ ...form, quantity: Math.max(0, Number(e.target.value)) })
-                  }
-                />
-              </div>
+     <div className="space-y-1">
+  <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+    <Hash size={16} /> Stock Disponible
+  </label>
+
+  <div className="relative">
+    <Hash
+      size={16}
+      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+    />
+
+    <input
+      type="number"
+      min={0}
+      value={form.quantity ?? ""}
+      onChange={(e) => {
+        const value = e.target.value;
+        const quantity = value === "" ? 0 : Math.max(0, Number(value));
+
+        setForm({
+          ...form,
+          quantity,
+        });
+      }}
+      className="w-full border border-gray-300 rounded-md pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+      placeholder="Cantidad en stock"
+    />
+  </div>
+</div>
 
               <div className="space-y-1">
                 <label className="text-sm font-medium text-gray-700 flex items-center gap-2">

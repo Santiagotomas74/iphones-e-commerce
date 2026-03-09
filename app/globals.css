@@ -113,3 +113,12 @@ body {
     animation: heroScrollX 70s linear infinite; /* también un poco más suave */
   }
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+
+:target {
+  scroll-margin-top: 100px;
+}

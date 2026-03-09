@@ -146,21 +146,20 @@ useEffect(() => {
     deliveryType === "shipping"
       ? subtotal + shippingCost
       : subtotal;
-
-  const validateAddress = () => {
-    if (
-      !address.full_name ||
-      !address.street ||
-      !address.street_number ||
-      !address.city ||
-      !address.province ||
-      !address.postal_code
-    ) {
-      alert("Completá todos los campos obligatorios");
+const validateAddress = () => {
+    if (!address.full_name || !address.street || !address.street_number || !address.city || !address.province || !address.postal_code) {
+      Swal.fire({
+        icon: "warning",
+        title: "Faltan datos",
+        text: "Completá todos los campos obligatorios para continuar",
+        confirmButtonText: "Ok",
+        confirmButtonColor: "#2563eb"
+      });
       return false;
     }
     return true;
   };
+
   
 //actualizar cantidad en carrito
 const updateQuantity = async (productId: string, newQuantity: number) => {
@@ -495,12 +494,12 @@ const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
 
                 {/* Flujo checkout */}
                 {!checkoutStep && (
-                  <button
-                    onClick={() => setCheckoutStep("delivery")}
-                    className="w-full bg-blue-600 text-white py-3 h-full rounded-xl mt-2 flex items-center justify-center gap-2"
-                  >
-                    Continuar con la compra
-                  </button>
+                <button
+                     onClick={() => setCheckoutStep("delivery")}
+                      className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 active:scale-95 transition-all"
+                    >
+                      Continuar con la compra
+                    </button>
                 )}
 
                 {checkoutStep === "delivery" && (
@@ -641,14 +640,17 @@ const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
 
 
     <button
-      onClick={() => setCheckoutStep("payment")}
-      className="w-full bg-blue-600 text-white py-3 rounded-xl"
-    >
-      Continuar al pago
+     onClick={() => {
+      if (!validateAddress()) return;
+       setCheckoutStep("payment");
+    }}
+       className="w-full bg-blue-600 text-white py-3 rounded-xl"
+   >
+       Continuar al pago
     </button>
 
-  </div>
-)}
+     </div>
+   )}
 
                 {checkoutStep === "payment" && (
                   <div className="space-y-3 fade-step">
