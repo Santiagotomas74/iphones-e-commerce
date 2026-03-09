@@ -1,3 +1,4 @@
+import Link from "next/link";
 export default function HeroIphone() {
   return (
     <section className="relative w-full px-4 sm:px-8 lg:px-16 py-10 sm:py-16">
@@ -26,9 +27,13 @@ export default function HeroIphone() {
     Desde $1.500.000
   </p>
 
+ 
+
+<Link href="/products/adfb48c8-b1fd-4692-a8b6-5d83a804938f">
   <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 sm:py-4 rounded-full shadow-md transition-all duration-300 hover:shadow-lg hover:scale-105">
     Comprar ahora
   </button>
+</Link>
 
 </div>
 
