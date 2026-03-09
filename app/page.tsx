@@ -61,7 +61,7 @@ export default async function HomePage() {
             <div className="text-center mb-14 mt-20">
              <h1
                className="text-4xl md:text-5xl font-medium text-gray-900 tracking-[-0.02em] transition-all duration-700 ease-out hover:tracking-[-0.01em]" >
-                 Acessorios originales
+                 Accesorios originales
                </h1>
                 <div className="mx-auto mt-4 h-[4px] w-30 bg-blue-500 hover:w-60 transition-all duration-500 ">          
         </div>

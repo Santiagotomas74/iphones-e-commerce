@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
+import jwt, { TokenExpiredError } from "jsonwebtoken";
 import { query } from "@/db";
 
 type TokenPayload = {
@@ -10,21 +10,21 @@ type TokenPayload = {
 
 export async function GET() {
   console.log("GET /api/user/me - Verificando token...");
-  try {
     const cookieStore = cookies();
     const token = (await cookieStore).get("tokenTtech")?.value;
-
     if (!token) {
       return NextResponse.json(
         { error: "No autorizado" },
         { status: 401 }
       );
     }
+  try {
 
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET!
     ) as TokenPayload;
+
 
     const result = await query(
       `
@@ -56,11 +56,18 @@ export async function GET() {
     });
 
   } catch (error) {
-    console.error("Error en /api/user/me:", error);
-
-    return NextResponse.json(
-      { error: "Token inválido o error interno" },
-      { status: 401 }
-    );
-  }
+    // TOKEN EXPIRADO
+        if (error instanceof TokenExpiredError) {
+          return NextResponse.json(
+            { error: "TokenExpired" },
+            { status: 401 }
+          );
+        }
+    
+        // TOKEN INVÁLIDO
+        return NextResponse.json(
+          { error: "InvalidToken" },
+          { status: 401 }
+        );
+      }
 }
