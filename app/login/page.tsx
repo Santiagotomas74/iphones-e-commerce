@@ -12,50 +12,70 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+  try {
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setLoading(false);
+
+      await Swal.fire({
+        icon: "error",
+        title: "Credenciales incorrectas",
+        text:  "El email o la contraseña no son válidos.",
+        confirmButtonColor: "#2563eb",
+        confirmButtonText: "Intentar nuevamente",
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.error || "Credenciales inválidas");
-        return;
-      }
-
-      if (data.role === "admin") {
-          Swal.fire({
-                    text: "Bienvenido admin. ",
-                    icon: "success",
-                    confirmButtonText: "Redirigir al panel de administración",
-                  })
-                  .then(() => {
-                    window.location.href = "/admin";
-                  });
-      
-      } else {
-        Swal.fire({
-          text: "Inicio de sesión exitoso. ",
-          icon: "success",
-          confirmButtonText: "Ir a la tienda",
-        }).then(() => {
-        window.location.href = "/"
-       });
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error al iniciar sesión");
-    } finally {
-      setLoading(false);
+      return;
     }
-  };
+
+    if (data.role === "admin") {
+      Swal.fire({
+        icon: "success",
+        title: "Bienvenido administrador",
+        text: "Accediendo al panel de administración.",
+        confirmButtonText: "Ir al panel",
+        confirmButtonColor: "#2563eb",
+      }).then(() => {
+        window.location.href = "/admin";
+      });
+
+    } else {
+      Swal.fire({
+        icon: "success",
+        title: "Inicio de sesión exitoso",
+        text: "Bienvenido nuevamente.",
+        confirmButtonText: "Ir a la tienda",
+        confirmButtonColor: "#2563eb",
+      }).then(() => {
+        window.location.href = "/";
+      });
+    }
+
+  } catch (err) {
+    console.error(err);
+
+    Swal.fire({
+      icon: "error",
+      title: "Error del servidor",
+      text: "No pudimos iniciar sesión. Intenta nuevamente.",
+      confirmButtonColor: "#ef4444",
+    });
+
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row bg-white overflow-hidden tracking-tight">
