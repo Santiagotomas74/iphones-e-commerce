@@ -79,7 +79,7 @@ export default function AdminShipping() {
 
   if (loading)
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+    <div className="flex flex-col items-center justify-center py-16 text-gray-500 ">
       <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mb-3" />
       <p className="text-sm font-medium animate-pulse">
         Cargando pedidos...
@@ -88,7 +88,7 @@ export default function AdminShipping() {
   );
 
   return (
-    <div className="max-w-6xl mx-auto py-10 space-y-6">
+    <div className="max-w-6xl mx-auto py-3 space-y-6 mb-15">
       <h1 className="text-3xl font-bold">Panel de Despachos</h1>
 
       {orders.length === 0 ? (

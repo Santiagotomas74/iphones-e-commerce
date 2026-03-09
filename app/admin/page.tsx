@@ -80,74 +80,130 @@ const handleDelete = async (id: string) => {
 };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex bg-white  ">
 
-      {/* SIDEBAR */}
-      <aside className="w-64 bg-white border-r border-gray-200 p-6 hidden md:block">
-        <h2 className="text-xl font-bold mb-8">Admin Panel</h2>
+     {/* SIDEBAR DESKTOP */}
+<aside className="hidden md:flex w-64 bg-white border-r border-gray-200 p-6 flex-col">
+  <h2 className="text-xl font-bold mb-8">Admin Panel</h2>
 
-        <nav className="flex flex-col gap-2">
+  <nav className="flex flex-col gap-2">
 
-          <button
-            onClick={() => setSection("products")}
-            className={`flex items-center gap-3 px-4 py-2 rounded-lg ${
-              section === "products"
-                ? "bg-indigo-100 text-indigo-700 font-medium"
-                : "text-gray-600 hover:bg-gray-100"
-            }`}
-          >
-            <Boxes size={18} />
-            Productos
-          </button>
+    <button
+      onClick={() => setSection("products")}
+      className={`flex items-center gap-3 px-4 py-2 rounded-lg ${
+        section === "products"
+          ? "bg-indigo-100 text-indigo-700 font-medium"
+          : "text-gray-600 hover:bg-gray-100"
+      }`}
+    >
+      <Boxes size={18} />
+      Productos
+    </button>
 
-          <button
-            onClick={() => setSection("orders")}
-            className={`flex items-center gap-3 px-4 py-2 rounded-lg ${
-              section === "orders"
-                ? "bg-indigo-100 text-indigo-700 font-medium"
-                : "text-gray-600 hover:bg-gray-100"
-            }`}
-          >
-            <ClipboardList size={18} />
-            Órdenes
-          </button>
+    <button
+      onClick={() => setSection("orders")}
+      className={`flex items-center gap-3 px-4 py-2 rounded-lg ${
+        section === "orders"
+          ? "bg-indigo-100 text-indigo-700 font-medium"
+          : "text-gray-600 hover:bg-gray-100"
+      }`}
+    >
+      <ClipboardList size={18} />
+      Órdenes
+    </button>
 
-          <button
-            onClick={() => setSection("shipping")}
-            className={`flex items-center gap-3 px-4 py-2 rounded-lg ${
-              section === "shipping"
-                ? "bg-indigo-100 text-indigo-700 font-medium"
-                : "text-gray-600 hover:bg-gray-100"
-            }`}
-          >
-            <Truck size={18} />
-            Despachos
-          </button>
+    <button
+      onClick={() => setSection("shipping")}
+      className={`flex items-center gap-3 px-4 py-2 rounded-lg ${
+        section === "shipping"
+          ? "bg-indigo-100 text-indigo-700 font-medium"
+          : "text-gray-600 hover:bg-gray-100"
+      }`}
+    >
+      <Truck size={18} />
+      Despachos
+    </button>
 
-          <button
-            onClick={() => setSection("finance")}
-            className={`flex items-center gap-3 px-4 py-2 rounded-lg ${
-              section === "finance"
-                ? "bg-indigo-100 text-indigo-700 font-medium"
-                : "text-gray-600 hover:bg-gray-100"
-            }`}
-          >
-            <BarChart3 size={18} />
-            Ingresos
-          </button>
+    <button
+      onClick={() => setSection("finance")}
+      className={`flex items-center gap-3 px-4 py-2 rounded-lg ${
+        section === "finance"
+          ? "bg-indigo-100 text-indigo-700 font-medium"
+          : "text-gray-600 hover:bg-gray-100"
+      }`}
+    >
+      <BarChart3 size={18} />
+      Ingresos
+    </button>
 
-        </nav>
-      </aside>
+  </nav>
+</aside>
 
+
+{/* NAV MOBILE */}
+<div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 h-20">
+
+  <div className="flex justify-around items-center h-full px-2">
+
+    <button
+      onClick={() => setSection("products")}
+      className={`flex flex-col items-center justify-center text-xs ${
+        section === "products"
+          ? "text-indigo-600"
+          : "text-gray-500"
+      }`}
+    >
+      <Boxes size={20} />
+      Productos
+    </button>
+
+    <button
+      onClick={() => setSection("orders")}
+      className={`flex flex-col items-center justify-center text-xs ${
+        section === "orders"
+          ? "text-indigo-600"
+          : "text-gray-500"
+      }`}
+    >
+      <ClipboardList size={20} />
+      Órdenes
+    </button>
+
+    <button
+      onClick={() => setSection("shipping")}
+      className={`flex flex-col items-center justify-center text-xs ${
+        section === "shipping"
+          ? "text-indigo-600"
+          : "text-gray-500"
+      }`}
+    >
+      <Truck size={20} />
+      Despachos
+    </button>
+
+    <button
+      onClick={() => setSection("finance")}
+      className={`flex flex-col items-center justify-center text-xs ${
+        section === "finance"
+          ? "text-indigo-600"
+          : "text-gray-500"
+      }`}
+    >
+      <BarChart3 size={20} />
+      Ingresos
+    </button>
+
+  </div>
+</div>
       {/* CONTENIDO */}
-      <main className="flex-1 p-4 md:p-8">
+      <main className="flex-1 p-4 md:p-8 md:pt-8">
 
         {/* PRODUCTOS */}
         {section === "products" && (
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-5xl mx-auto mb-15">
 
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 ">
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
                   Productos
@@ -159,7 +215,7 @@ const handleDelete = async (id: string) => {
 
               <Link
                 href="/admin/products/new"
-                className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-medium transition-all shadow-md active:scale-95"
+                className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-medium transition-all shadow-md active:scale-95 mb-2"
               >
                 <Plus size={20} />
                 Crear Producto

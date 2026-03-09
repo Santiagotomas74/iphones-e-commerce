@@ -60,7 +60,7 @@ export default function AdminOrders() {
     </div>;
 
   return (
-    <div className="max-w-6xl mx-auto py-10 space-y-6">
+    <div className="max-w-6xl mx-auto py-3 space-y-6 mb-15">
       <h1 className="text-3xl font-bold">Órdenes Pendientes de Validación</h1>
 
       {orders.length === 0 ? (

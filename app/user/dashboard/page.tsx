@@ -133,7 +133,38 @@ export default function UserDashboard() {
             </p>
           </div>
         </div>
+{/* STATS */}
+<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
+  <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+    <p className="text-xs text-gray-400 font-bold uppercase">Pedidos</p>
+    <p className="text-2xl font-black text-gray-900 mt-2">
+      {orders.length}
+    </p>
+  </div>
+
+  <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+    <p className="text-xs text-gray-400 font-bold uppercase">
+      Pagos registrados
+    </p>
+    <p className="text-2xl font-black text-gray-900 mt-2">
+      {payments.length}
+    </p>
+  </div>
+
+  <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+    <p className="text-xs text-gray-400 font-bold uppercase">
+      Total gastado
+    </p>
+    <p className="text-2xl font-black text-gray-900 mt-2">
+      $
+      {orders
+        .reduce((acc, o) => acc + Number(o.total_amount || 0), 0)
+        .toLocaleString()}
+    </p>
+  </div>
+
+</div>
         {/* GRID PRINCIPAL */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 

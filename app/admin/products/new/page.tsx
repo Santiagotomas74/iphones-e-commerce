@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { UploadCloud, Image as ImageIcon, Save } from "lucide-react";
+import { UploadCloud, Image as ImageIcon, Save, ArrowLeft } from "lucide-react";
 import Swal from "sweetalert2";
 
 type ImageField = "image_1" | "image_2" | "image_3";
@@ -125,6 +125,18 @@ const handleSubmit = async (e: React.FormEvent) => {
       <div className="max-w-4xl mx-auto space-y-8">
 
         {/* HEADER */}
+          {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <button 
+              onClick={() => router.push("/admin")}
+              className="flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-2"
+            >
+              <ArrowLeft size={20} className="mr-1" /> Volver al panel
+            </button>
+
+          </div>
+        </div>
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
             Crear Producto

@@ -2,9 +2,9 @@ import { LayoutDashboard } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#fafafa] text-gray-900 font-sans tracking-wide">
+    <div className="min-h-screen  text-gray-900 font-sans tracking-wide">
       {/* Header Minimalista */}
-      <header className="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-10">
+      <header className="border-b  bg-[#fafafa] border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center gap-3 ">
           {/* Icono sutil en color índigo/azul */}
           <div className="bg-indigo-50 p-2 rounded-lg text-indigo-600">
@@ -18,7 +18,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </header>
 
       {/* Contenido */}
-      <main className="max-w-6xl mx-auto p-6 md:p-8">
+      <main className="max-w-6xl mx-auto p-6 md:p-8 bg-white ">
         {children}
       </main>
     </div>

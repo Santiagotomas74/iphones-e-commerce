@@ -31,7 +31,7 @@ export default function AdminFinance() {
     </div>;
 
   return (
-    <div className="max-w-6xl mx-auto py-10 space-y-8">
+    <div className="max-w-6xl mx-auto py-3 space-y-8 mb-15">
       <h1 className="text-3xl font-bold">Panel de Ingresos</h1>
 
       {/* Resumen */}
