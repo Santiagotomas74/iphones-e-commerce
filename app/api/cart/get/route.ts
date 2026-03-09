@@ -4,7 +4,7 @@ import { query } from "@/db";
 export async function POST(req: Request) {
   try {
     const { email } = await req.json()
-    
+  
 
     const decodedEmail = decodeURIComponent(email);
     console.log("Email recibido en API:", decodedEmail);

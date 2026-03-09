@@ -399,7 +399,7 @@ const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
 </button>
         </div>
 
-        <div className="p-6 flex flex-col h-[85%]">
+        <div className="p-6 flex flex-col h-[85vh] overflow-y-auto">
 
           {cartItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center text-gray-500 gap-4">
@@ -486,24 +486,27 @@ const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
               </div>
               <div className="border-t pt-4 mt-4 space-y-4">
 
-                {/* Subtotal */}
+              
+
+                {/* Flujo checkout */}
+                {!checkoutStep && (
+                  <div>
+                    
+                  {/* Subtotal */}
                 <div className="flex justify-between text-gray-700">
                   <span>Subtotal</span>
                   <span>${subtotal.toLocaleString()}</span>
                 </div>
-
-                {/* Flujo checkout */}
-                {!checkoutStep && (
-                <button
-                     onClick={() => setCheckoutStep("delivery")}
-                      className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 active:scale-95 transition-all"
-                    >
-                      Continuar con la compra
-                    </button>
-                )}
+                  <button
+  onClick={() => setCheckoutStep("delivery")}
+  className="w-full bg-blue-600 text-white py-3.5 rounded-2xl mt-2 flex items-center justify-center gap-2 font-semibold tracking-wide shadow-md hover:bg-blue-700 hover:shadow-lg active:scale-[0.98] transition-all duration-200"
+>
+  Continuar con la compra
+</button>
+              </div> )}
 
                 {checkoutStep === "delivery" && (
-                  <div className="space-y-3 fade-step">
+                  <div className="space-y-3 fade-step mb-0">
                     <button
                    onClick={() => setCheckoutStep(null)}
                    className="text-sm text-gray-700"
@@ -549,118 +552,102 @@ const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
             </button>
                   </div>
                 )}
-                {checkoutStep === "address" && (
-              <div className="space-y-6 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-              <button
-                onClick={() => setCheckoutStep("delivery")}
-                className="text-sm  text-gray-700"
-                    >
-                 ← Volver
-              </button>
-              
-               {/* GRID FORM */}
-                 <div>
-    <h3 className="text-xl font-semibold text-gray-900">
-      Dirección de entrega
-    </h3>
-    <p className="text-sm text-gray-500 mt-1">
-      Completá los datos para recibir tu pedido.
-    </p>
-  </div>
-  <div className="space-y-4 text-black">
-
-    <input
-      placeholder="Nombre completo *"
-      value={address.full_name}
-      onChange={(e) => setAddress({ ...address, full_name: e.target.value })}
-      className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none transition"
-    />
-
-    <input
-      placeholder="Teléfono"
-      value={address.phone}
-      onChange={(e) => setAddress({ ...address, phone: e.target.value })}
-      className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none transition"
-    />
-
-    <div className="grid grid-cols-3 gap-3">
-      <input
-        placeholder="Calle *"
-        value={address.street}
-        onChange={(e) => setAddress({ ...address, street: e.target.value })}
-        className="col-span-2 bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
-      />
-
-      <input
-        placeholder="N° *"
-        value={address.street_number}
-        onChange={(e) => setAddress({ ...address, street_number: e.target.value })}
-        className="bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
-      />
-    </div>
-
-    <input
-      placeholder="Departamento"
-      value={address.apartment}
-      onChange={(e) => setAddress({ ...address, apartment: e.target.value })}
-      className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
-    />
-
-    <div className="grid grid-cols-2 gap-3">
-      <input
-        placeholder="Ciudad *"
-        value={address.city}
-        onChange={(e) => setAddress({ ...address, city: e.target.value })}
-        className="bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
-      />
-
-      <input
-        placeholder="Provincia *"
-        value={address.province}
-        onChange={(e) => setAddress({ ...address, province: e.target.value })}
-        className="bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
-      />
-    </div>
-
-    <input
-      placeholder="Código Postal *"
-      value={address.postal_code}
-      onChange={(e) => setAddress({ ...address, postal_code: e.target.value })}
-      className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition"
-    />
-
-    <textarea
-      placeholder="Información adicional (opcional)"
-      value={address.additional_info}
-      onChange={(e) => setAddress({ ...address, additional_info: e.target.value })}
-      className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl text-sm focus:ring-2 focus:ring-black outline-none transition resize-none"
-      rows={3}
-    />
-  </div>
-
-
+  {checkoutStep === "address" && (
+  <div className="space-y-5 bg-white p-4 sm:p-6 rounded-2xl border border-gray-200 shadow-sm w-full max-w-2xl mx-auto mb-5">
+    
     <button
-     onClick={() => {
-      if (!validateAddress()) return;
-       setCheckoutStep("payment");
-    }}
-       className="w-full bg-blue-600 text-white py-3 rounded-xl"
-   >
-       Continuar al pago
+      onClick={() => setCheckoutStep("delivery")}
+      className="text-sm text-gray-600 hover:text-black flex items-center gap-1"
+    >
+      ← Volver
     </button>
 
-     </div>
-   )}
+    {/* Header */}
+    <div>
+      <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
+        Dirección de entrega
+      </h3>
+      <p className="text-sm text-gray-500 mt-1">
+        Completá los datos obligatorios (*) para recibir tu pedido.
+      </p>
+    </div>
 
+    {/* Formulario */}
+    <div className="space-y-4 text-black">
+      <input
+        placeholder="Nombre completo *"
+        value={address.full_name}
+        onChange={(e) => setAddress({ ...address, full_name: e.target.value })}
+        className="w-full bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
+      />
+
+      <input
+        placeholder="Teléfono *"
+        value={address.phone}
+        onChange={(e) => setAddress({ ...address, phone: e.target.value })}
+        className="w-full bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
+      />
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <input
+          placeholder="Calle *"
+          value={address.street}
+          onChange={(e) => setAddress({ ...address, street: e.target.value })}
+          className="sm:col-span-2 bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
+        />
+        <input
+          placeholder="N° *"
+          value={address.street_number}
+          onChange={(e) => setAddress({ ...address, street_number: e.target.value })}
+          className="bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <input
+          placeholder="Ciudad *"
+          value={address.city}
+          onChange={(e) => setAddress({ ...address, city: e.target.value })}
+          className="bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
+        />
+        <input
+          placeholder="Provincia *"
+          value={address.province}
+          onChange={(e) => setAddress({ ...address, province: e.target.value })}
+          className="bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
+        />
+      </div>
+
+      <input
+        placeholder="Código Postal *"
+        value={address.postal_code}
+        onChange={(e) => setAddress({ ...address, postal_code: e.target.value })}
+        className="w-full bg-gray-50 border border-gray-200 p-3.5 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
+      />
+    </div>
+
+    {/* Botón con validación reforzada */}
+    <button
+      onClick={() => {
+        if (validateAddress()) {
+          setCheckoutStep("payment");
+        }
+      }}
+      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold shadow-lg active:scale-95 transition-all"
+    >
+      Continuar Compra
+    </button>
+  </div>
+)}
                 {checkoutStep === "payment" && (
                   <div className="space-y-3 fade-step">
                     <button
-  onClick={() => setCheckoutStep("delivery")}
-  className="text-sm text-gray-700"
->
-  ← Volver
+             onClick={() => setCheckoutStep("delivery")}
+             className="text-sm text-gray-700"
+          >
+            ← Volver
     
-</button>
+         </button>
                     {/* Total dinámico */}
                     <div className="bg-neutral-100 p-3 rounded-xl text-sm">
                       <div className="flex justify-between text-gray-700">
@@ -670,63 +657,80 @@ const handleCheckout = async (paymentMethod: "transfer" | "mercadopago") => {
                         </span>
                       </div>
                     </div>
-                    {/* MP */}
+{/* MERCADO PAGO */}
 <div className="space-y-0">
-                    <button
-                     disabled={loading}
-                     onClick={() => handleCheckout("mercadopago")}
-                        className="w-full bg-white hover:bg-gray-50 text-gray-800 py-4 rounded-t-2xl flex items-center justify-between px-5 font-semibold transition border border-gray-300 shadow-sm disabled:opacity-50"
-                    >
-                     <div className="flex items-center gap-3">
-            <img
-              src="/image/Mercadopago.png"
-              alt="Mercado Pago"
-              className="h-7 w-auto"
-            />
-            <span>Mercado Pago</span>
-          </div>
-
-          <span className="text-xs text-gray-500">
-            Tarjetas · Cuotas
-          </span>
-          <span className="text-ml text-gray-900">
-              ${total.toLocaleString()}
-          </span>
-        </button>
-         <div className="bg-blue-50 border border-blue-100 rounded-b-2xl px-5 py-3 text-xs text-blue-900">
-          Compra protegida · Pago 100% seguro · Aceptamos todas las tarjetas
+  <button
+    disabled={loading}
+    onClick={() => handleCheckout("mercadopago")}
+    className="w-full bg-white hover:bg-gray-50 active:scale-[0.99] transition-all border border-gray-200 rounded-2xl p-4 shadow-sm disabled:opacity-50"
+  >
+    <div className="flex items-center justify-between">
+      
+      <div className="flex items-center gap-3">
+        <img
+          src="/image/Mercadopago.png"
+          alt="Mercado Pago"
+          className="h-7 w-auto"
+        />
+        <div className="text-left">
+          <p className="font-semibold text-gray-900">Mercado Pago</p>
+          <p className="text-xs text-gray-500">Tarjetas · Cuotas</p>
         </div>
+      </div>
+
+      <span className="text-lg font-bold text-gray-900">
+        ${total.toLocaleString()}
+      </span>
+
+    </div>
+  </button>
+
+  <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 text-xs text-blue-900 mt-2">
+    Compra protegida · Pago 100% seguro · Aceptamos todas las tarjetas
+  </div>
+</div>
+
+
+{/* TRANSFERENCIA */}
+<div className="space-y-0 mt-3">
+  <button
+    disabled={loading}
+    onClick={() => handleCheckout("transfer")}
+    className="w-full bg-white hover:bg-gray-50 active:scale-[0.99] transition-all border border-gray-200 rounded-2xl p-4 shadow-sm disabled:opacity-50"
+  >
+    <div className="flex items-center justify-between">
+
+      <div className="flex items-center gap-3">
+        <img
+          src="/image/transferencia.png"
+          alt="Transferencia"
+          className="h-7 w-auto"
+        />
+        <div className="text-left">
+          <p className="font-semibold text-gray-900">
+            Transferencia bancaria
+          </p>
+          <p className="text-xs text-gray-500">
+            Acreditación hasta 48 hs
+          </p>
         </div>
+      </div>
 
-{/* transferencia */}
-<div className="space-y-0">
+      <div className="text-right">
+        <span className="block text-lg font-bold text-gray-900">
+          ${discountedTotal.toLocaleString()}
+        </span>
+        <span className="text-xs bg-green-500 text-white px-2 py-1 rounded-full font-semibold">
+          15% OFF
+        </span>
+      </div>
 
-                    <button
-                      disabled={loading}
-                     onClick={() => handleCheckout("transfer")}
-                     className="w-full bg-white hover:bg-gray-50 text-black py-4 rounded-t-2xl flex items-center justify-between px-5 font-semibold transition border border-gray-300 disabled:opacity-50"
-        
-                    >
-                      <div className="flex items-center gap-2">
-            <img
-              src="/image/transferencia.png"
-              alt="Transferencia bancaria"
-              className="h-7 w-auto"
-            />
-            <span>Transferencia bancaria</span>
-          </div>
+    </div>
+  </button>
 
-          <span className="text-xs bg-green-400 px-3 py-1 rounded-full font-bold tracking-wide">
-            15% OFF
-          </span>
-            <span className="text-ml font-bold tracking-wide">
-              ${discountedTotal.toLocaleString()}
-          </span>
-        </button>
-        <div className="bg-green-50 border border-green-100 rounded-b-2xl px-5 py-3 text-xs text-green-900">
-          Ahorrás pagando por transferencia · Acreditación hasta 48hs
-        </div>
-
+  <div className="bg-green-50 border border-green-100 rounded-xl px-4 py-3 text-xs text-green-900 mt-2">
+    Ahorrás pagando por transferencia
+  </div>
 </div>
                   </div>
                 )}

@@ -84,7 +84,7 @@ export default function UserOrders() {
   );
 
   return (
-    <div className="max-w-4xl mx-auto py-10 space-y-6 bg-black rounded-lg p-6">
+    <div className="max-w-4xl mx-auto py-10 space-y-6 bg-black rounded-xl p-6">
       <h1 className="text-3xl font-bold">Mis Pedidos</h1>
 
       {orders.length === 0 ? (

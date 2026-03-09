@@ -153,7 +153,21 @@ export async function sendReceiptUploadedEmail(
           <a href="${receiptUrl}" target="_blank">
             Ver comprobante
           </a>
+        
         </p>
+        
+          <a 
+          href="https://iphones-e-commerce.vercel.app/admin"
+          style="
+            background:black;
+            color:white;
+            padding:10px 16px;
+            border-radius:6px;
+            text-decoration:none;
+          "
+        >
+          ir a la administración
+        </a>
 
         <br/>
 
@@ -189,7 +203,7 @@ export async function sendAdminPaymentNotification(
         <br/>
 
         <a 
-          href="https://tutienda.com/admin/orders/${orderId}"
+          href="https://iphones-e-commerce.vercel.app/admin"
           style="
             background:black;
             color:white;

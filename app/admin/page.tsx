@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Swal from "sweetalert2";
 import {
   Plus,
   Pencil,
@@ -43,12 +44,40 @@ export default function AdminProducts() {
     }
   }, [section]);
 
-  const handleDelete = async (id: string) => {
-    if (confirm("¿Eliminar este producto?")) {
-      await fetch(`/api/products/${id}`, { method: "DELETE" });
-      fetchProducts();
-    }
-  };
+const handleDelete = async (id: string) => {
+  const result = await Swal.fire({
+    title: "¿Eliminar producto?",
+    text: "Esta acción no se puede deshacer.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#dc2626",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Sí, eliminar",
+    cancelButtonText: "Cancelar",
+    reverseButtons: true,
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    await fetch(`/api/products/${id}`, { method: "DELETE" });
+
+    await Swal.fire({
+      title: "Producto eliminado",
+      icon: "success",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    fetchProducts();
+  } catch (error) {
+    Swal.fire({
+      title: "Error",
+      text: "No se pudo eliminar el producto",
+      icon: "error",
+    });
+  }
+};
 
   return (
     <div className="flex min-h-screen bg-gray-100">

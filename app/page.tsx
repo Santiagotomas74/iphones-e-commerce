@@ -1,7 +1,7 @@
 import ProductCard from "./components/ProductCard";
 import { query } from "@/db";
 import Seciones from "@/app/components/Seciones";
-import { FaWhatsapp, FaChevronDown } from "react-icons/fa"; // Importamos el icono de flecha
+import { FaWhatsapp, FaChevronDown } from "react-icons/fa"; 
 import NewSection from "./components/NewSection/NewSection";
 import FadeInSection from "./components/FadeInSection";
 import PromoCard from "./consolas/PromoCard";
@@ -34,24 +34,31 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* SECCIÓN HERO CON FLECHA */}
+      {/* SECCIÓN HERO CON FLECHA INDICADORA */}
       <div className="relative">
         <ElegantHeroSection />
         
-        {/* Flecha indicadora hacia abajo */}
+        {/* Flecha con animación de rebote (Solo visible en tablets y desktop) */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 hidden md:block">
           <a 
             href="#nuestra-coleccion" 
-            className="flex flex-col items-center text-gray-100 hover:text-gray-900 transition-colors duration-300 animate-bounce group"
+            className="flex flex-col items-center text-gray-400 hover:text-gray-100 transition-colors duration-300 animate-bounce group"
           >
-            <span className="text-xs uppercase tracking-[0.2em] mb-2 opacity-0 group-hover:opacity-100 transition-opacity">Explorar</span>
+            <span className="text-xs uppercase tracking-[0.2em] mb-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              Explorar
+            </span>
             <FaChevronDown size={28} />
           </a>
         </div>
       </div>
 
-      <Seciones />
+      {/* Secciones de categorías/marcas */}
+      <Seciones />      
+
+      
       <main id="nuestra-coleccion" className="max-w-7xl mx-auto mt-20 tracking-wide mb-20 scroll-mt-24">
+        
+        {/* Encabezado de Colección */}
         <div className="text-center mb-14">
           <h1 className="text-4xl md:text-5xl font-medium text-gray-900 tracking-[-0.02em] transition-all duration-700 ease-out hover:tracking-[-0.01em]">
             Nuestra Colección
@@ -62,12 +69,14 @@ export default async function HomePage() {
           </span>
         </div>
 
+        {/* Grilla de Productos */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-10">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
 
+        {/* Encabezado de Accesorios */}
         <div className="text-center mb-14 mt-20">
           <h1 className="text-4xl md:text-5xl font-medium text-gray-900 tracking-[-0.02em] transition-all duration-700 ease-out hover:tracking-[-0.01em]">
             Accesorios originales
@@ -75,6 +84,7 @@ export default async function HomePage() {
           <div className="mx-auto mt-4 h-[4px] w-30 bg-blue-500 hover:w-60 transition-all duration-500"></div>
         </div>
 
+        {/* Grilla de Accesorios/Promos */}
         <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 justify-items-center gap-6 sm:gap-8 lg:gap-10 mt-12 mb-12">
           <PromoCard
             title="Cargador Magnetic"
@@ -94,7 +104,7 @@ export default async function HomePage() {
         </div>
       </main>
 
-      {/* BOTÓN WHATSAPP */}
+      {/* BOTÓN WHATSAPP FIJO */}
       <a
         href="https://wa.me/549XXXXXXXXXX"
         target="_blank"
