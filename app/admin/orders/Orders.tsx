@@ -69,7 +69,7 @@ export default function AdminOrders() {
         orders.map((order) => (
           <div
             key={order.id}
-            className="border p-6 rounded-xl shadow bg-white space-y-3"
+            className="border p-4 rounded-xl shadow bg-white space-y-3"
           >
             <div className="flex justify-between">
               <div>
