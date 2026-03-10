@@ -2,8 +2,6 @@ import ProductCard from "./components/ProductCard";
 import { query } from "@/db";
 import Seciones from "@/app/components/Seciones";
 import { FaWhatsapp, FaChevronDown } from "react-icons/fa"; 
-import NewSection from "./components/NewSection/NewSection";
-import FadeInSection from "./components/FadeInSection";
 import PromoCard from "./consolas/PromoCard";
 import ElegantHeroSection from "./components/ElegantHeroSection";
 

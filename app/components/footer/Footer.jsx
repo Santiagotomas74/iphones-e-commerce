@@ -1,5 +1,4 @@
-
-import { Facebook, Instagram, Mail } from "lucide-react";
+import { Facebook, Instagram, Mail, Linkedin } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -18,7 +17,6 @@ export default function Footer() {
               Tecnología premium al mejor precio.
             </p>
 
-            {/* Redes */}
             <div className="flex justify-center sm:justify-start gap-4">
               
               <a
@@ -77,8 +75,48 @@ export default function Footer() {
 
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-gray-700 mt-10 sm:mt-12 pt-6 text-center text-xs sm:text-sm text-gray-500">
+       
+        <div className="border-t border-gray-700 mt-12 pt-6">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-gray-400">
+            <span className="text-center">
+              Proyecto desarrollado por
+            </span>
+            <div className="flex items-center gap-4">   
+              <span className="font-medium text-white">Santiago T.</span>
+              <a
+                href="https://www.linkedin.com/in/santiago-taher-239008317/"
+                target="_blank"
+                className="hover:text-white transition"
+              >
+                <Linkedin size={18} />
+              </a>
+              <a
+                href="mailto:santiago_lucas1@hotmail.com"
+                className="hover:text-white transition"
+              >
+                <Mail size={18} />
+              </a>
+            </div>
+            <div className="flex items-center gap-4">             
+              <span className="font-medium text-white">Maxi Anguita</span>
+             <a
+              href="https://www.linkedin.com/in/maximo-anguita-944774256/"
+              target="_blank"
+              rel="noopener noreferrer"
+               className="hover:text-white transition"
+             >
+              <Linkedin size={18} />
+              </a>
+              <a
+                href="mailto:maximoanguita@gmail.com"
+                className="hover:text-white transition"
+              >
+                <Mail size={18} />
+              </a>
+           </div>
+          </div>
+        </div>
+        <div className="mt-6 text-center text-xs sm:text-sm text-gray-500">
           © 2026 TechStore. Todos los derechos reservados.
         </div>
 
