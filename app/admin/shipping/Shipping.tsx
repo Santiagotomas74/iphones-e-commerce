@@ -104,8 +104,22 @@ export default function AdminShipping() {
                 <p><strong>Orden:</strong> {order.order_number}</p>
                 <p><strong>Cliente:</strong> {order.user_email}</p>
                 <p><strong>Total:</strong> ${order.total_amount}</p>
-                <p><strong>Tipo:</strong> {order.delivery_type}</p>
-                <p><strong>Estado actual:</strong> {order.order_status}</p>
+               <p>
+  <strong>Tipo:</strong>{" "}
+  {order.delivery_type === "pickup"
+    ? "Retiro en local"
+    : "Entrega a domicilio"}
+</p>
+                <p>
+  <strong>Estado actual:</strong>{" "}
+  {order.order_status === "dispatch"
+    ? "Pendiente"
+    : order.order_status === "in_transit"
+    ? "En camino"
+    : order.order_status === "delivered"
+    ? "Entregado"
+    : order.order_status}
+</p>
               </div>
               <p className="text-sm text-gray-500">
                 {new Date(order.created_at).toLocaleDateString()}
@@ -174,7 +188,7 @@ export default function AdminShipping() {
                 onClick={() => updateStatus(order.id, "in_transit")}
                 className={`px-4 py-2 rounded-lg ${
                   order.order_status === "in_transit"
-                    ? "bg-black text-white"
+                    ? "bg-blue-600 text-white"
                     : "bg-gray-200"
                 }`}
               >
