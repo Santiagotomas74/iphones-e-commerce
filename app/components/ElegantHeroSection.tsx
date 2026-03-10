@@ -1,3 +1,6 @@
+import {FaChevronDown } from "react-icons/fa"; 
+
+
 export default function IphoneHeroElegant() {
   return (
     <section className="relative w-full overflow-hidden lg:h-[90vh] h-[75vh] bg-black">
@@ -27,22 +30,38 @@ export default function IphoneHeroElegant() {
           min-h-[75vh]
         "
       >
-     <div className="absolute top-10 left-1/2 -translate-x-1/2 text-center flex flex-col items-center">
-  <h2 className="text-lg sm:text-2xl font-black uppercase italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-gray-100 mb-3">
-    Bienvenido al    
-    <span className="text-orange-600 not-italic ml-2 drop-shadow-[0_0_8px_rgba(234,88,12,0.4)]">
-      SIGUIENTE NIVEL
-    </span>
+   <div className="absolute top-1/5 sm:top-12 left-1/2 -translate-x-1/2 text-center flex flex-col items-center max-w-2xl">
+
+  {/* Parte superior */}
+<div className="flex flex-col items-center justify-center text-center px-4">
+
+  <h2 className="
+    text-sm
+    sm:text-base
+    tracking-[0.25em]
+    uppercase
+    text-gray-400
+    mb-3
+  ">
+    Tecnología de nueva generación
   </h2>
-  <h1 className="text-5xl sm:text-8xl font-black uppercase tracking-tight leading-[0.9]">
-    <span className="bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-yellow-400 ">
+
+  <h1 className="
+    text-6xl
+    sm:text-8xl
+    font-extrabold
+    tracking-tight
+    leading-[0.95]
+  ">
+    <span className="bg-clip-text text-transparent bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-400 drop-shadow-[0_0_20px_rgba(255,140,0,0.35)]">
       TechStore
     </span>
   </h1>
-  <p className="mt-6 text-gray-300 text-sm sm:text-lg max-w-md border-l-2 border-orange-600 pl-4 text-left">
-    Potencia redefinida. Diseño impecable. <br />
-    La experiencia más avanzada jamás creada.
-  </p>
+
+</div>
+ 
+
+
 </div>
      </div>
     </section>

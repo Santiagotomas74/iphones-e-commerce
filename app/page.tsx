@@ -37,7 +37,7 @@ export default async function HomePage() {
         <ElegantHeroSection />
         
         {/* Flecha con animación de rebote (Solo visible en tablets y desktop) */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 hidden md:block">
+        <div className="absolute bottom-10  left-1/2 -translate-x-1/2 z-20 ">
           <a 
             href="#nuestra-coleccion" 
             className="flex flex-col items-center text-gray-400 hover:text-gray-100 transition-colors duration-300 animate-bounce group"

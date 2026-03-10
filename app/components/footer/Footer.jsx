@@ -82,7 +82,7 @@ export default function Footer() {
               Proyecto desarrollado por
             </span>
             <div className="flex items-center gap-4">   
-              <span className="font-medium text-white">Santiago T.</span>
+              <span className="font-medium text-white">Santiago Taher</span>
               <a
                 href="https://www.linkedin.com/in/santiago-taher-239008317/"
                 target="_blank"
