@@ -3,7 +3,7 @@ import {FaChevronDown } from "react-icons/fa";
 
 export default function IphoneHeroElegant() {
   return (
-    <section className="relative w-full overflow-hidden lg:h-[90vh] h-[75vh] bg-black">
+    <section className="relative w-full overflow-hidden lg:h-[90vh] h-[83vh] bg-black">
       <div
         className="
           absolute inset-0
