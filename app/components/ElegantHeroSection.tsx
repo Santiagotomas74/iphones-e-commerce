@@ -1,8 +1,6 @@
 export default function IphoneHeroElegant() {
   return (
     <section className="relative w-full overflow-hidden lg:h-[90vh] h-[75vh] bg-black">
-
-      {/* Fondo */}
       <div
         className="
           absolute inset-0
@@ -16,38 +14,37 @@ export default function IphoneHeroElegant() {
           backgroundImage: 'url("/image/19.png")',
         }}
       />
-
-      {/* Overlay SOLO en desktop */}
-      <div className=" sm:block absolute inset-0 bg-black/10 lg:bg-black/40" />
-
-      {/* Contenido */}
+      <div className="absolute inset-0 bg-black/10 lg:bg-black/40" />
       <div
         className="
           relative z-10
-          flex flex-col items-center
-          justify-start sm:justify-center
+          flex flex-col
+          items-center
+          justify-center
           text-center
-          mt-20 sm:mt-0
           px-6
-          pt-24 sm:pt-0
-          sm:min-h-screen
+          h-full
+          min-h-[75vh]
         "
       >
-
-        <p className="text-gray-300 tracking-widest text-xs sm:text-sm uppercase">
-          Presentamos
-        </p>
-
-        <h1 className="mt-4 text-4xl sm:text-6xl lg:text-7xl font-light text-white tracking-[-0.03em] leading-tight">
-          iPhone 17 Pro Max
-        </h1>
-
-        <p className="mt-6 text-gray-300 text-base sm:text-lg max-w-xl">
-          Potencia redefinida. Diseño impecable.
-          La experiencia más avanzada jamás creada.
-        </p>
-
-      </div>
+     <div className="absolute top-10 left-1/2 -translate-x-1/2 text-center flex flex-col items-center">
+  <h2 className="text-lg sm:text-2xl font-black uppercase italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-gray-100 mb-3">
+    Bienvenido al    
+    <span className="text-orange-600 not-italic ml-2 drop-shadow-[0_0_8px_rgba(234,88,12,0.4)]">
+      SIGUIENTE NIVEL
+    </span>
+  </h2>
+  <h1 className="text-5xl sm:text-8xl font-black uppercase tracking-tight leading-[0.9]">
+    <span className="bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-yellow-400 ">
+      TechStore
+    </span>
+  </h1>
+  <p className="mt-6 text-gray-300 text-sm sm:text-lg max-w-md border-l-2 border-orange-600 pl-4 text-left">
+    Potencia redefinida. Diseño impecable. <br />
+    La experiencia más avanzada jamás creada.
+  </p>
+</div>
+     </div>
     </section>
   );
 }
