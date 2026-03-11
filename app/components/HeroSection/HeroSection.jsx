@@ -20,7 +20,7 @@ export default function HeroIphone() {
   </h1>
 
   <p className="text-gray-600 text-base sm:text-lg md:text-xl mb-6">
-    Más potencia. Más carácter. Nuevo acabado Orange
+    Más potencia. Más carácter.
   </p>
 
   <p className="text-2xl sm:text-3xl md:text-4xl font-medium text-gray-900 mb-8">
