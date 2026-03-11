@@ -24,7 +24,7 @@ export default function HeroIphone() {
   </p>
 
   <p className="text-2xl sm:text-3xl md:text-4xl font-medium text-gray-900 mb-8">
-    Desde $1.500.000
+    Desde $2.500.000
   </p>
 
  
